@@ -1,0 +1,358 @@
+---
+title: "Module 0: Formalities"
+subtitle: "Applied Econometrics"
+author: 
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+lang: en
+format: 
+  revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+---
+
+# Semester Plan
+
+## Content Plan
+
+<table style="border-collapse: collapse; width: 100%; font-size: 22px; margin-left: 40px; margin-right: 40px; margin-bottom: 20px;">
+  <thead>
+    <tr>
+      <th style="border-bottom: 1px solid #000; padding: 4px; text-align: left;">Date</th>
+      <th style="border-bottom: 1px solid #000; padding: 4px; text-align: center;">Time</th>
+      <th style="border-bottom: 1px solid #000; padding: 4px; text-align: center;">Location</th>
+      <th style="border-bottom: 1px solid #000; padding: 4px; text-align: left;">Topics</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 05.03.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 1: Time Series and Autocorrelation</td>
+    </tr>
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 12.03.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 1: Time Series and Autocorrelation</td>
+    </tr>
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 19.03.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 1: Time Series and Autocorrelation</td>
+    </tr>
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 26.03.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 1: Time Series and Autocorrelation</td>
+    </tr>
+
+    <tr>
+      <td style="padding: 4px; border: none; background-color: #eaeaea; font-style: italic; text-align: center;" colspan="5">Easter Break</td>
+    </tr>
+
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 09.04.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 2: Panel Data</td>
+    </tr>
+
+    <tr>
+      <td style="padding: 4px; border: none; background-color: #eaeaea; font-style: italic; text-align: center;" colspan="5">Break</td>
+    </tr>
+
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 23.04.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 2: Panel Data</td>
+    </tr>
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 30.04.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 2: Panel Data</td>
+    </tr>
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 07.05.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 3: Further Issues and Topics</td>
+    </tr>
+
+    <tr>
+      <td style="padding: 4px; border: none; background-color: #eaeaea; font-style: italic; text-align: center;" colspan="5">Break</td>
+    </tr>
+
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 21.05.2026</td>
+      <td style="padding: 4px; border: none; text-align: center;">14:00–16:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.21</td>
+      <td style="padding: 4px; border: none; text-align: center; background-color: var(--primary-color-lightened); font-weight: bold;">Final Exam (40%)</td>
+    </tr>
+
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 28.05.2026</td>
+      <td style="padding: 4px; border: none; text-align: center; font-weight: bold; color: var(--primary-color);">14:00–17:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: center; background-color: var(--primary-color-lightened); font-weight: bold;">Presentations (30%)</td>
+    </tr>
+
+    <tr>
+      <td style="padding: 4px; border: none;">Thu, 11.06.2026</td>
+      <td style="padding: 4px; border: none; text-align: center; font-weight: bold; color: var(--primary-color);">14:00–17:00</td>
+      <td style="padding: 4px; border: none; text-align: center;">TC.3.11</td>
+      <td style="padding: 4px; border: none; text-align: center; background-color: var(--primary-color-lightened); font-weight: bold;">Presentations (30%)</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+# Assessment Criteria
+
+## Components (1)
+
+:::{.incremental}
+- **Final Exam** 
+  - 40%
+  - Cheat Sheet allowed (details to follow)
+- **Project Submission**
+   - 30% 
+   - To be conducted alone or in pairs
+   - [**Goal**]{.col1}: Apply econometric methods by conducting a research project from start to finish for the first time
+   - Can continue an Econometrics II project, if you did one
+   - Can serve as inspiration for the bachelor thesis
+:::
+
+## Components (2)
+
+:::{.incremental}
+- **Project Presentation**
+   - 20% 
+   - Presentation of your project submission, thus in the same groups
+   - About 20 minutes, with questions allowed throughout and no separate discussion (details to follow)
+- **Active Participation**
+  - 10%
+  - To get full points, you must actively participate in at least 4 lectures (lectures end before the exam). 
+  - [**Attendance**]{.col1} ≠ [**Participation**]{.col2} 
+:::                                   
+
+
+## Grading Scheme
+
+. . .
+
+- The components are **weighted** as outlined above. The final grade is then determined by the following scale:
+
+| Grade |                | from   | to      |
+|-------|----------------|:------:|:-------:|
+| 1     | Excellent      | 87.5 % |         |
+| 2     | Good           | 75.0 % | < 87.5 %|
+| 3     | Satisfactory   | 62.5 % | < 75.0 %|
+| 4     | Sufficient     | 50.0 % | < 62.5 %|
+| 5     | Fail           |        | < 50.0 %|
+
+: {.striped .noborder}
+
+. . .
+
+- **No rounding** is applied.
+
+
+# Textbooks
+
+## Cunningham (2021): Causal Inference. The Mixtape
+
+::::{.columns}
+:::{.column width=40%}
+![](figures/cunningham.jpg){.nostretch height="600px"}
+:::
+:::{.column width=60%}
+::: {.fragment}
+#### Type of Literature
+* Available in print and online
+* Supplementary reading for most topics
+:::
+::: {.fragment}
+#### Availability
+* Freely available at [mixtape.scunning.com](https://mixtape.scunning.com/)
+* Only one copy at the library, usually not available
+:::
+:::
+::::
+
+## Wooldridge (2020): Introductory Econometrics
+
+::::{.columns}
+:::{.column width=40%}
+![](figures/wooldridge.jpg)
+:::
+:::{.column width=60%}
+::: {.fragment}
+#### Type of Literature
+* Good for Review of econometrics I
+:::
+::: {.fragment}
+#### Availability
+* Available at the WU library, PDFs of older editions can be found online
+:::
+::: {.fragment}
+#### Edition
+* We use the 7th edition, but older editions can also be used (mostly differ in page numbers, etc.)
+:::
+:::
+::::
+
+## Stock & Watson (2019): Introduction to Econometrics
+
+::::{.columns}
+:::{.column width=40%}
+![](figures/stockwatson.jpg)
+:::
+:::{.column width=60%}
+::: {.fragment}
+#### Type of Literature
+* Supplementary textbook
+:::
+::: {.fragment}
+#### Availability
+* Online access via WU library catalog
+:::
+:::
+::::
+
+## Angrist & Pischke (2008): Mostly Harmless Econometrics
+
+::::{.columns}
+:::{.column width=40%}
+![](figures/angristpischke.jpg){.nostretch height="600px"}
+:::
+:::{.column width=60%}
+::: {.fragment}
+#### Type of Literature
+* Supplementary literature on advanced topics
+:::
+::: {.fragment}
+#### Availability
+* Available at the WU library
+:::
+:::
+::::
+
+## Hanck et al. (2024): Intro to Econometrics with R
+
+::::{.columns}
+:::{.column width=40%}
+![](figures/econometrics-with-r.png)
+:::
+:::{.column width=60%}
+::: {.fragment}
+#### Type of Literature
+* Online textbook
+* Useful supplementary material especially for working with R
+:::
+::: {.fragment}
+#### Availability
+* Freely available at [econometrics-with-r.org](https://econometrics-with-r.org)
+:::
+:::
+::::
+
+
+## James et al. (2021): An Introduction to Statistical Learning
+
+::::{.columns}
+:::{.column width=40%}
+![](figures/intro-stat-learn.webp){.nostretch height="600px"}
+:::
+:::{.column width=60%}
+::: {.fragment}
+#### Type of Literature
+* Textbook
+* Used as base for some of Module 1
+:::
+::: {.fragment}
+#### Availability
+* Available at the WU Library
+:::
+:::
+::::
+
+## James et al. (2021): An Introduction to Statistical Learning
+
+::::{.columns}
+:::{.column width=40%}
+![](figures/tbow.webp){.nostretch height="600px"}
+:::
+:::{.column width=60%}
+::: {.fragment}
+#### Type of Literature
+* Textbook
+* Background reading materal for Module 2
+:::
+::: {.fragment}
+#### Availability
+* Available at the WU Library
+:::
+:::
+::::
+
+
+# Statistical Software
+
+## R, Stata, Python 
+
+:::: {.columns}
+::: {.column width="70%"}
+<ul>
+  <li class="fragment" data-fragment-index="1">For your project, you will need to <strong>apply</strong> what we have learned using real data.</li>
+  <li class="fragment" data-fragment-index="2">You might also work with data in the <strong>future</strong>.</li>
+  <li class="fragment" data-fragment-index="3">
+    You are generally free to choose which <strong>software</strong> you use to complete the tasks, as you will be in real life (results should be more or less the same):
+    <ul>
+      <li class="fragment" data-fragment-index="4"><strong>R</strong> is widely used, open source, and free. Code examples in this course are provided in R.</li>
+      <li class="fragment" data-fragment-index="5"><strong>Stata</strong> is proprietary but preferred by some economists.</li>
+      <li class="fragment" data-fragment-index="6"><strong>Python</strong></li>
+      <li class="fragment" data-fragment-index="7"><strong>Eviews</strong></li>
+      <li class="fragment" data-fragment-index="8"><strong>Julia</strong></li>
+      <li class="fragment" data-fragment-index="9"><strong>Microsoft Excel</strong> (just don't)</li>
+    </ul>
+  </li>
+</ul>
+:::
+::: {.column width="30%"}
+::: {.fragment data-fragment-index="4"}
+![](figures/r.png){.nostretch height="200px"}
+:::
+::: {.fragment data-fragment-index="5"}
+![](figures/stata.png){.nostretch height="100px"}
+:::
+::: {.fragment data-fragment-index="6"}
+![](figures/python.png){.nostretch height="200px"}
+:::
+:::
+::::
+

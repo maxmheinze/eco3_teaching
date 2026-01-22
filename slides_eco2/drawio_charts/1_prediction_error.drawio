@@ -1,0 +1,106 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="28.0.6">
+  <diagram name="Page-1" id="vxABAvUUDXLqjkw40PZb">
+    <mxGraphModel dx="517" dy="641" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-20" value="" style="endArrow=oval;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;strokeColor=#FFFFFF;dashed=1;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-10" y="-110" as="sourcePoint" />
+            <mxPoint x="-60" y="-110" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-19" value="" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;dashed=1;dashPattern=1 2;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="80" y="-133" as="sourcePoint" />
+            <mxPoint x="80" y="-113" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-18" value="" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;dashed=1;dashPattern=1 2;strokeColor=#B3B3B3;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-10" y="-110" as="sourcePoint" />
+            <mxPoint x="-10" y="-80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-11" value="" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;dashed=1;dashPattern=1 2;strokeColor=#B3B3B3;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="210" y="-80" as="sourcePoint" />
+            <mxPoint x="210" y="-70" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-10" value="" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;dashed=1;dashPattern=1 2;strokeColor=#B3B3B3;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="-110" as="sourcePoint" />
+            <mxPoint x="170" y="-70" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-3" value="" style="endArrow=oval;startArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;strokeColor=#ED017D;startFill=0;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="80" y="-110.5" as="sourcePoint" />
+            <mxPoint x="170" y="-110.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-2" value="true value" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;" vertex="1" parent="1">
+          <mxGeometry x="50" y="-150" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-4" value="prediction error" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;fontStyle=1;fontColor=#4072C2;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="-20" y="-130" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-5" value="prediction error" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;fontStyle=1;fontColor=#ED017D;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="-130" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-6" value="reducible error" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;fontStyle=1;fontColor=#ED017D;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="-100" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-7" value="" style="endArrow=oval;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;strokeColor=#ED017D;dashed=1;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="80" y="-80" as="sourcePoint" />
+            <mxPoint x="210" y="-80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-8" value="" style="endArrow=oval;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;strokeColor=#ED017D;dashed=1;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="210" y="-70" as="sourcePoint" />
+            <mxPoint x="170" y="-70" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-9" value="" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;dashed=1;dashPattern=1 2;strokeColor=#B3B3B3;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="79.75" y="-100" as="sourcePoint" />
+            <mxPoint x="79.75" y="-80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-12" value="irreducible&lt;div&gt;error&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;fontStyle=1;fontColor=#ED017D;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="140" y="-60" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-13" value="" style="endArrow=oval;startArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;strokeColor=#4072C2;startFill=0;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="80" y="-110.5" as="sourcePoint" />
+            <mxPoint x="-10" y="-110.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-14" value="" style="endArrow=oval;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;strokeColor=#4072C2;dashed=1;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="80" y="-80" as="sourcePoint" />
+            <mxPoint x="30" y="-80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-15" value="" style="endArrow=oval;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;strokeColor=#4072C2;dashed=1;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="30" y="-80" as="sourcePoint" />
+            <mxPoint x="-10" y="-80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-16" value="reducible error" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;fontStyle=1;fontColor=#4072C2;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="-70" width="50" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-17" value="irreducible&lt;div&gt;error&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;fontStyle=1;fontColor=#4072C2;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="-20" y="-70" width="50" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="Ijb0JI-0XOM0sRmQDA-p-1" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="70" y="-120" width="20" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

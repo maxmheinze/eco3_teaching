@@ -1,0 +1,953 @@
+---
+title: "Module 4: Instrumental Variables"
+subtitle: "Econometrics II"
+author:
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+date: "2025-12-04"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+      - appxslideno.lua
+      - pdf-to-svg.lua
+      - space.lua
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @james2021
+  @cunningham2021
+  @pearl2009
+  @borusyak2025
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+```{r}
+#| label: setup
+#| include: false
+library(plotly)
+font_family <- "Inter" 
+```
+
+
+# What are Instrumental Variables
+
+## Endogeneity: Is all Hope Lost?
+
+[We have discussed why [**confounders**]{.col1} are a source of **endogeneity**.]{.fragment data-fragment-index="1"}
+
+[Imagine the confounder is unobserved. How can we fend off this **threat to identification**?]{.fragment data-fragment-index="3"}
+
+:::{.centering}
+:::{.r-stack}
+[![](figures/4_intro1.svg){.fragment .fade-out width="50%" data-fragment-index="4"}]{.fragment .fade-in data-fragment-index="2"}
+
+![](figures/4_intro2.svg){.fragment width="50%" data-fragment-index="4"}
+:::
+:::
+
+[The **basic idea** is: If we can find a so-called [**instrumental variable**]{.col2} that explains the endogenous regressor, we can use this variable to **circumvent the issue**. We can also use this technique to deal with **other sources of endogeneity**.]{.fragment data-fragment-index="4"}
+
+<!--
+\documentclass[tikz]{standalone}
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, draw, align=center] (I) at (-2,-2) {interest in\\data};
+  \node[circle, draw, align=center] (A) at (0,0) {studying\\econometrics};
+  \node[circle, draw, align=center] (B) at (4,0) {doing\\important\\research};
+  \node[circle, draw, align=center] (C) at (2,-2) {being\\really\\smart};
+  \draw[->, thick] (A) to[in=140, out=40] (B);
+  \draw[<-, thick] (B) to[in=40, out = 230] (C);
+  \draw[->, thick] (C) to[in=310, out = 140] (A);
+  \draw[->, thick] (I) to[in=180, out = 90] (A);
+\end{tikzpicture}
+\end{document}
+-->
+
+## How Does This Work?
+
+. . .
+
+:::{.centering}
+![](figures/4_intro2.svg){width="50%"}
+:::
+
+Intuitively, we can think of the depicted situation like this:
+
+:::{.incremental}
+- We cannot identify the causal effect from $\text{studying econometrics}$ on $\text{being really smart}$ since they are confounded. 
+- But if we [**find an instrumental variable**]{.col2} that [**explains only the endogenous regressor**]{.col2}, we can **isolate** the part of the co-variation that is our **causal effect**.
+:::
+
+## When Does This Work?
+
+:::{.centering}
+![](figures/4_intro2.svg){width="50%"}
+:::
+
+. . .
+
+There are **two conditions** our [**instrumental variable**]{.col2} must fulfill.
+
+:::{.incremental}
+1. [**Relevance Condition**]{.col3}: The instrument must be **correlated with the endogenous regressor**, i.e., it must actually explain this endogenous regressor.
+2. [**Exclusion Restriction**]{.col4}: The instrument must **affect the outcome only through the endogenous regressor**.
+:::
+
+## Instruments, More Formal
+
+. . .
+
+Consider the following case where omitting a confounder is the source of [**endogeneity**]{.col1}:
+
+$$
+\begin{aligned}
+\boldsymbol{y} = \boldsymbol{X\beta} + &\boldsymbol{u},\\
+& \boldsymbol{u} = \boldsymbol{S\gamma}+\boldsymbol{\varepsilon},
+\end{aligned}
+$$
+
+where $\mathrm{Cov}(\boldsymbol{X},\boldsymbol{S})\neq 0$, and thus $\mathrm{Cov}(\boldsymbol{X},\boldsymbol{u})\neq 0$.
+
+:::{.incremental}
+- If we can observe $\boldsymbol{S}$, we can easily include it in our regression, estimating $\boldsymbol{y} = \boldsymbol{X\beta} + \boldsymbol{S\gamma}+\boldsymbol{\varepsilon}$. 
+- If we **do not observe** $\boldsymbol{S}$, we can use an [**instrument** $\boldsymbol{Z}$]{.col2}. This instrument has to satisfy
+  - the [**Relevance Condition**]{.col3}, i.e. [$\mathrm{Cov}(\boldsymbol{X},\boldsymbol{Z})\neq 0$]{.col3}, and 
+  - the [**Exclusion Restriction**]{.col4}, i.e. [$\mathrm{Cov}(\boldsymbol{Z},\boldsymbol{u})= 0$]{.col4}. Alternatively, this is called the [**Exogeneity Condition**]{.col4}. 
+:::
+
+## What does “Using an Instrument” Mean?
+
+[We can think of the process as containing **two steps**:]{.fragment data-fragment-index="1"}
+
+<ol>
+  <li class="fragment" data-fragment-index="2">
+    In the <strong>First Stage</strong>, we regress the <span class="col1"><strong>endogenous regressor</strong> $\boldsymbol{X}$</span> on the <span class="col2"><strong>instrument</strong> $\boldsymbol{Z}$</span>.
+  </li>
+  <li class="fragment" data-fragment-index="3">
+    In the <strong>Second Stage</strong>, we take the <span class="col1"><strong>predictions</strong> $\hat{\boldsymbol{X}}$</span> from the first stage and regress the <strong>outcome</strong> $\boldsymbol{y}$ on the <span class="col1"><strong>predictions</strong> $\hat{\boldsymbol{X}}$</span>.
+  </li>
+</ol>
+
+
+[This is the intuition behind what we will call the **Two Stage Least Squares** (**2SLS**) estimator.]{.fragment data-fragment-index="4"}
+
+:::{.centering .fragment data-fragment-index="1"}
+![](figures/4_intro3.svg){width="40%"}
+:::
+
+
+<!--
+\documentclass[tikz]{standalone}
+\usepackage{amsmath}
+\begin{document}
+\begin{tikzpicture}[scale=0.5]
+  \node[circle, draw, align=center] (I) at (-2,-2) {$\boldsymbol{Z}$};
+  \node[circle, draw, align=center] (A) at (0,0) {$\boldsymbol{X}$};
+  \node[circle, draw, align=center] (B) at (4,0) {$\boldsymbol{y}$};
+  \node[circle, draw, align=center] (C) at (2,-2) {$\boldsymbol{S}$};
+  \draw[->, thick] (A) to[in=140, out=40] (B);
+  \draw[<-, thick] (B) to[in=40, out = 230] (C);
+  \draw[->, thick] (C) to[in=310, out = 140] (A);
+  \draw[->, thick] (I) to[in=180, out = 90] (A);
+\end{tikzpicture}
+\end{document}
+-->
+
+# Two Stage Least Squares
+
+## Setup
+
+. . .
+
+Consider the following general model:
+
+$$
+\boldsymbol{y} = \boldsymbol{Q\beta}+\boldsymbol{u},
+$$
+
+where $\boldsymbol{Q}=[\boldsymbol{S\:X}]$, with $\mathrm{Cov}(\boldsymbol{S},\boldsymbol{u})=0$ and $\mathrm{Cov}(\boldsymbol{X},\boldsymbol{u})\neq 0$, that is, 
+
+:::{.incremental}
+- $\boldsymbol{S}$ contains $L$ **exogenous regressors**, and
+- $\boldsymbol{X}$ contains $K$ **endogenous regressors**.
+:::
+
+. . .
+
+Assume in addition to that that $\boldsymbol{Z}$ contains $M$ instrumental variables.
+
+. . .
+
+If $M \geq K$, we can **identify** the effect of the **endogenous regressors**. In that case, there is at least **one instrument per** **endogenous regressor**.
+
+- If $M = K$, we call the coefficients **just identified**.
+- If $M > K$, we call them **overidentified**.
+
+## Estimating 2SLS – First Stage
+
+. . .
+
+The concept behind the 2SLS estimator is similar to before. In the **First Stage**, we regress the [**endogenous regressors** $\boldsymbol{X}$]{.col1} on the **exogenous variables** $\boldsymbol{S}$ and the [**instruments** $\boldsymbol{Z}$]{.col2}. 
+
+. . .
+
+Assume (for simplicity) that there are no exogenous regressors:
+
+$$
+\boldsymbol{X} = \boldsymbol{Z} \boldsymbol{\delta} + \boldsymbol{v}, \qquad \qquad \hat{\boldsymbol{\delta}} = (\boldsymbol{Z}' \boldsymbol{Z})^{-1} \boldsymbol{Z}' \boldsymbol{X}.
+$$
+
+Using $\hat{\boldsymbol{\delta}}$, we can now obtain a prediction $\textcolor{var(--primary-color)}{\boldsymbol{\hat{X}}} = \textcolor{var(--secondary-color)}{\boldsymbol{Z}} \hat{\boldsymbol{\delta}}$ for the next stage. 
+
+:::{.nicebox1l .fragment}
+::::{.columns .bitsmall}
+:::{.column width="25%"}
+We can express this in a very simple way using a **projection matrix**:
+
+$$
+\boldsymbol{P_Z} = \boldsymbol{Z} (\boldsymbol{Z}' \boldsymbol{Z})^{-1} \boldsymbol{Z}'.
+$$
+:::
+:::{.column width="40%"}
+The math behind projection matrixes is out of scope for this class, so we just accept that **pre-multiplying** a matrix $\boldsymbol{P}_\boldsymbol{Z}$ of this form **yields** a variable's **predictions**:
+
+$$
+\hat{\boldsymbol{X}} = \boldsymbol{P}_\boldsymbol{Z}\boldsymbol{X}
+$$
+
+:::
+:::{.column width="35%"}
+Two nice **features of projection matrices**, which we need for the following derivations, are:
+
+- **symmetry**, i.e., $\boldsymbol{P}_\boldsymbol{Z}' = \boldsymbol{P}_\boldsymbol{Z}$, and
+- **idempotency**, i.e. $\boldsymbol{P}_\boldsymbol{Z}\boldsymbol{P}_\boldsymbol{Z}=\boldsymbol{P}_\boldsymbol{Z}$.
+:::
+::::
+:::
+
+## Estimating 2SLS – Second Stage
+
+. . .
+
+In the **Second Stage**, we replace the endogenous variables with their prediction $\boldsymbol{\hat{X}} = \boldsymbol{Z} (\boldsymbol{Z}' \boldsymbol{Z})^{-1} \boldsymbol{Z}'\boldsymbol{X}=\boldsymbol{P_Z} \boldsymbol{X}$. This allows us to obtain the [**2SLS estimator**]{.col2}:
+
+$$
+\begin{aligned}
+\boldsymbol{y} &= \boldsymbol{\hat{X}} \boldsymbol{\beta} + \boldsymbol{u}, \\
+\hat{\boldsymbol{\beta}} &= (\boldsymbol{\hat{X}}' \boldsymbol{\hat{X}})^{-1} \boldsymbol{\hat{X}}' \boldsymbol{y} \\
+&= (\boldsymbol{X}' \boldsymbol{P_Z}' \boldsymbol{P_Z} \boldsymbol{X})^{-1} \boldsymbol{X}' \boldsymbol{P_Z}' \boldsymbol{y} \\
+&= (\boldsymbol{X}' \boldsymbol{P_Z} \boldsymbol{X})^{-1} \boldsymbol{X}' \boldsymbol{P_Z} \boldsymbol{y} \\
+\beta_{2SLS} &= (\boldsymbol{X}' \boldsymbol{P_Z} \boldsymbol{X})^{-1} \boldsymbol{X}' \boldsymbol{P_Z} \boldsymbol{y}.
+\end{aligned}
+$$
+
+. . .
+
+The covariance matrix of the 2SLS estimator is $\operatorname{Cov}(\beta_{2SLS}) = \sigma^2 (\boldsymbol{X}' \boldsymbol{P_Z} \boldsymbol{X})^{-1}$.
+
+## The IV Estimator
+
+. . .
+
+When the coefficients are **just identified** ($M = K$), the dimensions of $(\boldsymbol{Z}' \boldsymbol{X})^{-1}$ and $\boldsymbol{Z}' \boldsymbol{y}$ match and we can use the **IV estimator**^[Some people use the term “IV estimator” to describe _any_ kind of estimator that uses instrumental variables, we don't.].
+
+$$
+\boldsymbol{\beta}_{IV} = (\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{y}.
+$$
+
+. . .
+
+We can derive it by pre-multiplying $\boldsymbol{Z}'$ in the standard model.
+
+$$
+\begin{aligned}
+\boldsymbol{y} &= \boldsymbol{X} \boldsymbol{\beta} + \boldsymbol{u} \\
+\boldsymbol{Z}' \boldsymbol{y} &= \boldsymbol{Z}' \boldsymbol{X} \boldsymbol{\beta} + \boldsymbol{Z}' \boldsymbol{u}
+\end{aligned}
+$$
+
+. . .
+
+Now, we can impose the moment condition $\boldsymbol{Z}'(\boldsymbol{y}-\boldsymbol{X}\hat{\boldsymbol{\beta}}_{IV})=\boldsymbol{0}$, the sample analog of the exogeneity assumption $\mathrm{E}(\boldsymbol{Z}'\boldsymbol{u})=0$,
+
+$$
+\begin{aligned}
+\boldsymbol{Z}' \boldsymbol{X} \boldsymbol{\beta}_{IV} &= \boldsymbol{Z}' \boldsymbol{y} \\
+\boldsymbol{\beta}_{IV} &= (\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{y}.
+\end{aligned}
+$$
+
+
+## The IV Estimator is Consistent, …
+
+. . .
+
+We can easily sketch a proof for **consistency** of the **IV estimator**:
+
+$$
+\begin{aligned}
+\boldsymbol{\beta}_{IV} &= (\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{y} \\
+&= (\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{X} \boldsymbol{\beta} + (\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{u} \\
+&= \boldsymbol{\beta} + (\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{u}\\
+&= \boldsymbol{\beta} + (\boldsymbol{Z}' \boldsymbol{X}N^{-1})^{-1} \boldsymbol{Z}' \boldsymbol{u}N^{-1}
+\end{aligned}
+$$
+
+. . .
+
+From the **exogeneity** and **relevance** conditions we get
+
+- $\operatorname{Cov}(\boldsymbol{Z}, \boldsymbol{u}) = 0$, which implies that $\boldsymbol{Z}' \boldsymbol{u} N^{-1} \xrightarrow{p} 0$,  
+- $\operatorname{Cov}(\boldsymbol{Z}, \boldsymbol{X}) \neq 0$, which implies that $\boldsymbol{Z}' \boldsymbol{X} N^{-1} \xrightarrow{p} \mathbb{E}[\boldsymbol{Z}' \boldsymbol{X}]$.
+
+Thus^[This proof relies on the fact that $\mathrm{plim} \tfrac{a}{b} = \tfrac{\mathrm{plim}\: a}{\mathrm{plim}\: b}$ Note that the analogous statement does not hold for expectations.], $\boldsymbol{\beta}_{IV} \xrightarrow{p} \boldsymbol{\beta} + \tfrac{0}{c} = \boldsymbol{\beta}$ as $N \to \infty$.
+
+## … But the IV Estimator Is Also Biased
+
+. . .
+
+The **IV estimator** is consistent, but almost certainly **biased** in small samples.
+
+$$
+\begin{aligned}
+\boldsymbol{\beta}_{IV} &= \boldsymbol{\beta} + (\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{u}, \\
+\mathbb{E}[\boldsymbol{\beta}_{IV}] &= \boldsymbol{\beta} + \mathbb{E}[(\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{u}].
+\end{aligned}
+$$
+
+. . .
+
+We cannot separate the second term:
+
+1. If we conditioned on $\boldsymbol{Z}$, would be stuck with $(\boldsymbol{Z}' \boldsymbol{X})^{-1}$.  
+2. If we conditioned on $\boldsymbol{X}$ and $\boldsymbol{Z}$, would have a problem with $\mathbb{E}[\boldsymbol{u} | \boldsymbol{Z}, \boldsymbol{X}]$:
+
+$$
+\begin{aligned}
+\mathbb{E}[\boldsymbol{\beta}_{IV}] &= \boldsymbol{\beta} + \mathbb{E}\left[\mathbb{E}\left[(\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \boldsymbol{u} \mid \boldsymbol{Z}, \boldsymbol{X}\right]\right] \\
+&= \mathbb{E}\left[(\boldsymbol{Z}' \boldsymbol{X})^{-1} \boldsymbol{Z}' \mathbb{E}[\boldsymbol{u} \mid \boldsymbol{Z}, \boldsymbol{X}]\right].
+\end{aligned}
+$$
+
+
+# An IV Example
+
+## How Do We Use This? 
+
+. . . 
+
+We now know what **instrumental variables** are, and how we can **estimate** $\boldsymbol{\beta}$ in an instrumental variables setting. We know that instruments must be **exogenous** and **relevant**, and that we need at least one instrument per endogenous variable. Now consider the following example:
+
+::::{.columns .fragment}
+:::{.column width="35%"}
+![](figures/4_angristdag.svg){width="100%"}
+:::
+:::{.column width="65%"}
+Say we want to find out the effect of [**education** $\text{X}$]{.col1} on [**income** $\text{Y}$]{.col1}. 
+
+But we know that both **parental education** $\text{PE}$ and **parental income** $\text{PI}$ influence the level of education. We could control for these since we can observe them.
+
+However, there are likely other **background factors** $\text{BG}$ that influence parental education, education and income. These background factors are unobserved, meaning we **cannot identify a causal effect**.
+
+Only if we find an [**instrument** $\text{IV}$]{.col2}, we can bypass this restriction.
+:::
+::::
+
+<!--
+\documentclass[tikz]{standalone}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\definecolor{primarycolor}{HTML}{ED017D}
+\definecolor{secondarycolor}{HTML}{4072C2}
+\begin{document}
+\begin{tikzpicture}
+  \node[shape=circle,draw=black] (A) at (0, 0) {PE};
+  \node[shape=circle,draw=black,dashed] (B) at (0, -2) {BG};
+  \node[shape=circle,draw=black] (C) at (2, 1) {PI};
+  \node[shape=circle,draw=black, primarycolor, ultra thick] (D) at (2, -1) {X};
+  \node[shape=circle,draw=black, primarycolor, ultra thick] (F) at (4, 0) {Y} ;
+  \node[shape=circle,draw=black, secondarycolor, ultra thick] (Z) at (1.5, -2.25) {IV};
+
+  \path[thick] [->](A) edge node[right] {} (C);
+  \path[thick] [->](A) edge node[right] {} (D);
+  \path[thick, dashed] [->](B) edge node[right] {} (A);
+  \path[thick, dashed] [->](B) edge node[right] {} (D);
+  \path[thick, dashed] [->](B) edge [out=-90, in=-90] node[right] {} (F);
+  \path[thick] [->](C) edge node[right] {} (D);
+  \path[thick] [->](C) edge [out=0, in=135] node[right] {} (F);
+  \path[thick] [->, primarycolor, ultra thick](D) edge node[right] {} (F);
+  \path[thick] [->, secondarycolor, ultra thick](Z) edge node[right] {} (D);
+\end{tikzpicture}
+\end{document}
+-->
+
+## An IV for Education
+
+::::{.columns .fragment}
+:::{.column width="35%"}
+
+:vspace2
+
+![](figures/4_angristdag.svg){width="100%"}
+:::
+:::{.column width="65%"}
+
+:vspace1
+
+This example is from @angrist1991^[Also see @angrist2001.]. They came up with a novel instrument for education: the **quarter of birth** of a given individual.
+
+:vspace1
+
+:::{.centering .quitelarge .fragment}
+**How does this work?**
+:::
+
+:vspace1
+
+:::{.fragment}
+In the United States, students must attend school from **the calendar year in which they turn six** until their 16th birthday. School entry is once per year, so the **length of schooling at age 16 differs**, and students who drop out at 16 create variation in education.
+:::
+:::
+::::
+
+## Quarter of Birth as an Instrument
+
+. . .
+
+:::{.centering}
+![](figures/4_angristinstruments.png){width="70%"}
+:::
+
+. . .
+
+Is this instrument both **exogenous** and **relevant**?
+
+:::{.incremental}
+- **Exogeneity** implies that the quarter of birth does not directly affect income. There is no statistical test for this, and so whether you believe this depends on how much you trust the authors' argument.
+- **Relevance** is easier to investigate quantitatively. @angrist1991 show that men born earlier in the year tend to have lower education on average.
+:::
+
+. . .
+
+There is a rule of thumb that a **good instrument** must seem **ridiculous**, since it is then likely fulfilling the exclusion restriction.
+
+## Figures from Angrist & Krueger (1991)
+
+
+::::{,columns}
+:::{.column width="50%" .fragment}
+
+The length of **completed education** shows a clear cyclical pattern when plotted against the quarter and year of birth.
+
+![](figures/4_angrist_fig1.png){width="100%"}
+:::
+:::{.column width="50%" .fragment}
+
+:vspace1.2
+
+**Log weekly earnings** also show a cyclical pattern.
+
+:vspace1
+
+![](figures/4_angrist_fig5.png){width="100%"}
+:::
+::::
+
+## Let's Replicate This 
+
+:::{.bitsmall}
+```{webr}
+library(AER)
+library(dplyr)
+library(readr)
+library(stargazer)
+
+df <- read_csv("https://maxheinze.eu/assets/angrist1991.csv", show_col_types = FALSE)
+
+yr_regs <- paste(paste0("YR", 1930:1938), collapse = " + ")
+insts   <- c(unlist(lapply(1:3, function(q) paste0("QTR", q, "_", 1930:1939))),
+             paste0("YR", 1930:1938))
+inst_formula <- paste(insts, collapse = " + ")
+
+f1 <- as.formula(paste("LWKLYWGE ~ EDUC +", yr_regs))
+f2 <- as.formula(paste("LWKLYWGE ~ EDUC +", yr_regs, "|", yr_regs, "+", inst_formula))
+
+ols <- lm(f1, data = df)
+iv  <- ivreg(f2, data = df) # ivreg() from the AER package
+```
+:::
+
+## Which Formula Do We Actually Use?
+
+:::{.bitsmall}
+```{webr}
+print("f1")
+f1
+print("f2")
+f2
+```
+:::
+
+## Hope We Get the Same Results
+
+:::{.bitsmall}
+```{webr}
+stargazer(ols, iv, type = "text", keep = "EDUC", dep.var.labels = "log(weekly wage)",
+          digits = 4, omit.stat = c("f","ser","adj.rsq"),
+          title = "Angrist & Krueger (1991) — Table V — Columns (1) and (2)"
+)
+```
+:::
+
+## Choosing Between IV and OLS
+
+::::{.columns}
+:::{.column width="45%" .bitsmall .fragment}
+<table style="text-align:center; margin-left:40px; margin-top:40px;"><caption><strong>Angrist & Krueger (1991) — Table V — Columns (1) and (2)</strong></caption>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="2"><em>Dependent variable:</em></td></tr>
+<tr><td></td><td colspan="2" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td colspan="2">log(weekly wage)</td></tr>
+<tr><td style="text-align:left"></td><td><em>OLS</em></td><td><em>instrumental</em></td></tr>
+<tr><td style="text-align:left"></td><td><em></em></td><td><em>variable</em></td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">EDUC</td><td>0.0711<sup>\*\*\*</sup></td><td>0.0891<sup>\*\*\*</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.0003)</td><td>(0.0161)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Observations</td><td>329,509</td><td>329,509</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.1177</td><td>0.1102</td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="2" style="text-align:right"><sup>\*</sup>p<0.1; <sup>\*\*</sup>p<0.05; <sup>\*\*\*</sup>p<0.01</td></tr>
+</table>
+:::
+:::{.column width="55%" .incremental}
+- The estimates of the **OLS** and **IV** specifications are similar.
+- If the instrument works as intended, we find that **omitted variable bias** is **limited** and **reduces** the effect.
+- If we hypothesize that the only omitted variable is **ability**, we would expect positive bias instead.
+- But is the use of IV regression actually [**justified**]{.col1} in this case?
+  - **2SLS** is [**consistent**]{.col2}, if instruments are exogenous and relevant.
+  - **OLS** is more [**efficient**]{.col2}, but only consistent in the absence of endogeneity.
+:::
+::::
+
+
+## Durbin-Wu-Hausman Test
+
+:vspace1
+
+. . .
+
+In the **absence of endogeneity**, we **prefer OLS**. So it makes sense to have a **test for endogeneity**.
+
+:vspace0.5
+
+. . .
+
+The [**Durbin-Wu-Hausman Test**]{.col1} compares an **consistent estimator** to a more **efficient, potentially inconsistent estimator** by following these three steps:
+
+:::{.incremental}
+1. Use the **residuals of the first stage** as explanatories in the **regular model**.
+2. **Test** whether this variable is **relevant** ($H_0:\beta_j=0$).
+3. **Rejecting** the null hypothesis means **rejecting exogeneity** of that explanatory variable and thus [**rejecting consistency of OLS**]{.col1}.
+:::
+
+:vspace1
+
+. . .
+
+Using this test, we can justify **using IV regression**, but we **cannot assess** the **quality** of our **instruments**.
+
+# Weak Instruments
+
+## Relevance of Instruments
+
+How do we know whether our **instruments** are **good**? Recall that
+
+$$
+\hat{\boldsymbol{\beta}}_{IV} = \boldsymbol{\beta} + (\textcolor{var(--secondary-color)}{\boldsymbol{Z}'\boldsymbol{X}})^{-1}\boldsymbol{Z}'\boldsymbol{u},
+$$
+
+where $(\textcolor{var(--secondary-color)}{\boldsymbol{Z}'\boldsymbol{X}})^{-1}\boldsymbol{Z}'\boldsymbol{u}$ should disappear as $N\rightarrow\infty$.
+
+- If our **instruments** have **little relevance**, then $\textcolor{var(--secondary-color)}{\boldsymbol{Z}'\boldsymbol{X}}$ will be small. That means that the term will disappear more slowly.
+- If our **instruments** have **no relevance** at all, then $\textcolor{var(--secondary-color)}{\boldsymbol{Z}'\boldsymbol{X}}$ will be zero, which is bad because we cannot invert zero.
+
+In such a case of [**weak instruments**]{.col1}, we run into multiple problems:
+
+- **Inconsistency** from small violations of the exogeneity condition is magnified,
+- The small‐sample **bias** of the 2SLS estimator is large, and
+- **Confidence intervals** will be inaccurate.
+
+## Checking for Weak Instruments
+
+:vspace1
+
+. . .
+
+One approach to find out whether instruments are weak is to check their explanatory power using an **F-Test**. 
+
+:vspace0.75
+
+:::{.incremental}
+- A frequently used **rule-of-thumb cutoff** in settings with a single endogenous regressor and a usual number of instruments is a first-stage F-statistic of $F=10$. If the F-statistic is below that, instruments are considered weak.
+- Settings with multiple endogenous regressors, or with heteroskedastic errors, require different tests and different critical values.
+:::
+
+:vspace0.75
+
+. . .
+
+If instruments are weak, we can e.g. use Anderson-Rubin Confidence Sets [@anderson1949], which are robust to weak instruments.
+
+@andrews2019 provide a good review of weak instruments and how to respond to them.
+
+## Overidentification
+
+. . .
+
+If we have more instruments than endogenous regressors, we have **overidentification**.
+
+:::{.centering}
+![](figures/4_overid.svg){width="70%"}
+:::
+
+. . .
+
+In a setting of overidentification, we can use Sargan's $J$-test to assess exogeneity of our instruments. The idea is to *compare estimates* using different instruments:
+
+:::{.incremental}
+- If instruments are exogenous, **estimates** should be **the same**.
+- The test's **null hypothesis** is that all instruments are exogenous.
+:::
+
+. . .
+
+Unfortunately, we do not learn which instrument is not valid, and estimates could always be similar or different by chance.
+
+<!--
+\documentclass[tikz]{standalone}
+\begin{document}
+\begin{tikzpicture}
+  \node[shape=rectangle, draw=black] (Z2) at (-3, .5) {instrument 1};
+  \node[shape=rectangle, draw=black] (Z1) at (-3, -.5) {instrument 2};
+  \node[shape=circle, draw=black] (A) at (0, 0) {cause};
+  \node[shape=circle, draw=black] (B) at (3, 0) {effect};
+  \path[draw,line width=1.2pt] [->](A) to[out=25, in=-205, min distance=8mm] (B);
+  \path[draw,line width=1.2pt] [->](B) to[out=205, in=-25, min distance=8mm] (A);
+  \path[draw,line width=1.2pt] [->](Z1) to[] (A);
+  \path[draw,line width=1.2pt] [->](Z2) to[] (A);
+\end{tikzpicture}
+\end{document}
+-->
+
+## Recap: Quarter of Birth as Instrument
+
+::::{.columns}
+:::{.column width="45%" .bitsmall .fragment}
+<table style="text-align:center; margin-left:40px; margin-top:40px;"><caption><strong>Angrist & Krueger (1991) — Table V — Columns (1) and (2)</strong></caption>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="2"><em>Dependent variable:</em></td></tr>
+<tr><td></td><td colspan="2" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td colspan="2">log(weekly wage)</td></tr>
+<tr><td style="text-align:left"></td><td><em>OLS</em></td><td><em>instrumental</em></td></tr>
+<tr><td style="text-align:left"></td><td><em></em></td><td><em>variable</em></td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">EDUC</td><td>0.0711<sup>\*\*\*</sup></td><td>0.0891<sup>\*\*\*</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.0003)</td><td>(0.0161)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Observations</td><td>329,509</td><td>329,509</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.1177</td><td>0.1102</td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="2" style="text-align:right"><sup>\*</sup>p<0.1; <sup>\*\*</sup>p<0.05; <sup>\*\*\*</sup>p<0.01</td></tr>
+</table>
+:::
+:::{.column width="55%" .incremental}
+- Last week, we discussed the paper by @angrist1991, in which the authors use **quarter of birth** to instrument for **education**.
+- We discussed, and replicated, Columns 1 and 2, the simplest specifications from the output table.
+- These columns use no controls, they do use fixed effects, and they use quarter of birth × birth year interactions as instruments.
+- This yields a total of 30 instruments, and they include other specifications in the paper that contain up to 180 instruments.
+- Do we run into a [**weak instruments**]{.col1} problem here?
+:::
+::::
+
+## Let's Run Last Week's Code Again
+
+:::{.bitsmall}
+```{webr}
+library(AER)
+library(dplyr)
+library(readr)
+library(stargazer)
+
+df <- read_csv("https://maxheinze.eu/assets/angrist1991.csv", show_col_types = FALSE)
+
+yr_regs <- paste(paste0("YR", 1930:1938), collapse = " + ")
+insts   <- c(unlist(lapply(1:3, function(q) paste0("QTR", q, "_", 1930:1939))),
+             paste0("YR", 1930:1938))
+inst_formula <- paste(insts, collapse = " + ")
+
+f1 <- as.formula(paste("LWKLYWGE ~ EDUC +", yr_regs))
+f2 <- as.formula(paste("LWKLYWGE ~ EDUC +", yr_regs, "|", yr_regs, "+", inst_formula))
+
+ols <- lm(f1, data = df)
+iv  <- ivreg(f2, data = df) # ivreg() from the AER package
+```
+:::
+
+
+## Is Quarter of Birth a Weak Instrument?
+
+```{webr}
+cat("\nFirst-stage F-test (weak instruments test):\n")
+print(summary(iv, diagnostics = TRUE)$diagnostics["Weak instruments", , drop = FALSE])
+```
+
+:vspace1
+
+. . .
+
+We get an F-statistic of about 4.9 for the case with 30 instruments, which is **much lower** than the rule-of-thumb cutoff of 10, pointing to that [**instruments are weak**]{.col1}.
+
+. . .
+
+@bound1995 concur with the result of this assessment and go a step further: They randomly generate an **irrelevant instrument** and show that it leads to similar results.
+
+## Is Quarter of Birth Exogenous?
+
+```{webr}
+cat("\nSargan's J test (overidentification test):\n")
+diag_iv <- summary(iv, diagnostics = TRUE)$diagnostics
+print(diag_iv[grep("Sargan", rownames(diag_iv)), , drop = FALSE])
+```
+
+:vspace1
+
+. . .
+
+We get a J-statistic of about 25.4, which  **does not indicate** a violation of exogeneity.
+
+. . .
+
+Even so, @buckles2013 argue that [**exogeneity may be violated**]{.col1} because there is seasonality in mothers' characteristics. On average, women that give birh in winter are younger, less educated, and less likely to be married; which may affect the income of their children.
+
+
+
+
+# More Examples
+
+## Family Size and Female Labor
+
+. . .
+
+Say we want to learn about the way **family size** affects the **labour supply** of women --- e.g. to better understand discrimination, or to design policies for more equality.
+
+:::{.incremental}
+- Women with **more children** tend to **work less** (outside the home).
+- This is **unlikely to be exogenous** since children are not randomly assigned.
+:::
+
+. . .
+
+:::{.centering}
+![](figures/4_kids.svg){width="70%"}
+:::
+
+
+Now consider the fact that mothers whose **first two children are of the same gender** work fewer hours than others. **How is this related to labour supply**?
+
+. . .
+
+It **probably is not** related to labor supply. But it may be *related to family size* since parents may have a preference for mixed genders and choose to have a third kid.
+
+<!---
+\documentclass[tikz]{standalone}
+\begin{document}
+\begin{tikzpicture}[grow=right, level distance=250mm, sibling distance=100mm]
+  \node[shape=rectangle, draw=black] (Z) at (-3, 0) {same-gender kids};
+  \node[shape=circle, draw=black] (A) at (0, 0) {kids};
+  \node[shape=circle, draw=black] (B) at (3, 0) {work};
+  \path[draw,line width=1.2pt] [->](A) to[out=25, in=-205, min distance=8mm] (B);
+  \path[draw,line width=1.2pt] [->](B) to[out=205, in=-25, min distance=8mm] (A);
+  \path[draw,line width=1.2pt] [->](Z) to[] (A);
+\end{tikzpicture}
+\end{document}
+--->
+
+
+## Fish Market
+
+Suppose we want to understand how the **price of fish** affects the **quantity sold** at a fish market.
+
+:::{.incremental}
+- This is a **simultaneity** issue: Price and quantity are determined simultaneously by supply and demand.
+:::
+
+. . .
+
+:::{.centering}
+![](figures/4_fish.svg){width="70%"}
+:::
+
+However, on days after a period with especially **high waves**, **prices** on the fish market are usually **higher**. **How and why**?
+
+. . .
+
+When waves are high, it is more **difficult to fish**, which means that the quantity sold at the fish market will be lower. Note, however, that we need to rely on the assumption that the kind of fish caught is not affected by waves.
+
+
+<!--
+\documentclass[tikz]{standalone}
+\begin{document}
+\begin{tikzpicture}[grow=right, level distance=250mm, sibling distance=100mm]
+  \node[shape=rectangle, draw=black] (Z) at (-3, 0) {wave height};
+  \node[shape=circle, draw=black] (A) at (0, 0) {price};
+  \node[shape=circle, draw=black] (B) at (3, 0) {quantity};
+  \path[draw,line width=1.2pt] [->](A) to[out=25, in=-205, min distance=8mm] (B);
+  \path[draw,line width=1.2pt] [->](B) to[out=205, in=-25, min distance=8mm] (A);
+  \path[draw,line width=1.2pt] [->](Z) to[] (A);
+\end{tikzpicture}
+\end{document}
+-->
+
+# Shift-Share Instruments
+
+## Shift-Share Instruments (Bartik Instruments)
+
+. . .
+
+[**Shift**]{.col1}**-**[**Share**]{.col2} **Instruments**, or **Bartik Instruments** after @bartik1991, are instruments that use a **national-level shock** (the [**shift**]{.col1}) in combination with local [**shares**]{.col2} to instrument for a local shock. 
+
+. . .
+
+Say we are interested in how **immigration** $im$ in some municipality $m$ affects **wages** $y$ in that place (with $t$ being a time index and $\boldsymbol{x}$ being a vector of controls):
+
+$$
+y_{mt} = im_{mt}\beta + \boldsymbol{x}'\boldsymbol{\gamma} + u_{mt}. 
+$$
+
+. . .
+
+The problem with this is that while immigration affects wages, wages likely affect immigration as well. However, **national immigration** changes are credibly exogenous to local wage changes. We can thus use **national-level immigration figures from different countries of origin** as the [**shifts**]{.col1}, and initial (at $t=0$) [**shares**]{.col2} of different immigrant nationalities $q=1,\dots,Q$ in the place to construct the **Bartik Instrument**:
+
+$$
+B_{mt} = \sum^Q_{q=1}\textcolor{var(--secondary-color)}{\text{share}}_{mq,t=0}\times\textcolor{var(--primary-color)}{\text{shift}}_{qt}
+$$
+
+## Shifts or Shares?
+
+. . .
+
+$$
+B_{mt} = \sum^Q_{q=1}\textcolor{var(--secondary-color)}{\text{share}}_{mq,t=0}\times\textcolor{var(--primary-color)}{\text{shift}}_{qt}
+$$
+
+Once we have constructed this instrument, we can use it like any other instrument.
+
+. . .
+
+There are **two perspectives** about what is needed for identification:
+
+:::{.incremental}
+- **The** [**Shares Perspective**]{.col3}: Following @goldsmithpinkham2020, the **initial** [**shares**]{.col2} provide the **exogenous variation**. Having exogenous [**shares**]{.col2} is sufficient for identification. In the previous example, this would mean that the researcher would need to argue for that initial shares of migrants are unrelated to local incomes. 
+- **The** [**Shifts Perspective**]{.col4}: @borusyak2021 offer the alternative framework that even if **shares** are endogenous, exogenous [**shifts**]{.col1} can identify causal effects, as long as they are **uncorrelated with the bias** of the shares. In the example, this would mean that national immigration shocks need to be unrelated to local incomes.
+:::
+
+## Examples
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+@autor2013 want to find out how competition from **Chinese imports** affects local **labor markets** in the U.S. They use an instrument like this: 
+
+
+$$
+B_{it} = \sum_{j=1}^{J} \textcolor{var(--secondary-color)}{l_{ijt}}\times \textcolor{var(--primary-color)}{g_{jt}},
+$$
+
+where $i$ are regions, $t$ is a time index, and $j$ are industries; $\textcolor{var(--secondary-color)}{l_{ijt}}$ is the share of people working in (manufacturing) industry $j$ in region $j$ at time $t$ and $\textcolor{var(--primary-color)}{g_{jt}}$ is the growth of Chinese imports in industry $j$ in a group of countries that are comparable to the U.S.
+:::
+:::{.column width="50%" .fragment}
+@nunn2014 investigate the effect of **U.S. food aid** on **conflict** in non-OECD countries. To circumvent the endogeneity issue, they use the following instrument (simplified):
+
+$$
+B_{it} = \textcolor{var(--secondary-color)}{\overline{D}_{i}} \times \textcolor{var(--primary-color)}{P_{t-1}},
+$$
+
+where $t=1,\dots,T$ are years and $i=1,\dots,N$ are countries; $\textcolor{var(--secondary-color)}{\overline{D}_{i}}$ is the share of years in which the country received aid, $\textcolor{var(--secondary-color)}{\overline{D}_{i}}=T^{-1}\sum_{t=1}^TD_{it}$, and $\textcolor{var(--primary-color)}{P_{t-1}}$ is U.S. wheat production the previous year.
+:::
+::::
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+
+# Appendix {.appendix}
+
+## Extracting the Angrist & Krueger (1991) Code File
+
+:vspace1
+
+```{.r}
+library(haven)
+library(dplyr)
+
+if (!file.exists("NEW7080.dta")) {
+  if (!file.exists("NEW7080_1.rar"))
+    download.file("https://economics.mit.edu/sites/default/files/inline-files/NEW7080_1.rar",
+                  "NEW7080_1.rar", mode = "wb")
+  system("unrar x -y NEW7080_1.rar", ignore.stdout = TRUE)
+}
+
+df <- read_dta("NEW7080.dta")
+
+nm <- c("v4"="EDUC","v9"="LWKLYWGE","v16"="CENSUS","v18"="QOB","v27"="YOB")
+for (k in names(nm)) if (k %in% names(df)) names(df)[names(df)==k] <- nm[[k]]
+
+df <- df %>%
+  mutate(AGEQ = ifelse(CENSUS == 80, NA, NA),                # placeholder, dropped later
+         COHORT = ifelse(YOB >= 30 & YOB <= 39, 30, NA)) %>%
+  filter(COHORT == 30)
+
+# Year-of-birth dummies (YR1930–YR1939)
+for (y in 1930:1939) {
+  df[[paste0("YR", y)]] <- as.integer(df$YOB == (y - 1900))
+}
+
+# Quarter-of-birth dummies (QTR1–QTR3; QTR4 base)
+for (q in 1:4) df[[paste0("QTR", q)]] <- as.integer(df$QOB == q)
+
+# Interactions QTR1–QTR3 × YR1930–YR1939
+for (q in 1:3) for (y in 1930:1939)
+  df[[paste0("QTR", q, "_", y)]] <- df[[paste0("QTR", q)]] * df[[paste0("YR", y)]]
+
+keep <- c("LWKLYWGE","EDUC",
+          paste0("YR",1930:1939),
+          paste0("QTR",1:3),
+          unlist(lapply(1:3, function(q) paste0("QTR",q,"_",1930:1939))))
+df <- df[keep]
+
+write.csv(df, "angrist1991.csv", row.names = FALSE)
+```
+
+

@@ -1,0 +1,926 @@
+---
+title: "Module 00: Preliminaries"
+subtitle: "Econometrics II"
+author:
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+date: "2025-10-16"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: true
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+engine: knitr
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+# Introduction
+
+## Introduction
+
+. . .
+
+**Welcome** to the course **Econometrics II**!
+
+. . .
+
+In this course, we will build on our knowledge from Econometrics I to explore how we can use data to provide evidence for hypotheses and find answers to the questions we pose.
+
+. . .
+
+To do this, we need solid **mathematical** and **statistical basics**. Broadly speaking, these are things already covered in school and repeated in the statistics and mathematics lectures in the CBK. Above all, you should remember this from your Econometrics I course – but in case you do not, you can use this **self-study slide set** to refresh your knowledge.
+
+. . .
+
+If something is unclear, there will be enough time to ask questions in the course, but understanding this content is a prerequisite for this course.
+
+. . .
+
+The slide set also contains an **introduction to R** with interactive code examples.
+
+. . .
+
+You also have access to **Econometrics I slides** via Canvas. **Review these** if you do not feel confident about your knowledge of what we learned in Econometrics I.
+
+# Installing R
+
+## Installing RStudio
+
+. . . 
+
+At various points in this course, not least in **assignments**, we will need software to perform statistical calculations. Which software you use is up to you. Our **recommendation** is **R**, as it is what we usually discuss example code in.
+
+. . .
+
+A comfortable way to use R is with the *integrated development environment* **RStudio**. RStudio is the interface we use to write code in R; R itself is a separate program that executes our code and provides results.
+
+. . .
+
+::: {.callout-note}
+## Installing R and RStudio
+An installation guide and the **download for R** can be found at [cran.r-project.org](https://cran.r-project.org/).
+
+An installation guide and the **download for RStudio** can be found at [posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
+:::
+
+. . .
+
+Having statistical software (e.g., R) installed is a prerequisite for the course.
+
+# Introduction to R with RStudio
+
+## RStudio
+
+. . .
+
+::::{.columns}
+:::{.column width="50%"}
+![](figures/rstudio.png)
+
+:::{style="font-size: 20px"}
+The default layout is slightly different, and the default theme is light. Both can be changed in the settings.</font>
+:::
+:::
+:::{.column width="50%" .incremental}
+A typical **RStudio** window looks like this:
+
+- In the **Console**, we can execute **R** commands. For example, we can type `1+1` and press <kbd>Enter</kbd> to confirm.
+- The **Environment** shows all currently defined variables and datasets.
+- In the **Plots** pane, generated graphics are displayed.
+- In the **Help** pane, we can access the documentation.
+- In the large pane on the left, we can open a **script**.
+:::
+::::
+
+## Script vs. Console
+ 
+. . .
+
+::::{.columns}
+:::{.column width="50%" .incremental}
+- With a **script**, we can save different lines of code and execute them whenever needed.
+- We can also execute code directly in the **console**, but we cannot save it there.
+- In the script, we can place the cursor on a line and execute it with <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (Linux, Windows) or <kbd>Cmd</kbd>+<kbd>Enter</kbd> (macOS). It will then be "inserted" into the console.
+- Alternatively, we can highlight multiple lines and execute them, or execute the entire script at once.
+:::
+:::{.column width="50%"}
+<br>
+![](figures/scriptconsole.gif)
+:::
+::::
+
+## Basics in R
+
+::::{.columns}
+:::{.column width="40%" .fragment data-fragment-index="1"}
+Base R comes with many useful **functions**, but sometimes we will need functions for specific econometric purposes that are not included in Base R. These are often included in packages created by developers and then (ideally) published in the Comprehensive R Archive Network (CRAN). We can install these additional packages as follows:
+
+:::
+:::{.column width="60%"}
+:::{.fragment data-fragment-index="1"}
+```{.r}
+install.packages("tidyverse")
+
+library(tidyverse)
+
+update.packages()
+
+```
+:::
+:::{.fragment data-fragment-index="2"}
+The above functions **install**, **load**, and **update** packages (Note: `install.packages()` requires quotation marks). We can access a function's documentation with a `?`:
+
+
+```{.r}
+?install.packages
+```
+:::
+
+:::{.fragment data-fragment-index="3"}
+**Functions** can be recognized by the parentheses. They may or may not contain arguments.
+:::
+:::
+::::
+
+## Variables and Vectors 
+
+. . .
+
+::::{.columns}
+:::{.column width="40%"}
+With `<-` (or `=`), we can **assign** a value to a variable name.
+
+This can either be a scalar, a vector, or something else (more on that later).
+
+We can print a variable with `print()`. It is also sufficient to just write the variable name (without `print()`).
+
+The code on the right is **interactive** and can be modified and executed.
+:::
+:::{.column width="60%"}
+```{webr}
+# Lines starting with # are comments
+# and are ignored.
+
+my_scalar <- 12 
+
+my_vector <- c(5, 2, 13, 15)
+
+my_character_vector <- c("Vienna", "Linz", "Graz")
+
+# Works without print()
+print(my_vector)
+
+print(my_character_vector)
+```
+:::
+::::
+
+## Mathematics
+
+::::{.columns}
+:::{.column width="40%"}
+:::{.fragment data-fragment-index="1"}
+We can also use R as a calculator. The interactive code on the right demonstrates various **mathematical operations**.
+:::
+:::{.fragment data-fragment-index="3"}
+We can also define **matrices** and perform calculations with them.
+```{webr}
+my_matrix <- cbind(c(1, 2, 3), c(2, 4, 6), c(5, 3, -12))
+2 * my_matrix
+```
+:::
+:::
+:::{.column width="60%" .fragment data-fragment-index="2"}
+```{webr}
+1 + 3
+
+# We can also save the result:
+my_sum <- 4 + 12
+
+c(5, 2) + c(7, 3)
+
+2^2
+sqrt(2) # Square root
+log(100) # Natural logarithm
+log(100, base = 10)
+```
+:::
+::::
+
+## Descriptive Statistics
+
+::::{.columns}
+:::{.column width="40%"}
+:::{.fragment data-fragment-index="1"}
+Of course, R is primarily a **statistical programming language**. So let us simulate 100 dice rolls:
+```{webr}
+# We draw 100 times 
+#from the values 1 to 6
+throws <- sample(1:6, 
+       size = 100, 
+       replace = TRUE)
+```
+Execute this code so we can proceed.
+:::
+:::
+:::{.column width="60%"}
+::: {.fragment data-fragment-index="2"}
+What is the **mean** of the rolls?
+```{webr}
+mean(throws)
+```
+:::
+::: {.fragment data-fragment-index="3"}
+We can also calculate other measures:
+```{webr}
+summary(throws)
+```
+Other functions include `median()`, `min()`, `max()`, `length()`, `var()`, `sd()`, `sum()`, ...
+:::
+:::
+::::
+
+## Data
+
+. . .
+
+We use different functions depending on the file format to read in data: `read.csv()` for CSV, `readRDS()` for RDS, ...
+
+. . .
+
+Some datasets are already available in R, which is especially convenient for practice purposes. One example is `mtcars`. We can view the first rows using `head()`.
+
+```{webr}
+head(mtcars)
+```
+
+. . .
+
+When reading data, e.g., as CSV, we must assign it to a name, e.g., through `my_data <- read.csv("data.csv")`. Incidentally, we can export data in a similar way: `write.csv(my_data, "my_data.csv")`.
+
+## Dataframes
+
+. . .
+
+The structure in which data is stored is called a **dataframe**. The rows of a dataframe correspond to individual observations, and the columns correspond to variables. With `View()`, we can view the dataset in a separate window. We can also find out, e.g., the number of columns and rows:
+
+```{webr}
+ncol(mtcars); nrow(mtcars)
+```
+
+. . .
+
+Using square brackets, we can access specific rows and columns. `mtcars[1,]` is the first row of `mtcars`, `mtcars[,1]` is the first column. We can also access individual variables using the following notation: `mtcars$mpg`.
+
+## Logic
+
+. . .
+
+What happens when we execute this code?
+
+```{webr}
+# Double == means "is equal to," because single = is used for assignments
+# Also: <= for ≤, >= for ≥, != for ≠.
+1 == 2 
+```
+
+. . .
+
+We can also use `TRUE` and `FALSE` to filter values:
+
+```{webr}
+test_vector <- c(1, 2, 3)    # Define vector
+test_vector > 1              # Check: What is >1?
+test_vector[test_vector > 1] # Filter: Only elements >1 (so only TRUE)
+```
+
+## Further Operations
+
+::::{.columns}
+:::{.column width="50%" .fragment data-fragment-index="1"}
+We can also combine multiple functions:
+
+```{webr}
+log(mean(mtcars$mpg))
+# How must this code be changed to calculate the mean without the logarithm?
+```
+:::
+:::{.column width="50%" .fragment data-fragment-index="2"}
+Or draw graphs:
+
+```{webr}
+#| fig-width: 5
+#| fig-height: 4
+hist(mtcars$mpg, breaks = 20)  # Histogram with 20 classes
+# Try creating a boxplot with boxplot()!
+```
+:::
+::::
+
+## Scatterplots
+
+::::{.columns}
+:::{.column width="50%"}
+:::{.fragment data-fragment-index="1"}
+Often, we want to draw a **scatterplot** to show the relationship between two variables.
+:::
+:::{.fragment data-fragment-index="2"}
+Try adding the line `abline(lm(mpg~hp, data=mtcars), col="red")` to draw a red **regression line** on the plot!
+:::
+:::{.fragment data-fragment-index="3"}
+How strongly are `mpg` and `hp` correlated?
+```{webr}
+cor(mtcars$hp, mtcars$mpg)
+```
+:::
+:::
+:::{.column width="50%" .fragment data-fragment-index="1"}
+```{webr}
+#| fig-width: 5
+plot(mtcars$hp, mtcars$mpg)
+```
+:::
+::::
+
+# Matrices and Vectors
+
+## Matrices and Vectors
+
+. . .
+
+We denote matrices with bold uppercase letters ($\boldsymbol{X}$) and (column) vectors with bold lowercase letters ($\boldsymbol{x}$):
+
+$$
+\boldsymbol{X} = 
+\begin{pmatrix}
+  x_{11} & x_{12} & \dots & x_{1k} \\
+  x_{21} & \dots & \dots & x_{2k} \\
+  \vdots & \vdots & \ddots & \vdots \\
+  x_{n1} & x_{n2} & \dots & x_{nk} \\
+\end{pmatrix}
+,\quad
+\boldsymbol{x} = 
+\begin{pmatrix}
+  x_{1}  \\
+  x_{2}  \\
+  \vdots  \\
+  x_{n}  \\
+\end{pmatrix}
+$$
+
+. . .
+
+Bold is not strictly necessary. If we want to clarify in handwriting that something is a matrix or vector, we can instead underline them: $\underline{X}$ or $\underline{x}$.
+
+## Dimensions and Transposition
+
+. . .
+
+On the previous slide, $\boldsymbol{X}$ had **dimensions** $n\times k$, and $\boldsymbol{x}$ had dimension $n$. $\boldsymbol{x}$ was written as a column vector, but we can also write $\boldsymbol{x}$ as a row vector. To do this, we must **transpose** the vector: Simply put, rows become columns, and columns become rows. We denote the transposition with a small apostrophe (or optionally a superscript T):
+
+$$
+\boldsymbol{x}' = (x_1, x_2, \dots, x_n)
+$$
+
+. . .
+
+:::: {.columns}
+::: {.column width="80%"}
+We can also **transpose matrices**. A matrix that previously had dimensions $n\times k$ will have dimensions $k\times n$ after transposition.
+
+If we transpose a transposed matrix, we get:
+
+$$
+ (\boldsymbol{X}')' = \boldsymbol{X}
+$$
+
+Furthermore, $(\boldsymbol{XZ})'=\textcolor{red}{\boldsymbol{Z}'\boldsymbol{X}'}$.
+:::
+
+::: {.column width="20%"}
+![Animation from [Wikipedia](https://commons.wikimedia.org/wiki/File:Matrix_transpose.gif) on matrix transposition.](figures/matrix_transpose.gif)
+:::
+::::
+
+
+## Special Matrices
+
+. . .
+
+In econometrics, we encounter various **special matrices**:
+
+::: {.incremental}
+- An $n\times n$ matrix is called a **square matrix**.
+- If for this square matrix $\boldsymbol{X}'=\boldsymbol{X}$ holds, the matrix is **symmetric**.
+- A square ($n\times n$) matrix whose elements outside the main diagonal are all 0 is called a **diagonal matrix** and can be written as $\mathrm{diag}(x_1, x_2, \dots, x_n)$.
+- A diagonal matrix whose main diagonal elements are all 1 is called an **identity matrix** and is denoted by $\boldsymbol{I}$.
+- An $n\times k$ matrix whose all elements are 0 is called a **zero matrix** and is denoted by $\boldsymbol{0}_{n\times k}$.
+:::
+
+## Rank
+
+. . .
+
+The **rank** of a matrix is defined as the _dimension of the vector space spanned by the columns of a matrix_ and is denoted by $\mathrm{rank}(\boldsymbol{X})$. Simply put, the rank of a matrix corresponds to the **number of its linearly independent columns**. A column is linearly independent of the others if it cannot be expressed as a linear combination of them (i.e., as a sum of multiples of the other columns). Consider the following matrix:
+
+. . .
+
+:::: {.columns}
+::: {.column width="30%"}
+$$
+\boldsymbol{X} =
+\begin{pmatrix}
+  12 & 2 & 10 \\
+  3 & 1 & 2 \\
+  7 & 4 & 3 \\
+  8 & 6 & 2
+\end{pmatrix}
+$$
+:::
+::: {.column width="70%"}
+This matrix has rank 2. It has three columns, but the third column is a linear combination of the first two: $x_{i3} = x_{i1} + (-1) \cdot x_{i2}$.
+
+If a matrix has the maximum possible rank for its dimensions, it is said to have **full rank**.
+:::
+::::
+
+## Matrix Addition and Scalar Multiplication
+
+. . .
+
+**Matrix addition** occurs element by element:
+
+$$
+\small
+\begin{pmatrix}
+x_{11} & x_{12} & \cdots & x_{1k} \\
+x_{21} & x_{22} & \cdots & x_{2k} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{n1} & x_{n2} & \cdots & x_{nk}
+\end{pmatrix}
++
+\begin{pmatrix}
+z_{11} & z_{12} & \cdots & z_{1k} \\
+z_{21} & z_{22} & \cdots & z_{2k} \\
+\vdots & \vdots & \ddots & \vdots \\
+z_{n1} & z_{n2} & \cdots & z_{nk}
+\end{pmatrix}
+=
+\begin{pmatrix}
+x_{11} + z_{11} & x_{12} + z_{12} & \cdots & x_{1k} + z_{1k} \\
+x_{21} + z_{21} & x_{22} + z_{22} & \cdots & x_{2k} + z_{2k} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{n1} + z_{n1} & x_{n2} + z_{n2} & \cdots & x_{nk} + z_{nk}
+\end{pmatrix}
+$$
+
+. . .
+
+**Multiplication of a matrix by a scalar** also occurs element by element:
+
+$$
+\small
+\alpha \cdot 
+\begin{pmatrix}
+x_{11} & x_{12} & \cdots & x_{1k} \\
+x_{21} & x_{22} & \cdots & x_{2k} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{n1} & x_{n2} & \cdots & x_{nk}
+\end{pmatrix}
+=
+\begin{pmatrix}
+\alpha x_{11} & \alpha x_{12} & \cdots & \alpha x_{1k} \\
+\alpha x_{21} & \alpha x_{22} & \cdots & \alpha x_{2k} \\
+\vdots & \vdots & \ddots & \vdots \\
+\alpha x_{n1} & \alpha x_{n2} & \cdots & \alpha x_{nk}
+\end{pmatrix}
+$$
+
+
+## Multiplication of Two Matrices
+
+. . .
+
+The **multiplication of two matrices** is somewhat more complex. Let $\boldsymbol{X}$ be a $2\times 3$ matrix and $\boldsymbol{Z}$ be a $3\times 2$ matrix. Then we can multiply the matrices as follows:
+
+$$
+\small
+\begin{pmatrix}
+\textcolor{red}{x_{11}} & \textcolor{red}{x_{12}} \\
+\textcolor{orange}{x_{21}} & \textcolor{orange}{x_{22}} \\
+\textcolor{purple}{x_{31}} & \textcolor{purple}{x_{32}}
+\end{pmatrix}
+\cdot
+\begin{pmatrix}
+\textcolor{blue}{z_{11}} & \textcolor{green}{z_{12}} & \textcolor{teal}{z_{13}} \\
+\textcolor{blue}{z_{21}} & \textcolor{green}{z_{22}} & \textcolor{teal}{z_{23}}
+\end{pmatrix}
+=
+\begin{pmatrix}
+\textcolor{red}{x_{11}}\textcolor{blue}{z_{11}} + \textcolor{red}{x_{12}}\textcolor{blue}{z_{21}} & 
+\textcolor{red}{x_{11}}\textcolor{green}{z_{12}} + \textcolor{red}{x_{12}}\textcolor{green}{z_{22}} & 
+\textcolor{red}{x_{11}}\textcolor{teal}{z_{13}} + \textcolor{red}{x_{12}}\textcolor{teal}{z_{23}} \\
+\textcolor{orange}{x_{21}}\textcolor{blue}{z_{11}} + \textcolor{orange}{x_{22}}\textcolor{blue}{z_{21}} & 
+\textcolor{orange}{x_{21}}\textcolor{green}{z_{12}} + \textcolor{orange}{x_{22}}\textcolor{green}{z_{22}} & 
+\textcolor{orange}{x_{21}}\textcolor{teal}{z_{13}} + \textcolor{orange}{x_{22}}\textcolor{teal}{z_{23}} \\
+\textcolor{purple}{x_{31}}\textcolor{blue}{z_{11}} + \textcolor{purple}{x_{32}}\textcolor{blue}{z_{21}} & 
+\textcolor{purple}{x_{31}}\textcolor{green}{z_{12}} + \textcolor{purple}{x_{32}}\textcolor{green}{z_{22}} & 
+\textcolor{purple}{x_{31}}\textcolor{teal}{z_{13}} + \textcolor{purple}{x_{32}}\textcolor{teal}{z_{23}}
+\end{pmatrix}
+$$
+
+. . .
+
+The following table helps visualize the process:
+
+$$
+\small
+\begin{array}{c|ccc}
+    & \textcolor{blue}{z_{11}, z_{21}} & \textcolor{green}{z_{12}, z_{22}} & \textcolor{teal}{z_{13}, z_{23}} \\ \hline
+\textcolor{red}{x_{11}, x_{12}} & \textcolor{red}{x_{11}}\textcolor{blue}{z_{11}} + \textcolor{red}{x_{12}}\textcolor{blue}{z_{21}} & \textcolor{red}{x_{11}}\textcolor{green}{z_{12}} + \textcolor{red}{x_{12}}\textcolor{green}{z_{22}} & \textcolor{red}{x_{11}}\textcolor{teal}{z_{13}} + \textcolor{red}{x_{12}}\textcolor{teal}{z_{23}} \\
+\textcolor{orange}{x_{21}, x_{22}} & \textcolor{orange}{x_{21}}\textcolor{blue}{z_{11}} + \textcolor{orange}{x_{22}}\textcolor{blue}{z_{21}} & \textcolor{orange}{x_{21}}\textcolor{green}{z_{12}} + \textcolor{orange}{x_{22}}\textcolor{green}{z_{22}} & \textcolor{orange}{x_{21}}\textcolor{teal}{z_{13}} + \textcolor{orange}{x_{22}}\textcolor{teal}{z_{23}} \\
+\textcolor{purple}{x_{31}, x_{32}} & \textcolor{purple}{x_{31}}\textcolor{blue}{z_{11}} + \textcolor{purple}{x_{32}}\textcolor{blue}{z_{21}} & \textcolor{purple}{x_{31}}\textcolor{green}{z_{12}} + \textcolor{purple}{x_{32}}\textcolor{green}{z_{22}} & \textcolor{purple}{x_{31}}\textcolor{teal}{z_{13}} + \textcolor{purple}{x_{32}}\textcolor{teal}{z_{23}}
+\end{array}
+$$
+
+. . .
+
+It is easy to see that matrices can **only** be multiplied **if the number of columns in the left matrix** equals the number of **rows in the right matrix**.
+
+## Properties of Operations
+
+::: {.incremental .bitsmall}
+- Both matrix addition and scalar multiplication are commutative: $\boldsymbol{X} + \boldsymbol{Z} = \boldsymbol{Z} + \boldsymbol{X}$ and $\alpha \boldsymbol{X} = \boldsymbol{X}\alpha$.
+- Unlike scalar multiplication, matrix multiplication is **not commutative**, meaning $\boldsymbol{XZ}$ is generally not the same as $\boldsymbol{ZX}$.
+- Due to the condition for the dimensions of the two matrices, it may even be the case that $\boldsymbol{XZ}$ exists, but $\boldsymbol{ZX}$ does not.
+- A matrix $\boldsymbol{X}$ is called **idempotent** if $\boldsymbol{XX}=\boldsymbol{X}$.
+- Additionally, for matrices with the appropriate dimensions:
+  - $(\boldsymbol{X}+\boldsymbol{Z})+\boldsymbol{A} = \boldsymbol{X} + (\boldsymbol{Z} + \boldsymbol{A})$
+  - $\boldsymbol{X} + \boldsymbol{0} = \boldsymbol{X}$
+  - $(\boldsymbol{XZ})\boldsymbol{A}=\boldsymbol{X}(\boldsymbol{ZA})$
+  - $\boldsymbol{A}(\boldsymbol{X}+\boldsymbol{Z})=\boldsymbol{AX}+\boldsymbol{AZ}$
+  - $(\boldsymbol{X}+\boldsymbol{Z})\boldsymbol{A}=\boldsymbol{XA}+\boldsymbol{ZA}$
+  - $\boldsymbol{IX} = \boldsymbol{XI} = \boldsymbol{X}$
+  - $(\alpha\boldsymbol{X})\boldsymbol{Z} = \boldsymbol{X}(\alpha\boldsymbol{Z}) = \alpha(\boldsymbol{XZ})$
+:::
+
+## Inverse
+
+. . .
+
+A **square** matrix $\boldsymbol{X}$ is called **invertible** if there exists a matrix $\boldsymbol{X}^{-1}$ such that:
+
+$$
+\boldsymbol{XX}^{-1}=\boldsymbol{X}^{-1}\boldsymbol{X}=\boldsymbol{I}.
+$$
+
+In this case, $\boldsymbol{X}^{-1}$ is called the **inverse** of $\boldsymbol{X}$. If no such matrix exists, $\boldsymbol{X}$ is called **singular** or **non-invertible**. If an inverse exists, it is **unique**.
+
+::: {.incremental}
+- A matrix $\boldsymbol{X}$ is **invertible** if and only if it has **full rank**.
+- For invertible matrices, the following holds:
+  - $(\boldsymbol{X}^{-1})^{-1}=\boldsymbol{X}$
+  - $(\boldsymbol{X}')^{-1} = (\boldsymbol{X}^{-1})'$
+  - $(\boldsymbol{XZ})^{-1} = \textcolor{red}{\boldsymbol{Z}^{-1}\boldsymbol{X}^{-1}}$
+:::
+
+
+# Random Variables
+
+## Random Variables
+
+. . .
+
+Suppose we observe a random event, such as a coin toss or the roll of a die. A **random variable** is a variable that takes on a value depending on the observed event. We denote it with a capital letter:
+
+$$
+    X
+$$
+
+. . .
+
+We denote all possible outcomes with the corresponding lowercase letter:
+
+$$
+    x_i
+$$
+
+## Discrete Random Variables
+
+:::: {.columns .v-center-container}
+::: {.column width="60%"}
+:::{.fragment data-fragment-index="1"}
+A **discrete random variable** is a random variable that can have only a finite or countably infinite number of possible outcomes. If the variable is called $X$, we denote the outcomes as $x_i$ and the corresponding probabilities as $p_i$. Note that the sum of all probabilities $\sum_i p_i$ must equal 1.
+:::
+:::{.fragment data-fragment-index="2"}
+An example of a discrete random variable would be the roll of two dice. The possible outcomes are $\{2,3,4,5,6,7,8,9,10,11,12\}$, and the corresponding probabilities are $\{\tfrac{1}{36},\tfrac{2}{36},\tfrac{3}{36},\tfrac{4}{36},\tfrac{5}{36},\tfrac{6}{36},\tfrac{5}{36},\tfrac{4}{36},\tfrac{3}{36},\tfrac{2}{36},\tfrac{1}{36}\}$. To the right, the **probability mass function** (PMF) is illustrated:
+:::
+:::
+::: {.column width="40%" .fragment data-fragment-index="2"}
+::: {.fragment data-fragment-index="2"}
+```{r, engine="tikz"}
+\usetikzlibrary{arrows}
+\begin{tikzpicture}[scale=0.8]
+    \draw[thick, ->] (0,0) -- (7,0) node[right] {$x_i$};
+    \draw[thick, ->] (0,0) -- (0,6) node[above] {$p_i$};
+    \draw[thick, *-] (1,1) -- (1,0) node[below] {2};
+    \draw[thick, *-] (1.5,2) -- (1.5,0) node[below] {3};
+    \draw[thick, *-] (2,3) -- (2,0) node[below] {4};
+    \draw[thick, *-] (2.5,4) -- (2.5,0) node[below] {5};
+    \draw[thick, *-] (3,5) -- (3,0) node[below] {6};
+    \draw[thick, *-] (3.5,6) -- (3.5,0) node[below] {7};
+    \draw[thick, *-] (4,5) -- (4,0) node[below] {8};
+    \draw[thick, *-] (4.5,4) -- (4.5,0) node[below] {9};
+    \draw[thick, *-] (5,3) -- (5,0) node[below] {10};
+    \draw[thick, *-] (5.5,2) -- (5.5,0) node[below] {11};
+    \draw[thick, *-] (6,1) -- (6,0) node[below] {12};
+\end{tikzpicture}
+```
+:::
+::: {.fragment data-fragment-index="3"}
+A **Bernoulli variable** is a discrete random variable that can only take on two outcomes, such as a coin toss.
+:::
+:::
+::::
+
+## Continuous Random Variables (1)
+
+. . .
+
+A **continuous random variable** is a random variable that can take on an **uncountably infinite** number of different outcomes.
+
+. . .
+
+We know that there are infinitely many outcomes and that the sum of all of these equals 1. It follows that the probability of any single outcome is zero. Therefore, there is no probability mass function as with discrete random variables.
+
+. . .
+
+What we can do, however, is draw a **probability density function** (PDF). It tells us the probability that the outcome falls within a certain interval. The total area under the PDF is equal to 1.
+
+## Continuous Random Variables (2)
+
+. . .
+
+:::: {.columns}
+::: {.column width="60%"} 
+An example of such a variable would be the **height of a person**. It would make no sense to ask for the probability that a person is exactly 1.734681092536 meters tall. This probability is zero. But we can look at the PDF and determine how likely it is that the person's height lies between 1.73 and 1.74 meters:
+:::
+
+::: {.column width="40%"}
+
+```{r, engine="tikz"}
+\begin{tikzpicture}[scale = 0.8]
+    % Axes
+    \draw[thick, ->] (0,0) -- (7.5,0) node[right] {$X$};
+    \draw[thick, ->] (0,0) -- (0,5) node[above] {Density};
+
+    % Normal distribution curve
+    \draw[thick, domain=-3:3, smooth, samples=200] 
+        plot (\x+4, {4*exp(-0.5*(\x)^2)});
+
+    % Highlighted area
+    \begin{scope}
+        \clip (4.1,0) rectangle (4.6,5); % Clip the area to highlight
+        \draw[fill=black!25, domain=-3:3, smooth, samples=200]
+            plot (\x+4, {4*exp(-0.5*(\x)^2)});
+    \end{scope}
+
+    % X-axis labels
+    \node[below left] at (4,0) {1.73};
+    \node[below right] at (4.6,0) {1.74};
+\end{tikzpicture}
+```
+:::
+::::
+
+. . .
+
+Whether an infinite set of numbers is **countable** or **uncountable** can be intuitively answered. All **natural** numbers $\mathbb{N}$ are countably infinite. We can clearly specify a way to count them (start at 0, then 1, then 2, then 3, ...), we just don’t know where and when the path *ends*. After all, it is still infinitely long. All **real** numbers $\mathbb{R}$, however, are uncountably infinite. We cannot define a unique way to include all numbers. Suppose we start at 0, then 0.001 \dots what about all the numbers in between? And all the numbers between those numbers? There is no way to count them all.
+
+## Cumulative Distribution Function
+
+:::: {.columns}
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="1"}
+In addition to the **probability density function**, we can draw the **cumulative distribution function** (CDF). It represents the probability that the outcome is less than or equal to a certain value. The function is strictly monotonically increasing:
+:::
+
+::: {.fragment data-fragment-index="2"}
+The dashed line shows how to read the plot: The value of the density function at $X=1.74$ represents the probability that a randomly selected person is shorter than or exactly 1.74 meters tall.
+:::
+:::
+::: {.column width="50%" .fragment data-fragment-index="1"}
+<br><br><br>
+```{r, engine="tikz"}
+    \begin{tikzpicture}[scale=0.8]                   
+        % Axes
+        \draw[thick, ->] (0,0) -- (7.5,0) node[right] {$X$};
+        \draw[thick, ->] (0,0) -- (0,5) node[above] {Probability};
+
+        % Dashed lines
+        \draw[thick, dashed] (4,0) -- (4,3);
+        \draw[thick, dashed] (4,3) -- (0,3) node[left] {$P(X\leq 1.74)$};
+        \node[below] at (4,0) {1.74};
+
+        % CDF curve (approximated)
+        \draw[thick, domain=-3:3, smooth, samples=200] 
+            plot (\x+4, {2 + 1.5 * (1 + tanh(\x))});
+    \end{tikzpicture}
+```
+:::
+::::
+
+
+# Analysis of a Random Variable
+
+## Expected Value (1)
+
+. . .
+
+Let’s return to our example of rolling a die. The outcome is a discrete random variable with the following outcomes and associated probabilities:
+
+. . .
+
+| Outcome | Probability          |
+|---------|---------------------:|
+| $1$     | $\tfrac{1}{6}$      |
+| $2$     | $\tfrac{1}{6}$      |
+| $3$     | $\tfrac{1}{6}$      |
+| $4$     | $\tfrac{1}{6}$      |
+| $5$     | $\tfrac{1}{6}$      |
+| $6$     | $\tfrac{1}{6}$      |
+
+: {.striped}
+
+## Expected Value (2)
+
+. . .
+
+The **expected value** (or **expectation**) is a concept that allows us to simply analyze what value we can *expect* when rolling the die. We calculate it as the weighted arithmetic mean of the outcomes, with their respective probabilities as weights. We denote the expected value with a capital $\mathrm{E}$:
+
+. . .
+
+$$
+\mathrm{E} \equiv \sum_{i=1}^n x_i p_i
+$$
+
+. . .
+
+The expected value of a fair die is 3.5. If we draw more and more outcomes from this distribution, i.e., roll the die many times, the average of all rolls will approach the expected value more and more. As long as we work with discrete variables, all of this is relatively simple to interpret. For continuous variables, it becomes more challenging, but the general intuition remains the same.
+
+## Rules for Expected Values
+
+. . .
+
+In econometrics, we work a lot with expected values, so it is useful to know some rules for handling them.
+
+::: {.incremental}
+- For a constant $c$: $\mathrm{E}(c) = c$
+- For random variables $X, Y$ and constants $c, d$: $\mathrm{E}(c \cdot X + d \cdot Y) = c \cdot \mathrm{E}(X) + d \cdot \mathrm{E}(Y)$
+- For constants $c_1, \dots, c_n$ and random variables $X_1, \dots, X_n$: $\mathrm{E}\left(\sum_{i=1}^n c_i X_i\right) = \sum_{i=1}^n c_i \mathrm{E}(X_i)$
+- For two *independent* random variables $X, Y$: $\mathrm{E}(XY) = \mathrm{E}(X)\mathrm{E}(Y)$
+:::
+
+## Variance (1)
+
+. . .
+
+Often, the expected value alone is not sufficient to analyze a distribution. Imagine you own a company that manufactures screws. You have two machines producing them. You advertise that your screws are all 35 millimeters long, but in reality, the length of the screws is randomly distributed: The expected value of the screw length is 35 mm for both machines. However, machine $A$ mostly produces screws very close to the desired length, while machine $B$ sometimes produces screws as short as 33 mm or as long as 37 mm. What is the difference between these two machines with identical expected values?
+
+. . .
+
+The answer is **variance**. Simply put: The expected value shows us the "center" of a distribution. Variance, on the other hand, indicates how far the outcomes tend to deviate from this expectation. We denote it as $\mathrm{Var}(X)$ and calculate it as follows:
+
+. . .
+
+$$
+\mathrm{Var}(X) \equiv \mathrm{E}\left((X - \mu)^2\right),
+$$
+
+where $\mu = \mathrm{E}(X)$.
+
+## Variance (2)
+
+. . .
+
+It is evident that the variance of any constant is zero. Additionally, the following rule applies for a random variable $X$ and constants $a, b$:
+
+$$
+\mathrm{Var}(aX + b) = a^2 \mathrm{Var}(X) + \mathrm{Var}(b) = a^2 \mathrm{Var}(X)
+$$
+
+The standard deviation, denoted as $\mathrm{sd}(X)$, is simply the square root of the variance.
+
+# Analysis of Two Random Variables
+
+## Joint Probability Distribution
+
+. . .
+
+Suppose $X$ and $Y$ are two discrete random variables. In addition to their individual distributions, we can describe their **joint distribution** using a joint probability function:
+
+$$
+ f_{X,Y}(x,y) = P(X=x, Y=y)
+$$
+
+. . .
+
+This function simply specifies the probability for each combination of $X$ and $Y$. If $X$ and $Y$ are independent, then:
+
+$$
+ f_{X,Y}(x,y) = f_X(x)f_Y(y),
+$$
+
+where $f(x)$ and $f(y)$ are the probability functions for $X$ and $Y$, respectively. Two random variables are **independent** if the outcome of $X$ does not affect the probabilities of the possible outcomes of $Y$.
+
+## Conditional Distribution
+
+. . .
+
+Another important concept is the **conditional distribution**. The conditional probability density function describes how the outcome of $X$ affects that of $Y$:
+
+$$
+ f_{Y|X}(y|x) = P(Y=y|X=x) = \frac{f_{X,Y}(x,y)}{f_{X}(x)}, \text{    for all } f_{X}(x) > 0
+$$
+
+. . .
+
+If $X$ and $Y$ are independent, the outcome of $X$ does not affect $Y$, and thus $f_{Y|X}(y|x) = f_{Y}(y)$.
+
+## Covariance
+
+. . .
+
+**Covariance** is similar to a "two-variable version" of variance. It allows us to analyze two distributions together. It is defined as follows and denoted as $\mathrm{Cov}(X,Y)$:
+
+$$
+ \mathrm{Cov}(X,Y) \equiv \mathrm{E}\left((X-\mu_X)(Y-\mu_Y)\right),
+$$
+
+where $\mu_X = \mathrm{E}(X)$ and $\mu_Y = \mathrm{E}(Y)$.
+
+. . .
+
+The sign of the covariance can be intuitively interpreted. If the covariance is positive, we expect $Y$ to be above its mean when $X$ is as well. If the covariance is negative, we expect $Y$ to be below its mean when $X$ is above its mean. Simply put, a positive covariance indicates that two variables are positively associated, and vice versa. A covariance of 0 means that there is no relationship. If $X$ and $Y$ are independent, the covariance is always 0.
+
+. . .
+
+An association in this sense does not necessarily imply causation, but more on that in the course :)
+
+## Rules for Covariance
+
+. . .
+
+The following rules apply for covariance:
+
+. . .
+
+$$
+ \mathrm{Cov}(X,Y) = \mathrm{E}(XY) - \mathrm{E}(X)\mathrm{E}(Y)
+$$
+
+. . .
+
+For constants $a, b, c, d$:
+
+$$
+ \mathrm{Cov}(aX +b, cY +d) = a\cdot c \cdot \mathrm{Cov}(X,Y)
+$$
+
+## Conditional Expectation
+
+. . .
+
+Suppose we have two random variables $X$ and $Y$ that are somehow connected. We want to know the expectation of $Y$, given that $X$ takes on a specific value. This is called the **conditional expectation** and is denoted as $\mathrm{E}(Y|X=x)$. The following rules apply for conditional expectations:
+
+::: {.incremental}
+- If $f(x)$ is any function: $\mathrm{E}\left(f(X)|X\right) = f(X)$
+- For two functions $f(X)$ and $g(x)$: $\mathrm{E}\left(f(X)Y + g(X)\mid X\right) = f(X)\mathrm{E}(Y|X) + g(X)$
+- If $X$ and $Y$ are independent: $\mathrm{E}(Y|X) = \mathrm{E}(Y)$
+- The **law of iterated expectations**: $\mathrm{E}\left(\mathrm{E}(Y|X)\right)=\mathrm{E}(Y)$
+
+:::
+
+
+
+
+

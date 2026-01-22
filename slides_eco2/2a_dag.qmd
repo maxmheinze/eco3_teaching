@@ -1,0 +1,1040 @@
+---
+title: "Module 2: Causality"
+subtitle: "Econometrics II"
+author:
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+date: "2025-10-23"
+date-format: long
+lang: en
+format: 
+  revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+      - appxslideno.lua
+      - pdf-to-svg.lua
+      - space.lua
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @james2021
+  @cunningham2021
+  @pearl2009
+---
+
+
+```{r}
+#| label: setup
+#| include: false
+library(plotly)
+font_family <- "Inter" 
+```
+
+# Directed Acyclical Graphs
+
+## Ways of Viewing Causal Questions
+
+. . .
+
+The [**Potential Outcomes (PO)**]{.col1} framework, which we covered last week, is **one way** to view causal questions.
+
+:::{.incremental}
+- There is a **treatment** $X_i$ that takes on different values for each unit.
+- For each possible level of treatment, there is a certain **potential outcome** $Y(x)$. 
+- Only **one** potential outcome is **observed**, the others are **counterfactuals**.
+:::
+
+. . .
+
+The [**potential outcomes**]{.col1} framework relates very clearly to the notion of a **randomized experiment**. 
+
+. . .
+
+Today, we are discussing a **different framework** that has its strengths **elsewhere**: the [**Directed Acyclical Graphs (DAG)**]{.col4} framework.
+
+:::{.incremental}
+- It is a **graphical framework** that helps us identify a causal effect in a network of variables.
+- It has its **strengths** in a world with a **large number of (observed) variables**, and
+- may help people who prefer thinking **graphically** to understand **causal questions**.
+:::
+
+## A Glorified Flowchart?
+
+<!--
+\documentclass[tikz]{standalone}
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, draw, align=center] (A) at (0,0) {cause};
+  \node[circle, draw, align=center] (B) at (3,0) {effect};
+  \draw[->, thick] (A) -- (B);
+\end{tikzpicture}
+\end{document}
+-->
+
+:vspace1
+
+. . .
+
+To give you an intuition before we start with the theory, a [**DAG**]{.col4} looks like this:
+
+:vspace0.5
+
+:::{.centering}
+![](figures/2_intro.svg){width="60%"}
+:::
+
+:::{.incremental}
+- They are similar in concept to **flowcharts**, but they are not the same. 
+- You might occasionally have seen them in informal use, e.g. in Econometrics I.
+- In this example, the **arrow** represents a causal effect from $\text{cause}$ on $\text{effect}$. 
+:::
+
+
+## A Short Intro to Graph Theory {auto-animate="true"}
+
+::::{.columns .fragment}
+:::{.column width="70%"}
+What you see on the right is what we call a **graph**. 
+
+This graph has three [**nodes**]{.col1}. They are labeled $i$, $j$, and $k$. [Sometimes, we call the [**nodes**]{.col1} “[vertices]{.col1},” “[agents]{.col1},” “[points]{.col1},” etc.]{.fragment}
+:::
+:::{.column width="30%"}
+![](figures/2_graph1.svg){width="100%"}
+:::
+::::
+
+::::{.columns .fragment}
+:::{.column width="70%"}
+Some of the [**nodes**]{.col1} in a graph are usually connected to each other, while others are not. We call those connections [**edges**]{.col2}. [Alternatively, they can be called “[links]{.col2},” “[connections]{.col2},” “[lines]{.col2},” etc.]{.fragment}
+
+[[**Edges**]{.col2} are pairs of two [**nodes**]{.col1}. In the second graph, there is one [**edge**]{.col2} from $i$ to $j$. We call this [**edge**]{.col2} $\{i,j\}$.]{.fragment}
+:::
+:::{.column width="30%"}
+
+:vspace4
+
+![](figures/2_graph2.svg){width="100%"}
+:::
+::::
+
+## A Short Intro to Graph Theory {auto-animate="true"}
+
+::::{.columns}
+:::{.column width="70%"} 
+This [**edge**]{.col2} does not have a direction.
+:::
+:::{.column width="30%"}
+
+<!--
+\documentclass[tikz]{standalone}
+\definecolor{main}{HTML}{ED017D}
+\definecolor{secondary}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=left:{$i$}] (A) at (0, 0) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$j$}] (B) at (1.5, 0) {};
+  \draw[line width=2pt, color=secondary] (A) edge node[above] {$\{i,j\}$} (B);
+\end{tikzpicture}
+\end{document}
+-->
+
+![](figures/2_graph2.svg){width="100%"}
+:::
+::::
+
+::::{.columns .fragment}
+:::{.column width="70%"} 
+However, we can easily give [**edges**]{.col2} a direction. We call an [**edge**]{.col2} like this a [**directed edge**]{.col2}. [When an [**edge**]{.col2} is **directed**, the corresponding pair of [**nodes**]{.col1} is no longer an **unordered pair**, but an **ordered pair**: $\{j,i\}\neq\{i,j\}$.]{.fragment} 
+:::
+:::{.column width="30%"}
+
+<!--
+\documentclass[tikz]{standalone}
+\definecolor{main}{HTML}{ED017D}
+\definecolor{secondary}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=left:{$i$}] (A) at (0, 0) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$j$}] (B) at (1.5, 0) {};
+  \draw[<-, line width=2pt, color=secondary] (A) edge node[above] {$\{j,i\}$} (B);
+\end{tikzpicture}
+\end{document}
+-->
+
+![](figures/2_graph3.svg){width="100%"}
+:::
+::::
+
+:vspace1
+
+::::{.columns .fragment}
+:::{.column width="60%"} 
+A **walk** is a sequence of [**edges**]{.col2} that joins a sequence of [**nodes**]{.col1}. A **cycle** is a special case of a **walk** where all [**edges**]{.col2} are **distinct** and the initial and final [**node**]{.col1} are **equal**. In this graph, $\left\{\{a,b\},\{b,c\},\{c,a\}\right\}$ is a **cycle**.
+:::
+:::{.column width="40%"}
+
+<!--
+\documentclass[tikz]{standalone}
+\definecolor{main}{HTML}{ED017D}
+\definecolor{secondary}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=below:{$a$}] (A) at (0, 0) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=left:{$b$}] (B) at (.5, .75) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=above:{$c$}] (C) at (1.5, .25) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$x$}] (X) at (2, .5) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$y$}] (Y) at (2, -.1) {};
+
+  \draw[line width=2pt, color=secondary] (A) -- (B);
+  \draw[line width=2pt, color=secondary] (B) -- (C);
+  \draw[line width=2pt, color=secondary] (C) -- (A);
+  \draw[line width=.5pt, color=secondary] (C) -- (Y);
+  \draw[line width=.5pt, color=secondary] (Y) -- (X);
+\end{tikzpicture}
+\end{document}
+-->
+
+![](figures/2_graph4.svg){width="100%"}
+:::
+::::
+
+## Directed Graphs, Acyclic Graphs
+
+. . .
+
+A **graph** that does not contain any **cycles** is called an [**acyclic graph**]{.col4}.
+
+. . .
+
+If a graph contains only **directed edges**, we call it a [**directed graph**]{.col4}.
+
+. . .
+
+The following graph is both **directed** and **acyclic**. We therefore call it a
+
+:::{.centering .bitlarge}
+[[**Directed**]{.fragment} [**Acyclic**]{.fragment} **Graph** [**(DAG)**]{.fragment}]{.col4}.
+:::
+
+:vspace2
+
+::::{.columns}
+:::{.column width="60%"}
+
+<!--
+\documentclass[tikz]{standalone}
+\begin{document}
+\begin{tikzpicture}
+  \node[circle,draw=black] (A) at (0, 0) {A};
+  \node[circle,draw=black] (B) at (3, 0) {B};
+  \node[circle,draw=black] (C) at (6, 0) {C};
+  \node[circle,draw=black] (D) at (9, 0) {D};
+  \node[circle,draw=black] (E) at (1.5, -1.5) {E};
+
+  \draw[->, line width=2pt] (A) -- (B);
+  \draw[->, line width=2pt] (B) -- (C);
+  \draw[->, line width=2pt, out=45, in=135] (B) -- (D);
+  \draw[->, line width=2pt] (C) -- (D);
+  \draw[->, line width=2pt, out=135, in=-90] (E) -- (A);
+  \draw[->, line width=2pt, out=45, in=-135] (E) -- (C);
+  \draw[->, line width=2pt, out=0, in=-135] (E) -- (D);
+\end{tikzpicture}
+\end{document}
+-->
+
+![](figures/2_dag1.svg){width="100%"}
+:::
+:::{.column width="40%" .fragment}
+:::{.callout-tip title="Think"}
+Why is $\{\{A,B\},\{B,C\},$$\{C,E\},\{E,A\}\}$ not a cycle?
+:::
+:::
+::::
+
+## DAGs for Causal Modeling
+
+<!--
+\documentclass[tikz]{standalone}
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, draw, align=center] (A) at (0,0) {studying\\econometrics};
+  \node[circle, draw, align=center] (B) at (4,0) {being\\really smart};
+  \node[circle, draw, align=center] (C) at (8,0) {others think\\you are cool};
+  \draw[->, thick] (A) -- (B);
+  \draw[->, thick] (B) -- (C);
+\end{tikzpicture}
+\end{document}
+-->
+
+. . .
+
+Why do we talk about [**DAGs**]{.col4} in an **Econometrics** class? [Because they are really useful for **causal modeling**.]{.fragment}
+
+. . .
+
+:vspace1
+
+In the following [**DAG**]{.col4}, **nodes** represent **(random) variables**, and **edges** represent (hypothesized) **causal effects**. 
+
+:::{.centering}
+:::{.r-stack}
+![](figures/2_dag3.svg){.fragment .fade-in-then-out width="70%"}
+
+![](figures/2_dag4.svg){.fragment width="70%"}
+:::
+:::
+
+. . .
+
+**Missing edges** also convey information: the assumption of **no causal effect**.
+
+## DAGs and Causal Inference
+
+:vspace1
+
+[[**DAGs**]{.col4} are a very useful **framework for causal inference** because]{.fragment}
+
+:vspace0.5
+
+:::{.incremental }
+* they **visualize** causal relationships between a number of variables,
+  * which allows us to transparently state our **assumptions**,
+* and they help us **identify** a causal effect,
+  * i.e., they tell us which variables to **control** for to estimate an effect.
+:::
+
+## The Basics of Causal Inference with DAGs
+
+:::: {.columns}
+::: {.column width="60%"}
+<ul>
+  <li class="fragment" data-fragment-index="1">Is $Y$ <strong>related</strong> to $U$?</li>
+  <li class="fragment" data-fragment-index="2">Is $X$ <strong>related</strong> to $U$? Can we <strong>randomize</strong> treatment?</li>
+  <li class="fragment" data-fragment-index="3">Are there <strong>other</strong> important variables?</li>
+</ul>
+
+[It turns out that there are <strong>two paths</strong> from $X$ to $Y$,]{.fragment data-fragment-index="4"}
+
+<ul>
+  <li class="fragment" data-fragment-index="4">one <span class="col1"><strong>direct path</strong></span> $X \rightarrow Y$</li>
+  <li class="fragment li2" data-fragment-index="5">and one <span class="col2"><strong>backdoor path</strong></span> $X \leftarrow U \rightarrow Y$.</li>
+</ul>
+:::
+
+::: {.column width="40%"}
+:vspace4
+
+<!--
+\documentclass[tikz]{standalone}
+\definecolor{main}{HTML}{ED017D}
+\definecolor{alt}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, draw=black] (A) at (0, 0) {$X$};
+  \node[circle, draw=black] (B) at (3, 0) {$Y$};
+  \node[circle, draw=black] (C) at (1.5, 1.5) {$U$};
+
+  \draw[->, line width=2pt, color=main] (A) -- (B);
+
+  \draw[->, line width=2pt, color=alt, dashed] (C) -- node[above]{?} (B);
+  \draw[->, line width=2pt, color=alt] (C) -- (B);
+
+  \draw[->, line width=2pt, color=alt, dashed] (C) -- node[above]{?} (A);
+  \draw[->, line width=2pt, color=alt] (C) -- (A);
+\end{tikzpicture}
+\end{document}
+-->
+
+:::{.r-stack}
+![](figures/2_cib1.svg){.fragment .fade-in-then-out width="100%" data-fragment-index="0"}
+
+![](figures/2_cib2.svg){.fragment .fade-in-then-out width="100%" data-fragment-index="1"}
+
+![](figures/2_cib3.svg){.fragment .fade-in-then-out width="100%" data-fragment-index="2"}
+
+![](figures/2_cib4.svg){.fragment .fade-in-then-out width="100%" data-fragment-index="3"}
+
+![](figures/2_cib5.svg){.fragment width="100%" data-fragment-index="4"}
+:::
+:::
+::::
+
+[We call it a [**backdoor path**]{.col2} because it enters $X$ trough the “back door,” via an arrow pointed *at* $X$.]{.fragment}
+
+## Confounders
+
+
+
+::::{.columns}
+:::{.column width="40%"}
+
+:vspace4
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+\definecolor{main}{HTML}{ED017D}
+\definecolor{alt}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+    \node[draw,circle] (A) at (0, 0) {$X$};
+    \node[draw,circle] (B) at (3, 0) {$Y$};
+    \node[draw,circle] (C) at (1.5, 1.5) {$U$};
+
+    \draw[line width=2pt, color=main, ->] (A) -- (B);
+    \draw[line width=2pt, color=alt, ->] (C) -- (B);
+    \draw[line width=2pt, color=alt, ->] (C) -- (A);
+\end{tikzpicture}
+\end{document}
+-->
+
+![](figures/2_cib5.svg){.fragment width="100%" data-fragment-index="4"}
+:::
+:::{.column width="60%"}
+
+:vspace2
+
+[In this DAG, when we want to **isolate** the effect $X\rightarrow Y$, there is one [**open backdoor path**]{.col2}.]{.fragment}
+
+[This path **confounds** the causal effect of interest. We therefore call the variable $U$ a [**confounder**]{.col1}.]{.fragment}
+
+:vspace2
+
+:::{.callout-note icon=false title="Confounder" .fragment}
+A **confounder** is a variable that influences both the dependent and the explanatory variables.
+:::
+:::
+::::
+
+## Confounders and Backdoors
+
+::::{.columns}
+:::{.column width="40%"}
+
+:vspace4
+
+![](figures/2_cib5.svg){.fragment width="100%" data-fragment-index="4"}
+:::
+:::{.column width="60%"}
+
+:vspace2
+
+[If we just look at the connection between $X$ and $Y$, two effects are mixed together:]{.fragment}
+
+:::{.incremental}
+- The effect of $X$ on $Y$, our **effect of interest**.
+- The effect of $U$ on $Y$ via $X$.
+:::
+
+[We can **close the backdoor** by **controlling** for the confounder. We only run into problems when we **cannot control** for the confounder.]{.fragment}
+
+:::{.fragment}
+We would run a **regression** along the lines of:
+
+$$
+\boldsymbol{y} \sim \boldsymbol{x} + \boldsymbol{u} + \boldsymbol{y}.
+$$
+:::
+:::
+::::
+
+## Colliders
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+\definecolor{main}{HTML}{ED017D}
+\definecolor{alt}{HTML}{74B83D}
+
+\begin{document}
+\begin{tikzpicture}
+    \node[draw,circle] (A) at (0, 0) {$X$};
+    \node[draw,circle] (B) at (3, 0) {$Y$};
+    \node[draw,circle] (C) at (1.5, -1.5) {$V$};
+
+    \draw[line width=2pt, color=main, ->] (A) -- (B);
+    \draw[line width=2pt, color=alt, <-] (C) -- (B);
+    \draw[line width=2pt, color=alt, <-] (C) -- (A);
+\end{tikzpicture}
+\end{document}
+-->
+
+::::{.columns}
+:::{.column width="40%" .fragment}
+
+:vspace4
+
+![](figures/2_collider.svg){width="100%"}
+:::
+:::{.column width="60%"}
+:vspace2
+
+[Now imagine a **different situation**: There is a third variable, $V$, that is jointly **influenced** by $X$ and $Y$.]{.fragment}
+
+[Effects of both variables **collide** at $V$. We therefore call $V$ a [**collider**]{.col4}.]{.fragment} [There is again one **direct path** and one **backdoor path**, but since the backdoor collides at $V$, it is **already closed**.]{.fragment}
+
+:vspace1
+
+:::{.callout-note icon=false title="Collider" .fragment}
+A **collider** is a variable that is influenced by two variables, for example (but not necessarily), the dependent and the explanatory variables. 
+:::
+:::
+::::
+
+## Closing Backdoors
+
+. . .
+
+Open [**backdoors**]{.col1} between two variables introduce **systematic, non-causal correlation** between them. If we want to estimate a [**causal effect**]{.col2}, we need to **close them**. [There are **three cases** we have to consider:]{.fragment}
+
+::::{.columns}
+:::{.column width="33%" .fragment}
+
+:::{.titlebox1}
+**Confounders**
+:::
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+\begin{document}
+\begin{tikzpicture}
+    \node[draw,circle] (A) at (0, 0) {$X$};
+    \node[draw,circle] (B) at (3, 0) {$Y$};
+    \node[draw] (C) at (1.5, 1.5) {Confounder};
+
+    \draw[line width=2pt, ->] (A) -- (B);
+    \draw[line width=2pt, ->] (C) -- (B);
+    \draw[line width=2pt, ->] (C) -- (A);
+\end{tikzpicture}
+\end{document}
+-->
+![](figures/2_cols_confounder.svg){width="100%"}
+
+We **close backdoor paths** by **controlling** for confounders.
+
+:::
+:::{.column width="33%" .fragment}
+
+:::{.titlebox1}
+**Colliders**
+:::
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+\begin{document}
+\begin{tikzpicture}
+    \node[draw,circle] (A) at (0, 0) {$X$};
+    \node[draw,circle] (B) at (3, 0) {$Y$};
+    \node[draw] (C) at (1.5, -1.5) {Collider};
+
+    \draw[line width=2pt, ->] (A) -- (B);
+    \draw[line width=2pt, <-] (C) -- (B);
+    \draw[line width=2pt, <-] (C) -- (A);
+\end{tikzpicture}
+\end{document}
+-->
+![](figures/2_cols_collider.svg){width="100%"}
+
+We can (and **need** to) **leave colliders alone**. The backdoor path is already closed.
+
+:::
+:::{.column width="33%" .fragment}
+
+:::{.titlebox1}
+**Mediators**
+:::
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+\begin{document}
+\begin{tikzpicture}
+    \node[draw,circle] (A) at (0, 0) {$X$};
+    \node[draw,circle] (B) at (4, 0) {$Y$};
+    \node[draw] (C) at (2, 0) {Mediator};
+
+    \draw[line width=2pt, ->] (A) -- (C);
+    \draw[line width=2pt, ->] (C) -- (B);
+    \draw[line width=2pt, ->] (A) to[bend right=40] (B);
+\end{tikzpicture}
+\end{document}
+-->
+![](figures/2_cols_mediator.svg){width="100%"}
+
+:vspace1
+
+A **mediator** mediates part of the effect. If we **control for the mediator**, we **remove** the mediated effect and leave only the direct effect.
+
+:::
+::::
+
+# Application: DAGs in Research
+
+## Enumerating Paths
+
+::::{.columns .fragment}
+:::{.column width="60%"}
+
+:vspace2
+
+[How does this framework look like if we apply it to an **example**? Let us look at the following graph on the effect of **gender** ($F$) based **discrimination** ($X$) on **earnings** ($Y$).]{.fragment}
+
+[We account for **occupation** ($O$) and **aptitude** ($A$).]{.fragment}
+
+:vspace1
+
+[Note that aptitude is **not observed**.]{.fragment}
+
+:vspace2
+
+[[**How many paths**]{.col1} from $X$ to $Y$ can we **enumerate**?]{.fragment}
+:::
+:::{.column width="40%"}
+
+:vspace3
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+\tikzset{
+  nodeSolid/.style={draw,circle,inner sep=1.2pt,minimum size=14pt},
+  nodeDashed/.style={draw,circle,dashed,inner sep=1.2pt,minimum size=14pt},
+  edge/.style={line width=1.4pt,->},
+  edgeDashed/.style={edge,dashed}
+}
+
+\begin{document}
+\begin{tikzpicture}
+  % Nodes
+  \node[nodeSolid]  (F) at (0.2, 1) {F};
+  \node[nodeSolid] (X) at (2.0, 2) {X};
+  \node[nodeSolid]  (O) at (2.0, 0) {O};
+  \node[nodeSolid]  (Y) at (4.0, 2) {Y};
+  \node[nodeDashed] (A) at (4.0, 0) {A};
+
+  % Solid edges
+  \draw[edge] (F) -- (X);
+  \draw[edge] (F) -- (O);
+  \draw[edge] (O) -- (Y);
+  \draw[edge] (X) -- (Y);
+  \draw[edge] (X) -- (O);
+
+  % Dashed edges
+  \draw[edgeDashed] (A) -- (Y);
+  \draw[edgeDashed] (A) -- (O);
+\end{tikzpicture}
+\end{document}
+-->
+![](figures/2_paths.svg){width="100%"}
+:::
+::::
+
+
+## Enumerating Paths
+
+::::{.columns}
+:::{.column width="50%"}
+
+
+[**How many paths**]{.col1} between $X$ and $Y$ can we **enumerate**?
+
+:::{.incremental}
+1. $X\rightarrow Y$,
+2. $X \rightarrow O \rightarrow Y$,
+3. $X \rightarrow O \leftarrow A \rightarrow Y$,
+4. $X \leftarrow F \rightarrow O \rightarrow Y$,
+5. $X \leftarrow F \rightarrow O \leftarrow A \rightarrow Y$.
+:::
+
+![](figures/2_paths.svg){width="65%"}
+
+:::
+:::{.column width="50%"}
+
+[[**Which models**]{.col2} can we use to isolate the effect of interest?]{.fragment}
+
+:::{.incremental .li2}
+- $Y \sim F$: We get a compound effect of $X$ and $O$ (1, 2, 4).
+- $Y \sim X$: We get the effects of $X$, but they are confounded by $F$ (4).
+- $Y \sim X, O$: We get rid of the confounder $F$ and separate the effects of $X$ (1, 2), but they are now confounded by $A$ (3, 5).
+:::
+
+[Without $A$, we cannot isolate the causal effect of $X$ on $Y$ in this model. **DAGs** can highlight what **cannot be done**.]{.fragment}
+
+:::
+::::
+
+
+## Does Smoking During Pregnancy Protect Your Child?
+
+::::{.columns}
+:::{.column width="60%" .incremental}
+- The debate about whether smoking causes cancer was settled by the 1960s. Its conclusion had been delayed by multiple years because scientists disagreed on the meaning of “to **cause**,” and **no ways of discerning causal effects from observational data** were available.
+- But even afterwards, one paradox remained. Some researchers argued that **smoking during pregnancy was actually good -- _if_ the unborn child was underweight**.
+- The paradox was **not resolved _until 2006_**. @pearl2018 argue that it took so long because precise language of causality was not yet available.
+:::
+:::{.column width="40%"}
+
+:vspace2
+
+![](figures/smoking_unbornchild.png){width="100%"}
+:::
+::::
+
+## Smoking Mothers
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+% Styles (switch to nodeDashed / edgeDashed as needed)
+\tikzset{
+  nodeSolid/.style={
+    draw,circle,inner sep=0pt,minimum size=18mm,
+    align=center,text width=18mm
+  },
+  nodeDashed/.style={nodeSolid,dashed},
+  edge/.style={line width=1.4pt,->},
+  edgeDashed/.style={edge,dashed}
+}
+
+\begin{document}
+\begin{tikzpicture}
+  % Nodes
+  \node[nodeSolid] (SM) at (0,3) {smoking};
+  \node[nodeSolid] (BW) at (0,0)   {birth\\weight};
+  \node[nodeSolid] (BD) at (0,-3){birth\\defect};
+  \node[nodeSolid] (MC) at (5,0)   {mortality\\of child};
+
+  % Edges (toggle to edgeDashed for dashed arrows)
+  \draw[edge] (SM) -- (BW);   % smoking -> birth weight
+  \draw[edge] (BD) -- (BW);   % birth defect -> birth weight
+
+  \draw[edge] (BW) -- (MC);   % birth weight -> mortality
+  \draw[edge] (SM) -- (MC); % smoking -> mortality
+  \draw[edge] (BD) -- (MC); % birth defect -> mortality
+\end{tikzpicture}
+\end{document}
+-->
+
+::::{.columns}
+:::{.column width="38%"}
+
+:vspace1.5
+
+![](figures/2_smoking1.svg){width="100%"}
+:::
+:::{.column width="62%" .incremental}
+
+:vspace1
+
+- Underweight infants were found to have a **death rate twenty times higher** than normal-weight newborns.
+- Babies of smokers during pregnancy were on average 200 grams lighter than those of non-smokers.
+- However, [**underweight babies of smoking mothers**]{.col1} had a **higher survival rate** than [**underweight babies of non-smoking mothers**]{.col2}.
+
+:vspace1
+
+:::{.centering .quitelarge .fragment}
+**How come?**
+:::
+:::
+::::
+
+## Smoking Mothers
+
+::::{.columns}
+:::{.column width="38%"}
+
+:vspace1.5
+
+![](figures/2_smoking2.svg){width="100%"}
+:::
+:::{.column width="62%" .incremental}
+
+
+- Scientists at the time cautiously concluded that smoking may not affect the development of the fetus.
+- **However**, another explanation makes much more sense:
+  - There are (thinking in a blatantly simplified way) **two possible causes** for a low birth weight: [**Smoking**]{.col1} and having a [**birth defect**]{.col2}.
+  - If a mother does not smoke, a low birth weight points much more strongly to a birth defect.
+  - **Birth weight** acts as a **collider**.
+
+
+:::
+::::
+
+:::{.incremental}
+- The original **paradox** becomes a (literal) textbook case of **collider bias**.
+:::
+
+## The Berkeley Admissions Paradox
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+% Styles
+\tikzset{
+  nodeSolid/.style={
+    draw,circle,inner sep=0pt,minimum size=16mm,
+    align=center,text width=18mm
+  },
+  nodeDashed/.style={nodeSolid,dashed},
+  edge/.style={line width=1.3pt,->},
+  edgeDashed/.style={edge,dashed}
+}
+
+\begin{document}
+\begin{tikzpicture}
+  % Nodes
+  \node[nodeSolid] (Dept) at (2,-2.2) {department};
+  \node[nodeSolid] (Gender) at (0,0) {gender};
+  \node[nodeSolid] (Outcome) at (4,0) {outcome};
+
+  % Edges
+  \draw[edge] (Gender) -- (Outcome);   % Gender -> Outcome
+  \draw[edge] (Gender) -- (Dept);      % Department -> Gender
+  \draw[edge] (Dept) -- (Outcome);     % Department -> Outcome
+\end{tikzpicture}
+\end{document}
+-->
+
+::::{.columns}
+:::{.column width="40%"}
+
+:vspace3
+
+![](figures/2_admissions1.svg){width="100%"}
+:::
+:::{.column width="60%" .incremental}
+
+:vspace1
+
+- In 1978, an associate dean at the University of California noticed that **44 percent of applying men** were admitted, but only **35 percent of women**.
+- Admission decisions were made by **individual departments**.
+- The university surveyed all departments, and found that in every department, **admission decisions were more favorable to women than to men**.
+
+:::{.centering .quitelarge .fragment}
+**How is this possible?**
+:::
+:::
+::::
+
+## The Berkeley Admissions Paradox
+
+::::{.columns}
+:::{.column width="40%"}
+
+:vspace3
+
+![](figures/2_admissions2.svg){width="100%"}
+:::
+:::{.column width="60%" .incremental}
+
+:vspace1
+
+- It turns out that the $\text{gender}\rightarrow\text{outcome}$ relation has an important **mediator**.
+- Discrimination is a **causal concept**, and thus a causal graph can help understand the situation.
+- Women were applying to **different departments**/majors than men.
+  - More **women** applied to humanities departments, which were **harder to get into**.
+:::
+::::
+
+:::{.incremental}
+- The **choice of department** is a mediator. Whether we want to **condition on the mediator** depends on the [**specific question**]{.col1} we want to answer.
+- In this case, it depends on our **understanding of discrimination** as well as whether we ask about a societal phenomenon or whether the university is at fault.
+:::
+
+## Simpson's Paradox
+
+<!--
+\documentclass{standalone}
+\usepackage{tikz}
+
+% Styles
+\tikzset{
+  nodeSolid/.style={
+    draw,circle,inner sep=0pt,minimum size=20mm,
+    align=center
+  },
+  nodeDashed/.style={nodeSolid,dashed},
+  edge/.style={line width=1.3pt,->},
+  edgeDashed/.style={edge,dashed}
+}
+
+\begin{document}
+\begin{tikzpicture}
+  % Nodes
+  \node[nodeSolid] (Gender) at (2,-2.2) {gender};
+  \node[nodeSolid] (Drug)   at (0,0)   {drug};
+  \node[nodeSolid] (HA)     at (4,0)   {heart\\attack};
+
+  % Edges
+  \draw[edge] (Gender) -- (Drug);   % gender -> drug
+  \draw[edge] (Gender) -- (HA);     % gender -> heart attack
+  \draw[edge] (Drug) -- (HA);       % drug -> heart attack
+\end{tikzpicture}
+\end{document}
+-->
+
+::::{.columns}
+:::{.column width="40%"}
+
+:vspace1
+
+![](figures/2_drug1.svg){width="100%"}
+:::
+:::{.column width="60%" .fragment}
+<table><thead>
+ <tr>
+      <th rowspan="2" style="text-align:center;"> </th>
+      <th colspan="2" style="text-align:center;">No Drug</th>
+      <th colspan="2" style="text-align:center;">Took Drug</th>
+    </tr>
+    <tr>
+      <th style="text-align:center;">Heart Attack</th>
+      <th style="text-align:center;">No Heart Attack</th>
+      <th style="text-align:center;">Heart Attack</th>
+      <th style="text-align:center;">No Heart Attack</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center;">Female</td>
+      <td style="text-align:center;">1</td>
+      <td style="text-align:center;">19</td>
+      <td style="text-align:center;">3</td>
+      <td style="text-align:center;">37</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">Male</td>
+      <td style="text-align:center;">12</td>
+      <td style="text-align:center;">28</td>
+      <td style="text-align:center;">8</td>
+      <td style="text-align:center;">12</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">Total</td>
+      <td style="text-align:center;">13</td>
+      <td style="text-align:center;">47</td>
+      <td style="text-align:center;">11</td>
+      <td style="text-align:center;">49</td>
+    </tr>
+</tbody>
+</table>
+:::
+::::
+
+:::{.incremental}
+- Assume a fictional doctor, Dr. Smith, reads about a drug that **reduced** the probability of a **heart attack** among the subjects that took the drug (no randomized trial).
+- However, both in **men** and in **women**, the drug seemed to **increase** the propensity to suffer from a heart attack. 
+:::
+
+:::{.centering .quitelarge .fragment}
+**How does this “Bad-Bad-Good (BBG)” drug paradox arise?**
+:::
+
+## Simpson's Paradox
+
+::::{.columns}
+:::{.column width="40%"}
+
+:vspace1
+
+![](figures/2_drug2.svg){width="100%"}
+:::
+:::{.column width="60%"}
+<table><thead>
+ <tr>
+      <th rowspan="2" style="text-align:center;"> </th>
+      <th colspan="2" style="text-align:center;">No Drug</th>
+      <th colspan="2" style="text-align:center;">Took Drug</th>
+    </tr>
+    <tr>
+      <th style="text-align:center;">Heart Attack</th>
+      <th style="text-align:center;">No Heart Attack</th>
+      <th style="text-align:center;">Heart Attack</th>
+      <th style="text-align:center;">No Heart Attack</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center;">Female</td>
+      <td style="text-align:center;">1</td>
+      <td style="text-align:center;">19</td>
+      <td style="text-align:center;">3</td>
+      <td style="text-align:center;">37</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">Male</td>
+      <td style="text-align:center;">12</td>
+      <td style="text-align:center;">28</td>
+      <td style="text-align:center;">8</td>
+      <td style="text-align:center;">12</td>
+    </tr>
+    <tr>
+      <td style="text-align:center;">Total</td>
+      <td style="text-align:center;">13</td>
+      <td style="text-align:center;">47</td>
+      <td style="text-align:center;">11</td>
+      <td style="text-align:center;">49</td>
+    </tr>
+</tbody>
+</table>
+:::
+::::
+
+:::{.incremental}
+- Actually, the drug is just **plain bad**. 
+- Since gender is a **confounder** and affects both the propensity to take a drug and the chance of a heart attack, we need to **control for it** when comparing totals.
+- In the example, we can do this by **looking at both groups separately** and then averaging. We find out that there is a **negative effect** for **both** women and men, and so the **aggregate effect** is also **negative**.
+:::
+
+## Summary Slide
+
+:::{.incremental}
+- All of the previous three examples are taken from “The Book of Why” by @pearl2018. You can read more about them, and about similar examples, in the book.
+  - The **smoking mothers** paradox highlighted what can happen if we improperly treat [**colliders**]{.col2}.
+  - The **Berkeley admissions** paradox was a case of ignoring an important [**mediator**]{.col4}
+  - **Smith's Paradox** was a case of ignoring a [**confounder**]{.col1}.
+- **DAGs** are useful tools, particularly when using observational data, to **visualize** causal networks and make **confounders**, **colliders**, and **mediators** explicit.
+:::
+
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+

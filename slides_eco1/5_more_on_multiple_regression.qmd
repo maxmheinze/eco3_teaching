@@ -1,0 +1,622 @@
+---
+title: "Module 5: More on Multiple Regression"
+subtitle: "Econometrics I"
+author: "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+date: "2025-05-22"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+engine: knitr
+execute: 
+  cache: false
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @wooldridge2020
+---
+
+{{< include "./_extensions/r-wasm/live/_knitr.qmd" >}}
+
+# Large Samples
+
+## Consistency
+
+. . .
+
+We’ve already talked several times about **unbiasedness**. Another important property is [**consistency**]{.col1}.
+
+:::{.incremental}
+* An estimator is **unbiased** if its expected value equals the true parameter.
+* An estimator is [**consistent**]{.col1} if the estimates converge in probability to the true parameter as $N$ increases.
+* An estimator that is not **unbiased**, but is [**consistent**]{.col1}, is $\hat{\sigma}$.
+* Under assumptions **MLR.1 to MLR.4**, the OLS estimator $\hat{\boldsymbol{\beta}}$ is both **unbiased** and [**consistent**]{.col1}.
+:::
+
+
+
+## Consistency of the OLS Estimator
+
+. . .
+
+We can **sketch** how we would prove that the OLS estimator is consistent. We proceed as follows, where $\mathrm{plim}\:X_n=X$ means that $X_n$ converges in probability to $X$ as $N\rightarrow\infty$:
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+:::{.bitsmall}
+$$
+\begin{aligned}
+\mathrm{plim}\:\hat{\boldsymbol{\beta}} &= \mathrm{plim}\:((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y}) \\
+&= \mathrm{plim}\:((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'(\boldsymbol{X\beta}+\boldsymbol{u})) \\
+&= \mathrm{plim}\:((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{X\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}) \\
+&= \mathrm{plim}\:\boldsymbol{\beta}+\mathrm{plim}\:((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}) \\
+&= \boldsymbol{\beta}+\mathrm{plim}\:(\boldsymbol{X}'\boldsymbol{X})^{-1}\mathrm{plim}\:\boldsymbol{X}'\boldsymbol{u} \\
+&= \boldsymbol{\beta}+\mathrm{plim}\:(N^{-1}\boldsymbol{X}'\boldsymbol{X})^{-1}\mathrm{plim}\:(N^{-1}\boldsymbol{X}'\boldsymbol{u}) \\
+\end{aligned}
+$$
+:::
+
+In the last step, we multiply the second term once by $N^{-1}$ and once by $\left(N^{-1}\right)^{-1}$ so that we can directly apply the law of large numbers.
+
+:::
+:::{.column width="50%" .fragment}
+
+Since $\mathrm{plim}\:(N^{-1}\boldsymbol{X}'\boldsymbol{X})^{-1}$ is invertible, we only need to show that $\mathrm{plim}\:(N^{-1}\boldsymbol{X}'\boldsymbol{u})=\boldsymbol{0}.$ This is the case because, as $N\rightarrow\infty$, the sample covariance converges to the population covariance and we have assumed that all $x_k$ are uncorrelated with the error term (MLR.4).
+
+:::{.bitsmall}
+$$
+\mathrm{plim}(N^{-1}\boldsymbol{X}'\boldsymbol{u}) = \mathrm{plim}\:N^{-1}\sum^N_{i=1}\boldsymbol{x}_i'u_i=\boldsymbol{0}.
+$$
+:::
+:::
+::::
+
+## (MLR.4') Mean and Correlation of the Error Term
+
+. . .
+
+Although we used **MLR.4** in the outline of the consistency proof of the OLS estimator, we actually only needed a _weaker_ assumption. We can explicitly state this _weaker_ assumption as **MLR.4'**:
+
+. . .
+
+:::{.nicebox1l}
+The **error term** has **expected value** 0 and is **uncorrelated** with any explanatory variable:
+
+$$
+\mathrm{E}\left(u\right) = 0, \qquad\qquad \mathrm{Cov}\left(x_k,u\right)=0\quad\text{ for } k=1,\dots,K.
+$$
+:::
+
+:::{.incremental}
+- MLR.4 **implies** MLR.4'.
+- Under assumption MLR.4', a **nonlinear function** of a regressor, such as $x_1^2$, could for example be correlated with the error term. This would violate MLR.4.
+- If assumption MLR.4' holds but MLR.4 does not, then the OLS estimator is **biased but consistent**.
+:::
+
+## When Is the OLS Estimator Inconsistent?
+
+. . .
+
+We discussed that 
+
+$$
+\mathrm{plim}\:\hat{\boldsymbol{\beta}} = \boldsymbol{\beta}+\mathrm{plim}\:(N^{-1}\boldsymbol{X}'\boldsymbol{X})^{-1}\mathrm{plim}\:(N^{-1}\boldsymbol{X}'\boldsymbol{u})
+$$
+
+Alternatively, for one element of $\hat{\boldsymbol{\beta}}$, for example $\hat{\beta}_1$, we can write:
+
+$$
+\mathrm{plim}\:\hat{\beta}_1 = \beta_1 + \frac{\mathrm{Cov}(x_1,u)}{\mathrm{Var}(x_1)}.
+$$
+
+. . .
+
+So we can state:
+
+:::{.incremental}
+* If $\mathrm{Cov}(x_1,u)>0$, the **inconsistency is positive**, and
+* if $\mathrm{Cov}(x_1,u)<0$, the **inconsistency is negative**.
+* Since we do not observe $u$, however, we **cannot quantify** the inconsistency.
+:::
+
+
+# Scaling, Transforming, Interacting
+
+## Scaling
+
+. . . 
+
+When we scale a variable, the scale of certain coefficients changes:
+
+$$
+\begin{aligned}
+y^{*}&=\textcolor{var(--primary-color)}{10}\beta_{0}
+        +\textcolor{var(--primary-color)}{10}\beta_{1}x_{1}
+        +\textcolor{var(--primary-color)}{10}\beta_{2}x_{2}
+        +\textcolor{var(--primary-color)}{10}u, & y^*=\textcolor{var(--primary-color)}{10}\times y\\
+y&=\beta_{0} +\frac{\beta_{1}}{\textcolor{var(--secondary-color)}{10}}\,x_{1}^{*} +\beta_{2}x_{2}+u, & x_1^*=\textcolor{var(--secondary-color)}{10}\times x_1
+\end{aligned}
+$$
+
+. . .
+
+Fortunately, not much else changes:
+
+:::{.incremental}
+* **t-statistics** remain the same.
+* **F-statistics** remain the same.
+* **R²** remains the same.
+* **Confidence intervals** are scaled in the same way as the corresponding coefficient.
+:::
+
+## Logarithmic Transformations
+
+. . .
+
+We’ve already talked about **logarithmic transformations**:
+
+. . . 
+
+:::{.bitsmall}
+| Model        | Dep. Variable       | Indep. Variable     | Interpretation                    |
+|--------------|---------------------|----------------------|-----------------------------------|
+| Level-Level | $y$                 | $x$                  | $+1$ in $x$ $\Leftrightarrow$ $+\beta_1$ in $y$              |
+| Level-Log   | $y$                 | $\log(x)$            | $+1\%$ in $x$ $\Leftrightarrow$ $+\beta_1 / 100$ in $y$      |
+| Log-Level   | $\log(y)$           | $x$                  | $+1$ in $x$ $\Leftrightarrow$ $+\beta_1 \times 100\%$ in $y$ |
+| Log-Log     | $\log(y)$           | $\log(x)$            | $+1\%$ in $x$ $\Leftrightarrow$ $+\beta_1$% in $y$           |
+:::
+
+:::{.incremental}
+* $\%\Delta\hat{y}\approx100\times\Delta\mathrm{log}(y)$ is an [**approximation**]{.col1} that works well for small percentages.
+* For larger percentages, the approximation is imprecise. However, we can calculate the [**exact value**]{.col4}, e.g., for a log-level model: $\%\Delta\hat{y}=100\times(\mathrm{exp}(\hat{\beta}_k\Delta x_k)-1).$
+* However, the [**exact value**]{.col4} differs, e.g., for $\Delta x_k=1$ vs. $\Delta x_k=-1$. The [**approximation**]{.col1} lies between these two values. Therefore, the [**approximation**]{.col1} can be useful for interpretation even when the percentage change is large.
+:::
+
+## When Do We Use Logarithms?
+
+. . .
+
+There are various [**reasons to log-transform variables**]{.col1}:
+
+:::{.incremental}
+* We want to model a **(semi-)elasticity**.
+* If $y>0$, models with $\mathrm{log}(y)$ as the dependent variable often better fulfill the **CLM assumptions** than models with $y$ as the dependent variable.
+  * Taking the logarithm can mitigate issues with heteroskedastic $y$.
+* If a variable has very **extreme values**, as is often the case with income or population data, taking the log can reduce the influence of outliers.
+:::
+
+. . .
+
+But there are also good [**reasons not to log-transform variables**]{.col2}:
+
+:::{.incremental}
+* If we have values **very close to zero**, taking logs creates extremely negative values.
+* We don’t want to model a **(semi-)elasticity**.
+:::
+
+
+## Quadratic Terms
+
+. . .
+
+**Quadratic functions** allow us to model nonlinear relationships. We then estimate a model of the form:
+
+$$
+y = \beta_0 + \beta_1 x + \textcolor{var(--quarternary-color)}{\beta_2 x^2} + u,
+$$
+
+. . .
+
+It makes [**no difference**]{.col1} whether we estimate a model with or without quadratic functions. Since a quadratic function is not a linear function, MLR.3 is not violated. However, there is a [**difference in interpretation**]{.col2}:
+
+:::{.incremental}
+* It makes no sense to interpret $\beta_1$ without considering $\beta_2$. We can’t induce a change in $x$ while **holding $x^2$ constant**.
+* $\beta_1$ therefore cannot be interpreted as a **partial effect**.
+:::
+
+## Quadratic Terms
+
+. . .
+
+If we estimate the following equation:
+
+$$
+\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x + \hat{\beta}_2x^2,
+$$
+
+. . .
+
+then we can approximate:
+
+$$
+\frac{\Delta \hat{y}}{\Delta x}\approx\hat{\beta}_1 +2\hat{\beta}_2x.
+$$
+
+:::{.incremental}
+* If we’re interested in a **specific effect** starting from a particular **initial value**, we can just plug into the equation and don’t need an approximation.
+* Often, the **average partial effect** is also computed — more on that shortly.
+:::
+
+## Interactions
+
+. . .
+
+We can also model situations in which the **effect of one variable** depends on the value of **another variable**. We use an **interaction term** for this:
+
+$$
+y = \beta_0 + \beta_1x_1 + \beta_2x_2 + \textcolor{var(--secondary-color)}{\beta_3\:\:x_1\times x_2} + u.
+$$
+
+:::{.incremental}
+* Again, the **parameters do not directly represent partial effects**.
+* The **partial effect** of $x_1$, for example, is:
+  $$
+  \frac{\Delta y}{\Delta x_1} = \beta_1 + \beta_3 x_2.
+  $$
+* This means the **effect of $x_1$ on $y$ depends on $x_2$**: If $\beta_3$ is positive, the effect is **stronger where $x_2$ is high**.
+:::
+
+## Average Partial Effect
+
+. . .
+
+The **average partial effect** (APE) is a helpful metric for interpretation when the coefficients themselves do not represent partial effects (due to logs, quadratic terms, or interactions). 
+
+. . .
+
+Assume we have the following model:
+
+$$
+y = \beta_0 + \beta_1\textcolor{var(--primary-color)}{x_1} + \beta_2\textcolor{var(--secondary-color)}{x_2} + \beta_3\textcolor{var(--secondary-color)}{x_2^2} + \beta_4\textcolor{var(--primary-color)}{x_1}\textcolor{var(--secondary-color)}{x_2} + u.
+$$
+
+:::{.incremental}
+* We calculate the **APE** by estimating the model, plugging in the estimates, computing the **partial effect** for each observation, and then averaging those individual partial effects.
+* Alternatively or additionally, the **Partial Effect at the Average** (**PEA**) is sometimes calculated by plugging the sample mean of all $x$ variables into the model and then computing a partial effect. However, calculating averages for dummy variables and nonlinearly transformed variables can be problematic.
+:::
+
+## Let's Play Around with Data Again 🧸
+
+. . .
+
+```{webr}
+library(wooldridge) # Contains the dataset
+library(dplyr) # Contains useful functions
+library(margins) # for APE
+
+data("attend") # Data on exam results and attendance
+```
+
+## What Are All These Numbers!?
+
+. . .
+
+:::{.bitsmall}
+```{webr}
+model_1 <- lm(stndfnl ~ atndrte + priGPA + ACT + I(priGPA^2) + I(ACT^2) + priGPA * atndrte, data = attend)
+summary(model_1)
+```
+:::
+
+
+## Fewer Numbers, Less Confusion 🫡
+
+. . .
+
+```{webr}
+library(margins)
+
+margins(model_1)
+
+summary(margins(model_1))
+```
+
+
+# Goodness of Fit
+
+## R² with Different K
+
+. . .
+
+We know that $\textcolor{var(--tertiary-color)}{R^2}$ is only of limited use for evaluating and comparing models. Certain problems specifically affect the **multivariate case**:
+
+$$
+\textcolor{var(--tertiary-color)}{R^2} = \frac{\textcolor{var(--secondary-color)}{\mathrm{SSE}}}{\textcolor{var(--primary-color)}{\mathrm{SST}}} = 1- \frac{\textcolor{var(--quarternary-color)}{\mathrm{SSR}}}{\textcolor{var(--primary-color)}{\mathrm{SST}}}.
+$$
+
+:::{.incremental}
+* When we **add more variables**, $\textcolor{var(--tertiary-color)}{R^2}$ will **always increase or stay the same**, it will **never decrease**. So “larger” models have higher $\textcolor{var(--tertiary-color)}{R^2}$.
+* A low $\textcolor{var(--tertiary-color)}{R^2}$ means that the unexplained variation is large relative to the total variation in $y$.
+  * This may imply that our OLS estimates are imprecise.
+  * However, a large $N$ can offset the effects of large error variance. 
+* For example, in a **randomized experiment**, we only need one explanatory variable to estimate its effect precisely. Even in such a case, $\textcolor{var(--tertiary-color)}{R^2}$ will still be low.
+:::
+
+## Adjusted R²
+
+. . .
+
+[**Adjusted R²**]{.col2} is one way to get around the issue that $\textcolor{var(--tertiary-color)}{R^2}$ always increases as $K$ increases:
+
+$$
+\textcolor{var(--secondary-color)}{R^2_{\mathrm{adj.}}} = 1- \frac{\textcolor{var(--quarternary-color)}{\mathrm{SSR}}/N-K-1}{\textcolor{var(--primary-color)}{\mathrm{SST}}/N-1}\qquad = 1-\left(1-\textcolor{var(--tertiary-color)}{R^2}\right)\times\frac{N-1}{N-K-1}.
+$$
+
+:::{.incremental}
+* The [**adjusted R²**]{.col2} differs in that it **penalizes larger models**, because the **penalty term** $\tfrac{N-1}{N-K-1}$ becomes smaller as $K$ increases.
+* When $N$ is small and $K$ is large, $\textcolor{var(--secondary-color)}{R^2_{\mathrm{adj.}}}$ can be significantly lower than $\textcolor{var(--tertiary-color)}{R^2}$.
+* In extreme cases, $\textcolor{var(--secondary-color)}{R^2_{\mathrm{adj.}}}$ can even be negative.
+:::
+
+## Adjusted R² for Model Selection
+
+. . .
+
+So far, we've only seen one method for choosing between models: the **F-test**. The **F-test** only allows us to compare **nested models**, i.e., situations where one model is a special case of another.
+
+. . .
+
+[**Adjusted R²**]{.col2} gives us a (first and simple) way to compare models that are **nonnested**.
+
+:::{.incremental}
+* With [**adjusted R²**]{.col2}, we can compare models with different numbers of variables, which we can’t do with the [**classic R²**]{.col3}.
+* We can also compare models with **different functional forms** of an explanatory variable.
+* However, we **cannot** use $\textcolor{var(--secondary-color)}{R^2_{\mathrm{adj.}}}$ to compare models with differently transformed **dependent variables**.
+:::
+
+## Back to Baseball Data ⚾ (Textbook is American)
+
+. . .
+
+```{webr}
+data("mlb1")
+
+model_2 <- lm(log(salary) ~ years + gamesyr + hrunsyr, data = mlb1)
+model_3 <- lm(log(salary) ~ years + gamesyr + bavg + rbisyr, data = mlb1)
+```
+
+## ⚾ or ⚾?
+
+. . .
+
+::::{.columns}
+:::{.column width="50%" .bitsmall}
+```{webr}
+summary(model_2)
+```
+:::
+:::{.column width="50%" .bitsmall}
+```{webr}
+summary(model_3)
+```
+:::
+::::
+
+
+
+# Dummy Variables
+
+## Review
+
+. . .
+
+With **dummy variables**, we can incorporate **qualitative information** into our model.
+
+$$
+y = \beta_0 + \beta_1x_1+\dots + u,\qquad x_1\in\{0,1\}
+$$
+
+. . .
+
+We interpreted the coefficients in such a case as follows:
+
+$$
+\mathrm{E}(y\mid x_1=1) = \beta_0+ \beta_1+\cdots, \qquad\mathrm{E}(y\mid x_1=0) = \beta_0+\cdots.
+$$
+
+. . .
+
+With the methods of **multiple linear regression**, we can also include variables with more than two categories.
+
+:::{.incremental}
+* The basic idea is that **each category** becomes its own dummy variable.
+* We must ensure that we avoid **multicollinearity issues**.
+:::
+
+## Dummy Variables with Multiple Categories {auto-animate="true"}
+
+. . .
+
+Suppose we want to use a car’s color as a regressor. In our population, there are black, red, and blue cars. In principle, we can create three dummy variables:
+
+:::{.quitesmall}
+$$
+\mathrm{black}_i = 
+\begin{cases}
+1&\text{if }i\text{ is black},\\
+0&\text{otherwise}
+\end{cases},
+\qquad
+\mathrm{red}_i = 
+\begin{cases}
+1&\text{if }i\text{ is red},\\
+0&\text{otherwise}
+\end{cases},
+\qquad
+\mathrm{blue}_i = 
+\begin{cases}
+1&\text{if }i\text{ is blue},\\
+0&\text{otherwise}
+\end{cases}.
+$$
+:::
+
+. . .
+
+Suppose we estimate the model
+
+$$
+y = \beta_0 + \beta_1\:\mathrm{black}+\beta_2\:\mathrm{red}+\beta_3\:\mathrm{blue}+u.
+$$
+
+. . .
+
+The **regressor matrix** $\boldsymbol{X}$ would then look like this:
+
+:::{.bitsmall}
+$$
+\boldsymbol{X}=
+\begin{pmatrix}
+1 & 0 & 1 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 0 & 0 & 1 \\
+\vdots & \vdots & \vdots & \vdots
+\end{pmatrix}
+$$
+:::
+
+## Dummy Trap {auto-animate="true"}
+
+:::{.bitsmall}
+$$
+\boldsymbol{X}=
+\begin{pmatrix}
+1 & 0 & 1 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 0 & 0 & 1 \\
+\vdots & \vdots & \vdots & \vdots
+\end{pmatrix}
+$$
+:::
+
+What’s the **problem** with this matrix? [The [**fourth column, $\beta_3$,**]{.col2} is a [**linear combination of the other columns**]{.col2}: $x_3=1-x_1-x_2$.]{.fragment}
+
+:::{.incremental}
+* This issue is also called the **dummy trap**: If we include a **constant and every category** of our dummy variable, we have **perfect multicollinearity**, and MLR.3 is violated.
+* To avoid this, we can either **omit one category as a benachmark group** or estimate a **model without a constant**.
+:::
+
+## Interpretation
+
+. . .
+
+So let’s define $\mathrm{blue}_i$ as the benchmark and estimate:
+
+$$
+y = \beta_0 + \beta_1\:\mathrm{black}+\beta_2\:\mathrm{red}+u.
+$$
+
+How do we **interpret** the **parameters**?
+
+:::{.incremental}
+* $\beta_0$ is the expected $y$ value for a blue car.
+* $\beta_0+\beta_1$ is the expected $y$ value for a black car. $\beta_1$ is the expected difference for a black car compared to a blue car.
+* $\beta_0+\beta_2$ is the expected $y$ value for a red car. $\beta_2$ is the expected difference for a red car compared to a blue car.
+:::
+
+. . .
+
+Suppose there are **other explanatory variables**, e.g., a numerical variable $x_3$. Then we interpret the parameters analogously:
+
+. . .
+
+$\beta_0+\beta_1$ is then the expected $y$ value for a black car with $x_3=0$. In a way, $\beta_0+\beta_1$ is then a group-specific intercept for black cars.
+
+## Interactions with Dummy Variables
+
+. . .
+
+So we can model **different intercepts** for each group. Can we also model **different slopes** for each group? [Yes, with [**interactions**]{.col2}. Let’s consider the following model:]{.fragment}
+
+. . .
+
+$$
+y = \beta_0 + \beta_1\:\mathrm{black}+\beta_2\:\mathrm{red}+\beta_3x_3+\textcolor{var(--secondary-color)}{\beta_4\:\mathrm{black}\times x_3}+\textcolor{var(--secondary-color)}{\beta_5\:\mathrm{red}\times x_3}+u.
+$$
+
+. . .
+
+We interpret the parameters as follows:
+
+:::{.incremental}
+* $\beta_0,\beta_1,\beta_2$ as before.
+* $\beta_3$ is the slope coefficient with respect to $x_3$ for the reference category, i.e., blue cars.
+* $\beta_3+\beta_4$ is the slope coefficient with respect to $x_3$ for black cars.
+* $\beta_3+\beta_5$ is the slope coefficient with respect to $x_3$ for red cars.
+:::
+
+## Gender Pay Gap
+
+:::{.bitsmall}
+```{webr}
+data("wage1")
+model_4 <- lm(wage ~ female + educ + female * educ, data = wage1)
+summary(model_4)
+```
+:::
+
+## Dummy Variables as Regressand
+
+. . .
+
+We can also use a **dummy variable** as a **dependent variable**. For example, we can examine what influences whether someone passes econometrics (study time, motivation, ...):
+
+:::{.bitsmall}
+$$
+y = \beta_0 + \beta_1x_1+\dots+u,\qquad\qquad
+y_i = 
+\begin{cases}
+1&\text{if }i\text{ passes the econometrics course},\\
+0&\text{otherwise}
+\end{cases}.
+$$
+:::
+
+
+Such a model is called a **linear probability model**.
+
+:::{.incremental}
+* We interpret a predicted $y$ value as a probability: $\hat{y}_i=0.82$ means that $i$ has an 82 percent chance of passing econometrics. 
+* Accordingly, we interpret $\beta_k$ as changes in this probability in percentage points.
+* This is the **simplest** way to model binary dependent variables, but the approach has some **problems**, e.g., that $\hat{y}$ values can fall outside the $[0,1]$ range.
+:::
+
+## Female Labor Force Participation
+
+:::{.bitsmall}
+```{webr}
+data("mroz")
+model_5 <- lm(inlf ~ nwifeinc + educ + exper * I(exper^2) + age + kidslt6 + kidsge6, data = mroz)
+summary(model_5)
+```
+:::
+
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+

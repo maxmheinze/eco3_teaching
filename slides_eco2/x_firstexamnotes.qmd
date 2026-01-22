@@ -1,0 +1,154 @@
+---
+title: "First Partial Exam: Notes"
+subtitle: "Econometrics II"
+author:
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+date: "2025-12-04"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+      - appxslideno.lua
+      - pdf-to-svg.lua
+      - space.lua
+bibliography: references.bib
+csl: apa.csl
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+```{r}
+#| label: setup
+#| include: false
+library(plotly)
+font_family <- "Inter" 
+```
+
+
+## Questions on Statistical Learning
+
+In **Module 1**, we said:
+
+> Different methods have different degrees of **flexibility**, i.e. they can only produce a narrow range of possible shapes of $f$. For example, linear regression is rather inflexible.
+> 
+> The **benefit** of choosing a flexible approach is evident. However, there is an important downside: **More flexible** methods yield results that are **less easy to interpret**.
+
+Most of you answered the question by saying [**unsupervised learning**]{.col2} is most suited for prediction. Actually, I wanted to hear the more general statement that a [**flexible model**]{.col1} should be used. Unsupervised learning is certainly a very flexible approach, but there are other flexible models too. The main point of the question was to ask about the **interpretability-flexibility tradeoff**.
+
+[**In the exam,**]{.col1b} no points were deducted for mixing up the two since this answer was extremely common.
+
+
+
+
+
+## Confounders
+
+[**Confounders**]{.col2} are variables that influence both the explanatory and the dependent variable:
+
+:::{.centering}
+![](figures/2_cib5.svg){ width="25%"}
+:::
+
+Since a confounder must **lie on a backdoor path**, it cannot be either the explanatory or the dependent variable itself.
+
+:vspace1
+
+[**In the exam,**]{.col1b} there was **one confounder**, and there were **two backdoor paths** running through that confounder (same in all variants of the question).
+
+## Colliders
+
+[**Colliders**]{.col4} are variables that are causally influenced by at least two variables, no matter which ones:
+
+:::{.centering}
+![](figures/2_collider.svg){width="25%"}
+:::
+
+[**This definition is different from the original definition we used in class. The original definition was not perfectly accurate. Please update your notes and remember this definition.**]{.col4b} 
+
+This means that colliders can be anywhere in the DAG, including the explanatory and dependent variables themselves. 
+
+[**In the exam,**]{.col1b} we accepted: **no colliders** (old definition), **three colliders** (this definition), **two colliders** (this definition minus the dependent variable of interest).
+
+
+
+## Simultaneity vs. Reverse Causality
+
+:vspace2
+
+Remember the definitions we had for [**simultaneity**]{.col1} and [**reverse causality**]{.col2}:
+
+* [**Reverse causality**]{.col1} is when $X \leftarrow Y$
+* [**Simultaneity**]{.col2} is when $X \leftrightarrow Y$
+
+:vspace2
+
+If we use those definitions, the **two issues cannot appear simultaneously.**
+
+* With [**pure reverse causality**]{.col1}, the issue is determining the direction of causation.
+* If we have [**simultaneity**]{.col2} we need to disentangle the two effects. 
+
+
+## Reading and Understanding
+
+We noticed that some of you had trouble understanding the exam questions. One case was the word “[**demographics**]{.col1}.”
+
+:::{.centering .col1 .bitlarge}
+**If you do not understand a word or a question, _ask_.**
+:::
+
+:vspace1
+
+Some of you did not understand, _asked_ during the exam, and got full points on the question. Others did not and lost points because they later said demographic variables were missing.
+
+:vspace1
+
+Also, if you do not know the answer, don't start making something up that, at best, broadly matches the vibe of the question. It likely won't be the correct answer.
+
+:vspace1
+
+We can notice the difference between somebody who knows the answer and somebody who knows three fancy words that should appear there (confounder, simultaneity, endogenous, ...) but does not know why.
+
+
+## Forecasting Competition
+
+:vspace1
+
+:::{}
+| **Rank** | **Name**     | **Score** | **Bonus Points** |
+|:--------:|--------------|:---------:|:----------------:|
+|     1    | **Theo**     |   .1040   |       **2**      |
+|     2    | **Yuntian**  |   .1063   |       **2**      |
+|     3    | **Matthias** |   .1072   |       **2**      |
+|     4    | **Tobias**   |   .1112   |       **1**      |
+|     5    | **Tamara**   |   .1122   |       **1**      |
+|     6    | **Almudena** |   .1123   |       **1**      |
+|     7    | **Amon**     |   .1151   |       **1**      |
+|     8    | **Robert**   |   .1153   |       **1**      |
+|     9    | **Julian**   |   .1200   |       **1**      |
+|    10    | **Maxi**     |   .1203   |       **1**      |
+
+: {.striped}
+:::
+
+

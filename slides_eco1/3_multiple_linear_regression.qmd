@@ -1,0 +1,1703 @@
+---
+title: "Module 3: Multiple Linear Regression"
+subtitle: "Econometrics I"
+author: "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Based on a slide set by [Simon Heß](https://github.com/simonheb)"
+date: "2025-04-10"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+engine: knitr
+execute: 
+  cache: true
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @wooldridge2020
+  @frisch1933
+  @lovell1963
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+# Introduction
+
+## What we have done so far
+
+:::{.incremental}
+* So far, we have looked at **bivariate models**, that is, models with **two variables**: a [**dependent variable** $y$]{.col1} and an [**independent variable** $x$]{.col2}.
+  * The applications for such models are relatively limited.
+  * Variables are often influenced by multiple factors, and we want to model that.
+  * We talked about dummy variables, but we had no way to account for *multiple* dummy variables in the same model.
+* Therefore, we now move on to **multivariate models**: models with **more than two variables**. We still have [**one dependent variable** $y$]{.col1}, but now [**multiple independent variables** $x_1,x_2,\dots,x_K$]{.col2}.
+  * In this chapter, we go through similar topics as in the previous chapter, but adapted to this more general case. 
+:::
+
+## The simplest multivariate model {auto-animate="true"}
+
+. . .
+
+Let's start with the simplest possible model with more than two variables:
+
+$$
+\textcolor{var(--primary-color)}{y_i}=\beta_0+\beta_1\textcolor{var(--secondary-color)}{x_{i1}}+\beta_2\textcolor{var(--secondary-color)}{x_{i2}}+u_i
+$$
+
+:::{.incremental}
+* The observations of our explanatory variables ([$x_{ik}$]{.col2}) now have **two subscripts**:
+  * The first subscript, $i=1,\dots,N$, still denotes the individual observation (e.g., the individual).
+  * The second subscript, $k=1,\dots,K$, indexes the individual explanatory variables.
+  * The order of subscripts becomes important when we write the model in matrix notation.
+:::
+
+. . . 
+
+How do we **interpret** the **parameters** in such a model?
+
+## Parameters in multivariate models {auto-animate="true"}
+
+How do we **interpret** the **parameters** in such a model?
+
+. . .
+
+$$
+\textcolor{var(--primary-color)}{y_i}=\beta_0+\beta_1\textcolor{var(--secondary-color)}{x_{i1}}+\beta_2\textcolor{var(--secondary-color)}{x_{i2}}+u_i
+$$
+
+. . .
+
+The parameter 
+
+$$
+\beta_1=\frac{\partial\mathrm{E}(y_i\mid x_{i1},x_{i2})}{\partial x_{i1}}
+$$
+
+:::{.incremental}
+* measures the **expected** difference [of variable $y$]{.col1}, 
+* when we change [variable $x_{1}$]{.col2} by one unit,
+* and at the same time hold [all other observed variables]{.col2} **fixed**.
+:::
+
+. . . 
+
+This interpretation is often referred to as the **ceteris paribus interpretation**; however, it's important that only the **observed** and included variables in the model are actually held fixed.
+
+## An example of a multivariate model
+
+. . .
+
+What does that look like in an example?
+
+$$
+\textcolor{var(--primary-color)}{\mathrm{Wage}_i}=\beta_0+\beta_1\textcolor{var(--secondary-color)}{\mathrm{Education}_{i}}+\beta_2\textcolor{var(--secondary-color)}{\mathrm{Experience}_{i}}+u_i
+$$
+
+. . .
+
+In this model, the parameter
+
+$$
+\beta_1=\frac{\partial\mathrm{E}(\mathrm{Wage}_i\mid \mathrm{Education}_i,\mathrm{Experience}_i)}{\partial \mathrm{Education}_i}
+$$
+
+measures the [**expected change**]{.col1} in **wage**, when **education increases by one unit**, [**and we hold experience constant**]{.col2}.
+
+:::{.incremental}
+* We are still modeling the **expectation**. Therefore, it is important to talk about an expected or average change.
+* We interpret this partial effect as the change we observe when we **hold all other (observed) factors fixed** (ceteris paribus).
+:::
+
+## A more complex model
+
+. . . 
+
+We can add as many variables as we want:
+
+:::{.bitsmall}
+$$
+\textcolor{var(--primary-color)}{\mathrm{Wage}_i}=\beta_0+\beta_1\textcolor{var(--secondary-color)}{\mathrm{Education}_{i}}+\beta_2\textcolor{var(--secondary-color)}{\mathrm{Experience}_{i}}+\beta_3\textcolor{var(--secondary-color)}{\mathrm{Age}_{i}}+\beta_4\textcolor{var(--secondary-color)}{\mathrm{CareerYears}_{i}}+\beta_5\textcolor{var(--secondary-color)}{\mathrm{Union}_{i}}+u_i
+$$
+:::
+
+:::{.incremental}
+* [$\mathrm{Union}_i$]{.col2} is a dummy variable indicating union membership.
+  * Why don’t we add another variable [$\mathrm{NonUnion}_i$]{.col2}?
+  * The variables would be directly, mechanically, inversely related. It wouldn’t make sense to split an effect across both variables; and mathematically it would be impossible.
+  * When we have dummy variables for different categories in our model, we must always omit one category as the reference category.
+* [$\mathrm{Experience}_i$]{.col2} and [$\mathrm{CareerYears}_i$]{.col2} are closely correlated.
+  * The "ceteris paribus" interpretation becomes increasingly difficult here. How can you increase career years without changing experience?
+:::
+
+## Deriving the OLS Estimators: Attempt 1 {auto-animate="true"}
+
+. . .
+
+Let’s try to derive the OLS estimators as we did in the bivariate case. We begin by setting up a loss function:
+
+. . .
+
+$$
+\left(\hat{\beta}_0,\hat{\beta}_1,\dots,\hat{\beta}_K\right) = \underset{\left(\tilde{\beta}_0,\tilde{\beta}_1,\dots,\tilde{\beta}_K\right)}{\mathrm{arg\:min}}\sum^N_{i=1}\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_{i1}-\dots-\tilde{\beta}_Kx_{iK}\right)^2.
+$$
+
+. . .
+
+We can differentiate and set it to zero and obtain a system of first-order conditions:
+
+:::{.bitsmall}
+$$
+\begin{aligned}
+\textstyle-2\sum^N_{i=1}\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_{i1}-\dots-\tilde{\beta}_Kx_{iK}\right)&=0 \\
+\textstyle-2\sum^N_{i=1}x_{i1}\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_{i1}-\dots-\tilde{\beta}_Kx_{iK}\right)&=0 \\
+\textstyle&\vdots\\
+\textstyle-2\sum^N_{i=1}x_{iK}\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_{i1}-\dots-\tilde{\beta}_Kx_{iK}\right)&=0 \\
+\end{aligned}
+$$
+:::
+
+## Deriving the OLS Estimators: Attempt 1 {auto-animate="true"}
+
+We can differentiate and set it to zero and obtain a system of first-order conditions:
+
+:::{.bitsmall}
+$$
+\begin{aligned}
+\textstyle-2\sum^N_{i=1}\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_{i1}-\dots-\tilde{\beta}_Kx_{iK}\right)&=0 \\
+\textstyle-2\sum^N_{i=1}x_{i1}\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_{i1}-\dots-\tilde{\beta}_Kx_{iK}\right)&=0 \\
+\textstyle&\vdots\\
+\textstyle-2\sum^N_{i=1}x_{iK}\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_{i1}-\dots-\tilde{\beta}_Kx_{iK}\right)&=0 \\
+\end{aligned}
+$$
+:::
+
+This system of equations is solvable because it is linear and has $K+1$ equations and $K+1$ variables. [However, we **cannot solve it** and find $\hat{\beta}_k$ **without using matrix algebra**.]{.fragment}
+
+## Interpretation of the First-Order Conditions
+
+. . .
+
+As in the bivariate case, we can interpret these first-order conditions as moment conditions:
+
+:::{.incremental}
+* The **condition for the constant** $\hat{\beta}_0$ says:
+  * The sample mean of the OLS residuals must be 0.
+  * Corresponding moment condition of the population: $\mathrm{E}(u_i)=0$.
+* The **condition for the slope parameters** $\hat{\beta}_k,\:\:k=1,\dots,K$ says:
+  * The sample covariance between residuals and a regressor $x_{ik}$ must be 0.
+  * Corresponding moment condition of the population: $\mathrm{Cov}(x_{ik},u_i)=\mathrm{E}(x_{ik}u_i)=0$.
+* So again, we have **two ways** to derive the **OLS estimators**:
+  * As first-order conditions from an optimization problem,
+  * or as moment conditions based on $\mathrm{E}(u_i)=0$ and $\mathrm{Cov}(x_{ik},u_i)=\mathrm{E}(x_{ik}u_i)=0$.
+:::
+
+# Vector and Matrix Notation
+
+## Vector Notation {auto-animate="true"}
+
+. . . 
+
+When we have **multiple variables**, the **summation notation** used in the last chapter becomes increasingly tedious. We therefore use **vectors** and **matrices** to write models with more than two variables.
+
+. . .
+
+Let’s take another look at this model (slightly less extensive than before):
+
+$$
+\textcolor{var(--primary-color)}{\mathrm{Wage}_i}=\beta_0\cdot\textcolor{var(--secondary-color)}{1}+\beta_1\textcolor{var(--secondary-color)}{\mathrm{Education}_{i}}+\beta_2\textcolor{var(--secondary-color)}{\mathrm{Experience}_{i}}+\beta_3\textcolor{var(--secondary-color)}{\mathrm{Age}_{i}}+u_i
+$$
+
+Note that we have added a [$1$]{.col2} for the constant parameter. If we treat this [$1$]{.col2} like a variable, we can treat $\beta_0$ like the other parameters and construct a **vector of variables** and a **vector of parameters**:
+
+$$
+\textcolor{var(--secondary-color)}{\boldsymbol{x}_i}=
+\begin{pmatrix}
+\textcolor{var(--secondary-color)}{1}\\
+\textcolor{var(--secondary-color)}{\mathrm{Education}_{i}}\\
+\textcolor{var(--secondary-color)}{\mathrm{Experience}_{i}}\\
+\textcolor{var(--secondary-color)}{\mathrm{Age}_{i}}
+\end{pmatrix}
+,\qquad
+\boldsymbol{\beta}=
+\begin{pmatrix}
+\beta_0\\
+\beta_1\\
+\beta_2\\
+\beta_3
+\end{pmatrix}
+$$
+
+## Vector Notation {auto-animate="true"}
+
+$$
+\textcolor{var(--secondary-color)}{\boldsymbol{x}_i}=
+\begin{pmatrix}
+\textcolor{var(--secondary-color)}{1}\\
+\textcolor{var(--secondary-color)}{\mathrm{Education}_{i}}\\
+\textcolor{var(--secondary-color)}{\mathrm{Experience}_{i}}\\
+\textcolor{var(--secondary-color)}{\mathrm{Age}_{i}}
+\end{pmatrix}
+,\qquad
+\boldsymbol{\beta}=
+\begin{pmatrix}
+\beta_0\\
+\beta_1\\
+\beta_2\\
+\beta_3
+\end{pmatrix}
+$$
+
+. . .
+
+We can **transpose the variable vector**, i.e., switch rows and columns. We mark this with a prime:
+
+$$
+\textcolor{var(--secondary-color)}{\boldsymbol{x}_i'}=\left(\textcolor{var(--secondary-color)}{1},\textcolor{var(--secondary-color)}{\mathrm{Education}_{i}},\textcolor{var(--secondary-color)}{\mathrm{Experience}_{i}},\textcolor{var(--secondary-color)}{\mathrm{Age}_{i}}\right)
+$$
+
+. . .
+
+Now we can make use of the rules of **matrix multiplication**:
+
+$$
+\textcolor{var(--secondary-color)}{\boldsymbol{x}_i'}\boldsymbol{\beta}=\textcolor{var(--secondary-color)}{1}\cdot\beta_0+\textcolor{var(--secondary-color)}{\mathrm{Education}_{i}}\beta_1+\textcolor{var(--secondary-color)}{\mathrm{Experience}_{i}}\beta_2+\textcolor{var(--secondary-color)}{\mathrm{Age}_{i}}\beta_3
+$$
+
+## Vector Notation {auto-animate="true"}
+
+$$
+\textcolor{var(--secondary-color)}{\boldsymbol{x}_i'}\boldsymbol{\beta}=\textcolor{var(--secondary-color)}{1}\cdot\beta_0+\textcolor{var(--secondary-color)}{\mathrm{Education}_{i}}\beta_1+\textcolor{var(--secondary-color)}{\mathrm{Experience}_{i}}\beta_2+\textcolor{var(--secondary-color)}{\mathrm{Age}_{i}}\beta_3
+$$
+
+. . .
+
+We can now write our regression model **very compactly**, no matter how **many variables** we have:
+
+$$
+\textcolor{var(--primary-color)}{y_i}=\textcolor{var(--secondary-color)}{\boldsymbol{x}_i'}\boldsymbol{\beta}+u_i.
+$$
+
+. . .
+
+We can also write the **OLS optimization problem** as:
+
+$$
+\textstyle\hat{\boldsymbol{\beta}} = \underset{\tilde{\boldsymbol{\beta}}}{\mathrm{arg\:min}}\sum^N_{i=1}\left(y_i-\boldsymbol{x}_i'\boldsymbol{\beta}\right)^2.
+$$
+
+. . .
+
+::::{.columns}
+:::{.column width="45%"}
+The solution to this problem is:
+
+$$
+\textstyle\hat{\boldsymbol{\beta}} = \left(\sum^N_{i=1}\boldsymbol{x}_i\boldsymbol{x}_i'\right)^{-1}\left(\sum^N_{i=1}\boldsymbol{x}_iy_i\right)
+$$
+
+:::
+:::{.column width="55%"}
+:::{.callout-tip title="Exercise"}
+Solve this optimization problem!
+:::
+:::
+::::
+
+## Matrix Notation {auto-animate="true"}
+
+This equation describes the regression model for a single observation $i$.
+
+$$
+\textcolor{var(--primary-color)}{y_i}=\textcolor{var(--secondary-color)}{\boldsymbol{x}_i'}\boldsymbol{\beta}+u_i.
+$$
+
+. . .
+
+But we can make the model **even more compact** by using just **one equation** for **all observations**. For this, we define:
+
+$$
+\boldsymbol{y}=
+\begin{pmatrix}
+y_1\\
+y_2\\
+\vdots\\
+y_N
+\end{pmatrix}
+,\qquad
+\boldsymbol{X}=
+\begin{pmatrix}
+1 & x_{11} & \dots & x_{1K} \\
+1 & x_{21} & \dots & x_{2K} \\
+\vdots & \vdots & \ddots & \vdots \\
+1 & x_{N1} & \dots & x_{NK}
+\end{pmatrix}
+,\qquad
+\boldsymbol{u}=
+\begin{pmatrix}
+u_1\\
+u_2\\
+\vdots\\
+u_N
+\end{pmatrix}.
+$$
+
+## Matrix Notation {auto-animate="true"}
+
+$$
+\boldsymbol{y}=
+\begin{pmatrix}
+y_1\\
+y_2\\
+\vdots\\
+y_N
+\end{pmatrix}
+,\qquad
+\boldsymbol{X}=
+\begin{pmatrix}
+1 & x_{11} & \dots & x_{1K} \\
+1 & x_{21} & \dots & x_{2K} \\
+\vdots & \vdots & \ddots & \vdots \\
+1 & x_{N1} & \dots & x_{NK}
+\end{pmatrix}
+,\qquad
+\boldsymbol{u}=
+\begin{pmatrix}
+u_1\\
+u_2\\
+\vdots\\
+u_N
+\end{pmatrix}.
+$$
+
+. . .
+
+Our model now looks like this:
+
+$$
+\textcolor{var(--primary-color)}{\boldsymbol{y}}=\textcolor{var(--secondary-color)}{\boldsymbol{X}}\boldsymbol{\beta}+\boldsymbol{u}.
+$$
+
+. . .
+
+:::{.callout-tip title="Exercise"}
+What are the dimensions of $\boldsymbol{y}$, $\boldsymbol{\beta}$, $\boldsymbol{X}$, and $\boldsymbol{u}$?
+:::
+
+## What is the variance of a vector?
+
+. . . 
+
+$\boldsymbol{u}$ is the vector of error terms. So it is a **vector of random variables**, all of which have a mean of $0$ and a variance of $\sigma^2$. **So what is the variance of $\boldsymbol{u}$**?
+
+. . .
+
+The **variance of a vector** is a matrix. The **diagonal elements** of this matrix are the variances of the individual elements of the vector. The **off-diagonal elements** are the covariances between the individual elements.
+
+. . .
+
+We also call such a matrix a **variance-covariance matrix** (**VCM**):
+
+:::{.bitsmall}
+$$
+\mathrm{Var}(\boldsymbol{u}) =
+\begin{pmatrix}
+\mathrm{Cov}(u_1,u_1) & \dots & \mathrm{Cov}(u_1,u_N) \\
+\vdots & \ddots & \vdots \\
+\mathrm{Cov}(u_N,u_1) & \dots & \mathrm{Cov}(u_N,u_N) \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+\mathrm{Var}(u_1) & \dots & \mathrm{Cov}(u_1,u_N) \\
+\vdots & \ddots & \vdots \\
+\mathrm{Cov}(u_N,u_1) & \dots & \mathrm{Var}(u_N) \\
+\end{pmatrix}
+$$
+:::
+
+## Derivation of the OLS estimator: Attempt 2 {#olsderiv}
+
+. . .
+
+In matrix notation, the **sum of squared residuals** is:
+
+$$
+\hat{\boldsymbol{u}}'\hat{\boldsymbol{u}} = (\boldsymbol{y}-\boldsymbol{X}\tilde{\boldsymbol{\beta}})'(\boldsymbol{y}-\boldsymbol{X}\tilde{\boldsymbol{\beta}}),
+$$
+
+. . .
+
+and the OLS optimization problem is:
+
+$$
+\hat{\boldsymbol{\beta}} = \underset{\tilde{\boldsymbol{\beta}}}{\mathrm{arg\:min}}\:\hat{\boldsymbol{u}}'\hat{\boldsymbol{u}}.
+$$
+
+. . .
+
+When we solve this problem, we get the estimator
+
+$$
+\hat{\boldsymbol{\beta}}=(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y},
+$$
+
+but we have to differentiate matrices. To avoid this, we use the **method of moments**. 
+
+:::{.flushright}
+[Derivation with differentiation](#appdix1){.butn} 
+:::
+
+## Derivation of the OLS estimator: Attempt 2 {auto-animate="true"}
+
+. . .
+
+In matrix notation, we have **one moment condition** for our model:
+
+$$
+\mathrm{E}(\boldsymbol{X}'\boldsymbol{u})=0.
+$$
+
+If our $\boldsymbol{X}$, as defined earlier, has a column of 1s, this condition also implies that $\mathrm{E}(\boldsymbol{u})=0$.
+
+. . .
+
+We again begin by replacing the [**population moments**]{.col3} with [**sample moments**]{.col4}. So from $\mathrm{E}(\boldsymbol{X}'\boldsymbol{u})=0$ we get:
+
+$$
+\boldsymbol{X}'\hat{\boldsymbol{u}}=0.
+$$
+
+. . . 
+
+We can now derive our **OLS estimator** very easily:
+
+## Derivation of the OLS estimator: Attempt 2 {auto-animate="true"}
+
+We can now derive our **OLS estimator** very easily:
+
+$$
+\begin{aligned}
+\boldsymbol{X}'\hat{\boldsymbol{u}}=\boldsymbol{X}'(\boldsymbol{y}-\boldsymbol{X}\hat{\boldsymbol{\beta}})&=0 \\
+\boldsymbol{X}'\boldsymbol{y}-\boldsymbol{X}'\boldsymbol{X}\hat{\boldsymbol{\beta}}&=0 \\
+\boldsymbol{X}'\boldsymbol{y}&=\boldsymbol{X}'\boldsymbol{X}\hat{\boldsymbol{\beta}} \\
+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y}&=(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{X}\hat{\boldsymbol{\beta}} \\
+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y}&=\hat{\boldsymbol{\beta}}
+\end{aligned}
+$$
+
+. . .
+
+We obtain the same estimator as in the derivation via optimization problem,
+
+$$
+\colorbox{var(--primary-color-lightened)}{$\hat{\boldsymbol{\beta}}=(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y}.$}
+$$
+
+## One estimator, three notations
+
+. . .
+
+We have learned about our OLS estimator in three different notations:
+
+. . .
+
+In summation notation (for the bivariate case):
+
+$$
+\hat{\beta}_1=\frac{\sum^N_{i=1}(x_i-\bar{x})(y_i-\bar{y})}{\sum^N_{i=1}(x_i-\bar{x})^2},
+$$
+
+. . .
+
+in vector notation:
+
+$$
+\hat{\boldsymbol{\beta}} = \left(\sum^N_{i=1}\boldsymbol{x}_i\boldsymbol{x}_i'\right)^{-1}\left(\sum^N_{i=1}\boldsymbol{x}_iy_i\right),
+$$
+
+. . .
+
+and in matrix notation:
+
+$$
+\hat{\boldsymbol{\beta}} =(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y.}
+$$
+
+# Multivariate vs. bivariate models
+
+## Residuals and predicted values
+
+Just like in [**simple linear regression**]{.col1}, in [**multiple linear regression**]{.col4} we split the observed $y$ values into an 
+
+:::{.incremental}
+* **explained part** $\hat{y}$ (the predicted values), and an
+* **unexplained part** $\hat{u}$ (the residuals):
+:::
+
+. . .
+
+$$
+y_i=\underbrace{\hat{\beta}_0+\hat{\beta}_1x_{i1}+\dots+\hat{\beta}_Kx_{iK}}_{\hat{y}_i}+\hat{u}_i.
+$$
+
+
+:::{.incremental}
+* The **sample mean** of the residuals is 0.
+* The **sample mean** of the **predicted values** is therefore $\bar{y}$.
+* In [**simple linear regression**]{.col1} the point $(\bar{x},\bar{y})$ lies on the **regression line**. In [**multiple linear regression**]{.col4} the point $(\bar{x}_1,\bar{x}_2,\dots,\bar{x}_K,\bar{y})$ lies on the **regression _hyperplane_** [(Essentially a line in $K+1$ dimensions. In 3D this would be a plane.)]{.bitsmall}
+:::
+
+## Regression coefficients
+
+. . .
+
+If we estimate the [**simple linear regression model**]{.col1}
+
+$$
+y_i = \beta_0^*+\beta_1^*x_{i1}+u_i
+$$
+and the [**multiple linear regression model**]{.col4}
+
+$$
+y_i = \beta_0+\beta_1x_{i1}+\dots+\beta_Kx_{iK}+u_i
+$$
+
+then the estimates for $\hat{\beta}_1^*$ and $\hat{\beta}_1$ will **generally not match**. [Only in two **special cases** would the estimates be the same:]{.fragment}
+
+:::{.incremental}
+* If $\mathrm{Cov}(x_{i1},x_{ik})=0$ for all $k\neq 1$ (which is rare, variables are usually at least somewhat correlated), and
+* if $\beta_k=0$ for all $k\notin\{0,1\}$ (i.e. if all other variables are irrelevant).
+:::
+
+## When are regression coefficients equal?
+
+. . .
+
+We can look at this property more closely for the simple case of one or two regressors. We consider the [**simple linear regression model**]{.col1}
+
+$$
+y_i = \beta_0^*+\beta_1^*x_{i1}+u_i
+$$
+
+and the [**multiple linear regression model**]{.col4} with two regressors
+
+$$
+y_i = \beta_0+\beta_1x_{i1}+\beta_2x_{i2}+u_i.
+$$
+
+. . .
+
+Here, one can show that
+
+$$
+\hat{\beta}_1^*=\hat{\beta}_1+\hat{\beta}_2\hat{\delta}\qquad\Rightarrow\qquad\mathrm{E}\left(\hat{\beta}_1^*\right)=\beta_1^*=\beta_1+\beta_2\delta,
+$$
+
+where $\delta$ denotes the slope parameter from a **regression of $x_2$ on $x_1$**. [We see: $\hat{\beta}_1^*$ and $\hat{\beta}_1$ are only equal if either $\hat{\beta}_2$ or $\hat{\delta}$ is equal to 0.]{.fragment}
+
+## Correct and incorrect models, two types of bias
+
+:::{.incremental}
+* If the [**model with two regressors**]{.col4} is the **“correct model”**, but we instead estimate the [**model with one regressor**]{.col1}:
+  * The correct parameter would be $\beta_1$,
+  * but we estimate $\beta_1^*=\beta_1+\beta_2\delta$.
+  * This is called [**omitted variable bias**]{.col2b} (**OVB**).
+* If the [**model with one regressor**]{.col1} is the **“correct model”**, but we instead estimate the [**model with two regressors**]{.col4}:
+  * The correct parameter would be $\beta_1^*$,
+  * but we estimate $\beta_1=\beta_1^*-\beta_2\delta$
+  * This is called [**collider bias**]{.col3b}.
+:::
+
+. . .
+
+We **do not know** whether one model or the other is “correct”. [In particular, the **larger model is not necessarily** automatically **better than the smaller model**.]{.col2} We need to consider which model better fits our assumptions.
+
+## Goodness of fit in the multivariate model
+
+. . . 
+
+Just like in the bivariate case, we can divide the [**variation in** $y$]{.col1} into a [[**explained part**]{.col2}, i.e. [**variation originating from variation in** $x$]{.col2};]{.fragment} [and an [**unexplained part**]{.col4}, i.e. a part resulting from [**unobserved factors**]{.col4}]{.fragment}
+
+. . .
+
+$$
+\begin{aligned}
+\textcolor{var(--primary-color)}{\sum^N_{i=1}\left(y_i-\bar{y}\right)^2} &= \textcolor{var(--secondary-color)}{\sum^N_{i=1}\left(\hat{y}_i-\bar{y}\right)^2} + \textcolor{var(--quarternary-color)}{\sum^N_{i=1}\hat{u}_i^2}\\
+\textcolor{var(--primary-color)}{\mathrm{SST}} &= \textcolor{var(--secondary-color)}{\mathrm{SSE}} + \textcolor{var(--quarternary-color)}{\mathrm{SSR}}
+\end{aligned}
+$$
+
+. . .
+
+And just like in the bivariate case, the **coefficient of determination** $R^2$ is a measure of **goodness of fit**, indicates what share of the variation is explained by our model, and has exactly the same issues we discussed in the bivariate case. In addition, when adding variables, $R^2$ will always increase.
+
+$$
+R^2 = \frac{\textcolor{var(--secondary-color)}{\mathrm{SSE}}}{\textcolor{var(--primary-color)}{\mathrm{SST}}} = 1- \frac{\textcolor{var(--quarternary-color)}{\mathrm{SSR}}}{\textcolor{var(--primary-color)}{\mathrm{SST}}}.
+$$
+
+# Practical example
+
+## Yay, real data
+
+. . .
+
+Let's take a look at what we have discussed theoretically in an applied example. We start by loading the dataset and selecting the variables we need:
+
+::::{.columns}
+:::{.column width="60%"}
+```{webr}
+# Load packages
+library(AER) # Contains our dataset
+library(dplyr) # Contains select()
+
+# Load data
+data("CPSSW8") # Dataset with hourly wages
+
+# Keep only variables we are interested in
+CPSSW8 <- CPSSW8 |>
+  select(earnings, gender, age, education)
+```
+:::
+:::{.column width="40%"}
+:::{.callout-tip title="Practice task"}
+Select different variables and run regressions like on the next slides.
+:::
+:::
+::::
+
+## Yay, real data
+
+. . .
+
+Next, we can take a look at a summary of our variables.
+
+```{webr}
+# Summary of our variables
+summary(CPSSW8)
+```
+
+## A regression!
+
+
+::::{.columns}
+:::{.column width="55%" .bitsmall .fragment}
+
+```{webr}
+lm(log(earnings) ~ education, data = CPSSW8) |>
+  summary()
+```
+:::
+:::{.column width="45%" .bitsmall .fragment}
+The **slope coefficient** is 0.094.
+
+* Since we have a **log-level model**, this means: for people with *one additional year of education* we **expect** a *9.4 percent higher wage*.
+
+The **intercept** is 1.485.
+
+* We estimate that people *with no education* **on average** have a logged income of 1.485.
+* That corresponds to $\mathrm{exp}(1.485)=4.41\$$. However, this is **not** the average wage of this group, because $\mathrm{E}(\mathrm{log}(\cdot))\neq\mathrm{log}(\mathrm{E}(\cdot))$.
+
+What happens if we add more variables?
+:::
+::::
+
+## More Variables
+
+::::{.columns}
+:::{.column width="55%" .bitsmall .fragment}
+
+```{webr}
+lm(log(earnings) ~ education + gender + age, data = CPSSW8) |>
+  summary()
+```
+:::
+:::{.column width="45%" .quitesmall .fragment}
+The **slope coefficient** for `education` is 0.094.
+
+* This means: for people with one additional year of education, we expect a 9.4 percent higher wage, **after controlling for gender and age**.
+* Although the coefficient is **very close** to the one from the previous model, it is **not the same**.
+
+The coefficient for `gender==female` is --0.234.
+
+* In this dataset, women have on average 23 percent lower wages, **after controlling for education and age**.
+
+The coefficient for `age` is 0.0089.
+
+* People who are one year older have on average 0.89 percent higher wages, **after controlling for education and gender**.
+
+The intercept is 1.22.
+:::
+::::
+
+## Different Ways of Presenting Results
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+When we run a regression in R and use the `summary()` function, we get **the following output**:
+
+:::{.bitsmall}
+```
+Call:
+lm(formula = log(earnings) ~ education + gender + age, data = CPSSW8)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.79472 -0.28807  0.02562  0.32439  1.63195 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   1.2206890  0.0130145   93.80   <2e-16 ***
+education     0.0941281  0.0007922  118.82   <2e-16 ***
+genderfemale -0.2338747  0.0039207  -59.65   <2e-16 ***
+age           0.0088690  0.0001839   48.22   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4816 on 61391 degrees of freedom
+Multiple R-squared:  0.2452,	Adjusted R-squared:  0.2452 
+F-statistic:  6649 on 3 and 61391 DF,  p-value: < 2.2e-16
+
+```
+:::
+:::
+:::{.column width="50%" .fragment}
+In a **paper** or **bachelor thesis**, results are usually presented in a table like this:
+
+::: {.quitesmall}
+<table>
+  <thead>
+    <tr>
+      <th colspan="3" style="text-align:center;">Dependent variable: log(earnings)</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>(1)</th>
+      <th>(2)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>education</td>
+      <td>0.094\*\*\*<br>(0.001)</td>
+      <td>0.094\*\*\*<br>(0.001)</td>
+    </tr>
+    <tr>
+      <td>genderfemale</td>
+      <td></td>
+      <td>-0.234\*\*\*<br>(0.003)</td>
+    </tr>
+    <tr>
+      <td>age</td>
+      <td></td>
+      <td>0.009\*\*\*<br>(0.0002)</td>
+    </tr>
+    <tr>
+      <td>Constant</td>
+      <td>1.485\*\*\*<br>(0.011)</td>
+      <td>1.221\*\*\*<br>(0.013)</td>
+    </tr>
+    <tr>
+      <td>Observations</td>
+      <td>61,395</td>
+      <td>61,395</td>
+    </tr>
+    <tr>
+      <td>R²</td>
+      <td>0.174</td>
+      <td>0.245</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">Note: \*p&lt;0.1; \*\*p&lt;0.05; \*\*\*p&lt;0.01<br>Numbers in parentheses are standard errors.</td>
+    </tr>
+  </tfoot>
+</table>
+:::
+:::
+::::
+
+# OLS Assumptions 1 to 4
+
+## From SLR to MLR Assumptions
+
+. . .
+
+To make statements about **expectation** and **variance**, we again need a set of **assumptions**. These assumptions [**MLR.1 to MLR.4**]{.col4} are generalized versions of the assumptions [**SLR.1 to SLR.4**]{.col1} from the previous chapter.
+
+. . .
+
+:::{.callout-note title="Gauss-Markov Theorem: Assumptions for Multiple Linear Regression (MLR)"}
+:::{.incremental}
+(1) Linearity in parameters  
+(2) Random sample  
+(3) **_No perfect multicollinearity_**  
+(4) Exogenous error term  
+:::
+:::
+
+## (MLR.1) Linearity in Parameters
+
+. . .
+
+:::{.nicebox1l}
+The population regression function (PRF) must be **linear** in its **parameters**:
+
+$$
+y_i = \beta_0 + \beta_1 x_{i1} + \dots + \beta_Kx_{iK} + u_i
+$$
+:::
+
+:::{.incremental}
+- Transformations (e.g., logarithmic) are of course still unproblematic, since the PRF remains a linear combination **of the parameters**.
+- In matrix notation, we can write this model as:
+  $$
+  \boldsymbol{y}=\boldsymbol{X\beta}+\boldsymbol{u}.
+  $$
+:::
+
+## (MLR.2) Random Sample
+
+. . .
+
+:::{.nicebox1l}
+Our **sample** with $N$ observations, $\left\{\left(y_i,x_{i1},\dots,x_{iK}\right), i = 1, 2, \dots, N\right\}$ must be **randomly** drawn from the population. The probability of including an observation must be the same for all and must not depend on whom we sampled first.
+:::
+
+:::{.incremental}
+- If this assumption holds, we can treat observations and error terms as independent of one another.
+:::
+
+## (MLR.3) No Perfect Multicollinearity
+
+. . .
+
+In the bivariate case, we assumed [**variation in the $x$ values**]{.col1} at this point. [Here, in the multivariate case, we require a broader assumption: [**no regressor may be a linear combination of other regressors**]{.col4}.]{.fragment} [Formally, we can say:]{.fragment}
+
+. . .
+
+:::{.nicebox1l}
+The regressor matrix $\boldsymbol{X}$ contains **no column that is a linear combination of other columns**. Equivalently, $\boldsymbol{X}$ has full rank.
+:::
+
+:::{.incremental}
+- We can view the SLR version of the assumption in this context too. For that, we imagine a matrix with two columns: one column of 1s and one column of $x$ values with no variation. Then the second column is a linear combination of the first.
+- In the SLR case, we needed this assumption to be able to [**divide by** $\sum^N_{i=1}(x_i-\bar{x})^2$]{.col1}. Now we need it so that [$(\boldsymbol{X}'\boldsymbol{X})$ is **invertible**]{.col4}.
+- In both the SLR and MLR cases, we need this assumption because otherwise the estimator **cannot be computed** mathematically.
+:::
+
+## When Is MLR.3 Violated?
+
+:::{.incremental}
+* The assumption MLR.3 is [**violated**]{.col2} when a regressor is a (weighted) sum or difference of other regressors.
+  * **Example:** We study the relationship between parental income and a person's own income, by regressing a person's income on both parents' incomes ($x_{i1}$ and $x_{i2}$). If we add the sum of the parents' incomes as $x_{i3}$, the assumption is violated. If we add the difference in their incomes as $x_{i3}$, the assumption is also violated.
+  * For **dummy variables**, this assumption is violated if we include all possible categories in the regression. If we have data on people from all 27 EU countries and want to include a country dummy, we must leave one country out as the reference category.
+:::
+
+## When Is MLR.3 Not Violated?
+
+:::{.incremental}
+* The assumption MLR.3 is [**not violated**]{.col1} if a regressor is a **non-linear** combination of other regressors.
+  * **Example:** We include the **squared** income of each parent: $x_{i3}=x_{i1}^2$ and $x_{i4}=x_{i2}^2$. This way we can model parabolic relationships.
+  * **Example:** We include $x_{i3}=x_{i1}\times x_{i2}$. This is called an **interaction effect**. It allows us to model effects that depend on one another – but makes interpretation harder (since a simple “ceteris paribus” interpretation is no longer possible).
+:::
+
+. . .
+
+We will discuss **squared regressors** and **interaction terms** in more detail in a later module. At this point, it’s only important to know that they exist and that they do not violate MLR.3.
+
+## When Is MLR.3 Not Violated Either?
+
+:::{.incremental}
+* The assumption MLR.3 is also [**not violated**]{.col1} if two regressors are (strongly) correlated.
+  * The **stronger** two regressors are **correlated**, the **less precise** our OLS estimates become.
+  * But they are still **BLUE**, because we never required that regressors are uncorrelated. Correlation between regressors does not violate any of the Gauss-Markov assumptions, **as long as it is not perfect**.
+  * **Perfect correlation** is automatically detected by statistical software, **_nearly_ perfect correlation** is not. Therefore, it is more difficult to detect. Whether two variables are “too strongly” correlated must be decided on a case-by-case basis.
+:::
+
+
+## (MLR.4) Exogenous Errors {#slr4}
+
+. . .
+
+:::{.nicebox1l}
+The expected value of the error term $u$ is 0 for **each regressor**:
+
+$$
+\mathrm{E}\left(u_i\mid x_{i1},\dots,x_{iK}\right) = 0
+$$
+
+In matrix notation (this assumption is slightly stronger, as it includes not just the regressors but also their linear combinations):
+
+$$
+\mathrm{E}\left(\boldsymbol{u}\mid\boldsymbol{X}\right) = \boldsymbol{0}
+$$
+:::
+
+:::{.incremental}
+- As in the SLR case, this assumption implies:
+  - $\mathrm{E}(u_i)=0$, and
+  - $\mathrm{Cov}(x_{ik},u_i)=0$ and thus $\mathrm{E}(x_{ik}u_i)=0$ for all regressors $x_{ik}$.
+:::
+
+## When Is MLR.4 Violated?
+
+We assume that **regressors** and **unobserved factors** are independent. This is easy to achieve in experiments, but much harder with observational data. [We call the case in which MLR.4 is violated [**endogeneity**]{.col2}.]{.fragment}
+
+. . . 
+
+When $\mathrm{E}(x_{ik}u_i)\neq 0$, we call $x_{ik}$ an **endogenous regressor**. This can happen when:
+
+:::{.incremental}
+* we **omit a variable** that is correlated with regressors and relevant for explaining the dependent variable. Then we have **omitted variable bias**.
+  * **Example:** We regress wage on education but do not account for talent/motivation.
+* the **dependent variable** itself influences a **regressor**. This is called **reverse causality**.
+  * **Example:** During the COVID pandemic, more mask wearing reduced infections, but the number of infections also influenced how many people wore masks.
+* the true relationship is **non-linear**. 
+:::
+
+
+# Expectation of the OLS Estimator
+
+## OLS is Unbiased
+
+. . .
+
+If the four assumptions MLR.1 to MLR.4 are met, we can **prove** that the OLS estimator is **unbiased**. Formally:
+
+. . .
+
+:::{.nicebox1l}
+Under assumptions MLR.1 to MLR.4, we have: $\mathrm{E}\left(\hat{\beta}_k\right) = \beta_k,\qquad\qquad k=0,1,\dots,K,$ for every value of the parameters $\beta_j$. In matrix notation:
+
+$$
+\mathrm{E}\left(\hat{\boldsymbol{\beta}}\right)=\boldsymbol{\beta},
+$$
+
+where $\boldsymbol{\beta}$ has dimension $(K+1)\times 1$.
+:::
+
+. . .
+
+The OLS estimator is therefore an **unbiased** estimator of the **intercept** and all **slope parameters**. We can again prove this by splitting the estimator into the true coefficient and a sample error component.
+
+## Proof: OLS is Unbiased
+
+. . .
+
+We start by decomposing $\hat{\boldsymbol{\beta}}$:
+
+$$
+\begin{aligned}
+\hat{\boldsymbol{\beta}} &= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y}\\
+&= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'(\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{u}) \\
+&= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{X}\boldsymbol{\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u} \\
+&= \underbrace{\boldsymbol{\beta}}_{\text{true parameter}}+\underbrace{(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}}_{\text{sampling error}}.
+\end{aligned}
+$$
+
+. . .
+
+We can compare this step to the step in the proof for the SLR case, in which we decomposed $\hat{\beta}_1$ as follows:
+
+$$
+\hat{\beta}_1 = \beta_1+\frac{\sum^N_{i=1}(x_i-\bar{x})u_i}{\sum^N_{i=1}(x_i-\bar{x})x_i}.
+$$
+
+## Proof: OLS is Unbiased
+
+. . .
+
+With this decomposition, we can proceed in the proof:
+
+$$
+\begin{aligned}
+\mathrm{E}\left(\hat{\boldsymbol{\beta}}\middle|\boldsymbol{X}\right) &= \mathrm{E}\left(\boldsymbol{\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\middle|\boldsymbol{X}\right) \\
+&= \boldsymbol{\beta}+\mathrm{E}\left((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\middle|\boldsymbol{X}\right) \\
+&= \boldsymbol{\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\underbrace{\mathrm{E}\left(\boldsymbol{u}\middle|\boldsymbol{X}\right)}_{=0\text{ (MLR.4)}} \\
+&= \boldsymbol{\beta}.
+\end{aligned}
+$$
+
+Since $\mathrm{E}\left(\hat{\boldsymbol{\beta}}\middle|\boldsymbol{X}\right)=\boldsymbol{\beta}\quad\Rightarrow\quad\mathrm{E}\left(\hat{\boldsymbol{\beta}}\right)=\boldsymbol{\beta}$ (law of iterated expectations), the **OLS estimator is unbiased**.
+
+:::{.flushright}
+$\square$
+:::
+
+# Variance of the OLS Estimator
+
+## (MLR.5) Homoskedasticity
+
+:::{.nicebox1l}
+The variance of the error term $u_i$ is the same for all $x_{ik}$:
+
+$$
+\mathrm{Var}(u_i\mid x_{i1},\dots,x_{iK}) = \mathrm{Var}(u_i) =  \sigma^2,
+$$
+
+or in matrix notation:
+
+$$
+\mathrm{Var}(\boldsymbol{u}\mid\boldsymbol{X}) = \sigma^2\boldsymbol{I}_N,
+$$
+
+where $\boldsymbol{I}_N$ is the identity matrix with dimension $n\times n$.
+:::
+
+:::{.incremental}
+- The interpretation of this assumption is analogous to the corresponding SLR assumption.
+- The assumption is, for example, violated if individuals with more education have higher variance in earnings. Such violations are therefore common.
+:::
+
+## Variance of the OLS Estimator {#variance}
+
+. . .
+
+:::{.nicebox1l}
+Under assumptions **MLR.1 to MLR.5**, the variance of the OLS estimator is
+
+$$
+\mathrm{Var}\left(\hat{\boldsymbol{\beta}}\right)=\sigma^2(\boldsymbol{X}'\boldsymbol{X})^{-1},
+$$
+
+where $\mathrm{Var}(\cdot)$ refers here to a variance-covariance matrix.
+:::
+
+. . .
+
+:::{.callout-tip title="Exercise"}
+Show how to derive this expression for the variance. At what step is each of the assumptions MLR.1 to MLR.5 needed? [Derivation](#appdix2){.butn} 
+:::
+
+## More on the Variance of the OLS Estimator
+
+. . .
+
+Let’s look at the bivariate model in matrix notation:
+
+$$
+\hat{\boldsymbol{\beta}} = 
+\begin{pmatrix}
+\hat{\beta}_0 \\
+\hat{\beta}_1
+\end{pmatrix}
+,\qquad\qquad
+\mathrm{Var}\left(\hat{\boldsymbol{\beta}}\right)=
+\begin{pmatrix}
+\mathrm{Var}(\hat{\beta}_0) & \mathrm{Cov}(\hat{\beta}_0,\hat{\beta}_1) \\
+\mathrm{Cov}(\hat{\beta}_1,\hat{\beta}_0) & \mathrm{Var}(\hat{\beta}_1) \\
+\end{pmatrix}
+$$
+
+. . .
+
+Until now, we’ve only discussed the sample **variance** of an estimator, not the sample **covariance**. Statistical software usually estimates only the variances of the parameters, not the covariances—that is, only the **diagonal** of the variance-covariance matrix. We will need the covariances later for certain statistical tests.
+
+## Variance of Individual Coefficients
+
+. . . 
+
+Analogous to the explicit formula for the variance in the bivariate case, we can derive the following formula for the **variance of an individual coefficient** from the previous formula for the variance:
+
+$$
+\mathrm{Var}\left(\hat{\beta}_k\middle|\boldsymbol{X}\right)=\frac{\sigma^2}{\sum^N_{i=1}(x_{ik}-\bar{x}_k)^2}\times\frac{1}{1-R^2_k},
+$$
+
+where $R^2_k$ is the $R^2$ from a regression of $x_k$ on all other regressors $x_j, j\neq k$.
+
+:::{.incremental}
+* We see that a **large $\sigma^2$** **increases** the variance (less precise estimate),
+* a **large $N$** **decreases** the variance (more precise estimate),
+* and that **strong variation** in regressor $x_k$ and **weak correlation** between $x_k$ and $x_j, j\neq k$ **decrease** the variance (more precise estimate).
+* Strongly correlated regressors thus make our estimates less precise.
+:::
+
+## An Estimator for the Variance
+
+. . .
+
+Just like in the bivariate case, we **do not know** the **variance** $\sigma^2$, and need an estimator.
+
+:::{.nicebox1l}
+It can be shown (we omit the proof) that the following estimator:
+
+$$
+\mathrm{E}\left(\frac{\sum^N_{i=1}\hat{u}_i^2}{N-K-1}\right) = \mathrm{E}\left(\frac{\hat{\boldsymbol{u}}'\hat{\boldsymbol{u}}}{N-K-1}\right) = \mathrm{E}\left(\hat{\sigma}^2\right) = \sigma^2
+$$
+
+is an **unbiased estimator** of the error variance under **assumptions MLR.1 to MLR.5**.
+:::
+
+. . .
+
+We divide by $N-K-1$ (not by $N$) to correct for degrees of freedom: our estimation uses $K-1$ coefficients from $N$ observations, so we are left with $N-K-1$ degrees of freedom. We made the same correction in the bivariate case.
+
+## Gauss-Markov Theorem
+
+. . .
+
+Now we can formulate the **Gauss-Markov Theorem** for the multivariate case, analogous to the bivariate case:
+
+. . .
+
+:::{.nicebox1l}
+Under **assumptions MLR.1 to MLR.5**, the **OLS estimator**
+
+$$
+\hat{\boldsymbol{\beta}}=
+\begin{pmatrix}
+\hat{\beta}_0 \\
+\hat{\beta}_1 \\
+\vdots \\
+\hat{\beta}_K
+\end{pmatrix}
+$$
+
+is the **best linear unbiased estimator** (**BLUE**) of the parameters $\boldsymbol{\beta}=(\beta_0,\beta_1,\dots,\beta_K)'$.
+:::
+
+# Frisch-Waugh-Lovell Theorem
+
+## More Ceteris Paribus
+
+It is not intuitively easy to understand what the **coefficients in a multivariate model** actually measure. [The **Frisch-Waugh-Lovell Theorem** gives us an additional approach.]{.fragment}
+
+. . .
+
+We consider the following model:
+
+$$
+y_i=x_{i1}\beta_1+\boldsymbol{x}'_{i2}\boldsymbol{\beta}_2+u_i,\qquad\mathrm{E}\left(\binom{x_{i1}}{\boldsymbol{x}_{i2}}u_i\right)=0.
+$$
+
+. . .
+
+We can assume that $y_i$ is wage, $x_{i1}$ is gender, and $\boldsymbol{x}_{i2}$ is a vector consisting of a column of 1s, education, and age. We assume that we are primarily interested in $\beta_1$, and therefore highlight $x_{i1}$ and group the rest of the model in vector notation.
+
+. . .
+
+The variables we are not primarily interested in are typically called **control variables**. We include them so that the model is complete.
+
+## Frisch-Waugh-Lovell Theorem {auto-animate="true"}
+
+. . .
+
+We start by regressing $y_i$ **only on the vector** $\boldsymbol{x}_{i2}$ (and not on $x_1$). From this regression, we “keep” the **prediction errors**, which we denote as [$y_i^{(R)}$]{.col1}.
+
+$$
+y_{i}=\boldsymbol{x}'_{i2}\boldsymbol{\alpha}+\textcolor{var(--primary-color)}{\underbrace{y_{i}^{(R)}}_{\text{error}}}
+$$
+
+. . .
+
+Next, we regress our **variable of interest**, $x_{i1}$, **on the vector** $\boldsymbol{x}_{i2}$, again “keeping” the **prediction errors**, which we denote as [$x_{i1}^{(R)}$]{.col2}.
+
+$$
+x_{i1}=\boldsymbol{x}'_{i2}\boldsymbol{\gamma}+\textcolor{var(--secondary-color)}{\underbrace{x_{i1}^{(R)}}_{\text{error}}}
+$$
+
+. . .
+
+Put simply, we now have [a “version” of $y_i$ with the influence of $\boldsymbol{x}_{i2}$ filtered out]{.col1}, and [a “version” of $x_{i1}$ with the influence of $\boldsymbol{x}_{i2}$ filtered out]{.col2}.
+
+## Frisch-Waugh-Lovell Theorem {auto-animate="true"}
+
+$$
+y_{i}=\boldsymbol{x}'_{i2}\boldsymbol{\alpha}+\textcolor{var(--primary-color)}{\underbrace{y_{i}^{(R)}}_{\text{error}}}
+$$
+
+$$
+x_{i1}=\boldsymbol{x}'_{i2}\boldsymbol{\gamma}+\textcolor{var(--secondary-color)}{\underbrace{x_{i1}^{(R)}}_{\text{error}}}
+$$
+
+. . .
+
+Interestingly, we can obtain **the same parameter $\beta_1$ in two different ways**:
+
+:::{.incremental}
+* by regressing $y_i$ on $x_{i1}$ and $\boldsymbol{x}_{i2}'$ (original regression), and
+* by regressing [$y_i^{(R)}$]{.col1} on [$x_{i1}^{(R)}$]{.col2} (FWL regression of the residuals from the two auxiliary regressions).
+:::
+
+## Sample Frisch-Waugh-Lovell Theorem
+
+. . .
+
+If we have a sample of data, we can proceed as follows to obtain our estimator $\hat{\beta}_1$ in this fashion:
+
+:::{.incremental}
+(1) Regress $y_i$ on $\boldsymbol{x}_{i2}'$ and obtain the [**residuals** $\hat{y}_i^{(R)}$]{.col1}.  
+(2) Regress $x_{i1}$ on $\boldsymbol{x}_{i2}'$ and obtain the [**residuals** $\hat{x}_{i1}^{(R)}$]{.col2}.  
+(3) Regress [$\hat{y}_i^{(R)}$]{.col1} on [$\hat{x}_{i1}^{(R)}$]{.col2} and obtain the **OLS estimator** $\hat{\beta}_1$. This estimator is equal to the estimator from the original regression.
+:::
+
+. . .
+
+This result is known as the **Frisch-Waugh-Lovell Theorem**, after Frisch and Waugh (1933) and Lovell (1963). It can help us understand the parameters of the **multivariate model intuitively**.
+
+## Frisch-Waugh-Lovell and Interpretation
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+
+We can illustrate the previous example with the following causal **graph**: We assume that gender has an influence on wage, but there is also correlation between the variables in $\boldsymbol{x}_{i2}'$ and both gender and wage.
+
+```{r, engine="tikz"}
+\begin{tikzpicture}[scale = 1.2, thick, ->,>=stealth, every node/.style={draw, circle, minimum width=2cm, minimum height=1.5cm, align=center}]
+  \node (gender) at (0,0) {Gender};
+  \node (wage) at (4,0) {Wage};
+  \node (controls) at (2,-2) {1,\\Education,\\Age};
+  
+  \draw (gender) -- (wage);
+  \draw[dotted, <->] (controls) -- (gender);
+  \draw[dotted, <->] (controls) -- (wage);
+\end{tikzpicture}
+```
+:::
+:::{.column width="50%" .incremental}
+* We can interpret the error [$y_i^{(R)}$]{.col1} as the **variation in $y_i$** not explained by $\boldsymbol{x}_{i2}'$.
+* Likewise, the error [$\hat{x}_{i1}^{(R)}$]{.col2} can be seen as the **variation in $x_{i1}$** not explained by $\boldsymbol{x}_{i2}'$.
+* We are “filtering out” the dashed effect in the graph.
+* We can find the effect of interest **after filtering** using a simple bivariate regression.
+* Therefore, we interpret effects in multivariate regression models as **ceteris paribus effects**.
+:::
+::::
+
+## FWL in Practice
+
+. . .
+
+```{webr}
+# Load packages
+library(AER) # Contains our dataset
+library(dplyr) # Contains select()
+
+# Load data
+data("CPSSW8") # Dataset with hourly wages
+
+# Keep only relevant variables
+CPSSW8 <- CPSSW8 |>
+  select(earnings, gender, age, education)
+
+CPSSW8$female <- CPSSW8$gender=="female"
+```
+
+## FWL in Practice
+
+. . .
+
+```{webr}
+# Estimate original model
+full_model <- lm(log(earnings) ~ female + education + age, data = CPSSW8)
+
+# Residuals for y_i
+log_earning_residuals <- lm(log(earnings) ~ education + age, data = CPSSW8) |>
+  residuals()
+
+# Residuals for x_{i1}
+female_residuals <- lm(female ~ education + age, data = CPSSW8) |>
+  residuals()
+
+# Estimate FWL model
+partialled_out_model <- lm(log_earning_residuals ~ 0 + female_residuals, data = CPSSW8)
+```
+
+## FWL in Practice
+
+::::{.columns}
+:::{.column width="50%" .bitsmall .fragment}
+```{webr}
+# Output original model
+summary(full_model)
+```
+:::
+:::{.column width="50%" .bitsmall .fragment}
+```{webr}
+# Output FWL model
+summary(partialled_out_model)
+```
+:::
+::::
+
+# How Many Variables?
+
+## Too Many or Too Few Variables?
+
+. . .
+
+Now that we have the ability to include **as many variables as we want** in our regression, the question arises:
+
+:::{.incremental}
+* How many variables are **too many** variables?
+* How many variables are **too few** variables?
+:::
+
+. . .
+
+Of course, there is **no** “rule of thumb” or **universally valid answer** to this question. [Instead, we have to **decide individually** for each model and each variable whether it makes sense to include it.]{.fragment}
+
+. . .
+
+If we [**omit relevant variables**]{.col2}, we run into a [**problem of omitted variable bias**]{.col2}. In this case, the effect that actually belongs to the omitted variable is incorrectly attributed to the variables included in the model.
+
+## Omitted Variable Bias
+
+. . .
+
+**What happens** if we omit relevant **variables** from our model? Our **estimator** will **no longer be unbiased**, and we can prove this.
+
+. . .
+
+Assume this is the “true” model. We've split the regressors into two matrices, but in principle, it's the same model we've been discussing in this chapter:
+
+$$
+\boldsymbol{y}=\boldsymbol{X\beta}+\textcolor{var(--secondary-color)}{\boldsymbol{Z\gamma}}+\boldsymbol{u}
+$$
+
+. . .
+
+What happens if we **instead estimate this model**?
+
+$$
+\boldsymbol{y}=\boldsymbol{X\beta}+\boldsymbol{u}
+$$
+
+## Omitted Variable Bias
+
+. . .
+
+We again decompose $\hat{\boldsymbol{\beta}}$, but use the **true model** for $\boldsymbol{y}$.
+
+:::{.bitsmall}
+$$
+\begin{aligned}
+\hat{\boldsymbol{\beta}} &= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y} \\
+&= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'(\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{Z}\boldsymbol{\gamma}+\boldsymbol{u}) \\
+&= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{X}\boldsymbol{\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{Z}\boldsymbol{\gamma}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u} \\
+&= \boldsymbol{\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{Z}\boldsymbol{\gamma}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}
+\end{aligned}
+$$
+:::
+
+. . .
+
+Now if we take the **expectation** of this expression, we see that the estimator is **no longer unbiased**.
+
+:::{.bitsmall}
+$$
+\begin{aligned}
+\mathrm{E}\left(\hat{\boldsymbol{\beta}}\middle|\boldsymbol{X}\right) &= \mathrm{E}\left( \boldsymbol{\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{Z}\boldsymbol{\gamma}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\middle|\boldsymbol{X}\right) \\
+&= \boldsymbol{\beta} + \mathrm{E}\left( (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{Z}\boldsymbol{\gamma}\middle|\boldsymbol{X}\right)+\mathrm{E}\left((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\middle|\boldsymbol{X}\right) \\
+&= \boldsymbol{\beta} +  \textcolor{var(--secondary-color)}{\underbrace{(\boldsymbol{X}'\boldsymbol{X})^{-1}\mathrm{E}\left(\boldsymbol{X}'\boldsymbol{Z}\middle|\boldsymbol{X}\right)\boldsymbol{\gamma}}_{\text{Bias}}}+\boldsymbol{0}
+\end{aligned}
+$$
+:::
+
+## Omitted Variable Bias
+
+. . .
+
+We can **very easily** see what the **“direction” of the bias** depends on:
+
+$$
+\mathrm{E}\left(\hat{\boldsymbol{\beta}}\middle|\boldsymbol{X}\right) = \boldsymbol{\beta} +  \textcolor{var(--secondary-color)}{\underbrace{(\boldsymbol{X}'\boldsymbol{X})^{-1}\mathrm{E}\left(\boldsymbol{X}'\boldsymbol{Z}\middle|\boldsymbol{X}\right)\boldsymbol{\gamma}}_{\text{Bias}}}+\boldsymbol{0}
+$$
+
+. . . 
+
+|                                   | **$\mathrm{E}(\boldsymbol{X}'\boldsymbol{Z}\mid\boldsymbol{X})$ positive** | **$\mathrm{E}(\boldsymbol{X}'\boldsymbol{Z}\mid\boldsymbol{X})$ negative** |
+|-----------------------------------|---------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| **$\boldsymbol{\gamma}$ positive** | [Positive bias]{.col2}                                                   | [Negative bias]{.col1}                                                   |
+| **$\boldsymbol{\gamma}$ negative** | [Negative bias]{.col1}                                                   | [Positive bias]{.col2}                                                   |                                            |
+
+:::{.incremental}
+* $\mathrm{E}(\boldsymbol{X}'\boldsymbol{Z}\mid\boldsymbol{X})$ tells us whether the variables in $\boldsymbol{X}$ are **correlated** with the variables in $\boldsymbol{Z}.$
+* We see that the **bias is only zero** when at least one of the factors is zero:
+  * $\mathrm{E}(\boldsymbol{X}'\boldsymbol{Z}\mid\boldsymbol{X})=\boldsymbol{0}$: The variables in $\boldsymbol{X}$ are not correlated with the variables in $\boldsymbol{Z}$.
+  * $\boldsymbol{\gamma}=0$: The variables in $\boldsymbol{Z}$ were not relevant in explaining $\boldsymbol{y}$ in the first place.
+:::
+
+## When Too Many Variables Are a Problem
+
+. . .
+
+But [**too many variables**]{.col4} can also be a problem, especially in the following cases and for the following reasons:
+
+:::{.incremental}
+* If we have too many variables and they are **strongly correlated**, our estimates become **less precise**.
+* If we have **more parameters than observations** ($N<K$), **assumption MLR.3** is violated and we cannot compute an estimate.
+* Unnecessary variables can also lead to a violation of MLR.4.
+:::
+
+
+
+## When Too Many Variables Are a Problem
+
+. . .
+
+In the following example, adding an additional variable violates MLR.4:
+
+:::{.incremental}
+* Suppose we want to estimate the **effect of fertilizer on agricultural yields** and conduct an experiment where we **correctly randomize fertilizer usage**.
+  * If we estimate the model $\text{Yield}_i=\beta_0+\beta_1\text{Fertilizer}_i+u_i$, it is justified to assume that $\mathrm{E}(u_i\mid\text{Fertilizer}_i)=0$, since fertilizer use was randomized.
+  * However, if we estimate $\text{Yield}_i=\beta_0+\beta_1\text{Fertilizer}_i+\beta_2\text{Weeds}+u_i$, the assumption $\mathrm{E}(u_i\mid\text{Fertilizer}_i,\text{Weeds}_i)=0$ is **probably no longer satisfied**, because weeds were not randomized and are likely correlated with unobserved factors.
+  * [**Caution:**]{.col1} If we used **$R^2$ for model selection**, we would [**select the “wrong” model**]{.col1}, because **$R^2$ never decreases when adding another variable**.
+:::
+
+# Visualization
+
+## Example 1: Cars
+
+:::{.incremental}
+- The `mtcars` dataset contains 32 **car models** (1973–74) and their
+- fuel efficiency in miles per gallon (`mpg`),
+- weight (`wt`), displacement (`disp`), etc.
+:::
+
+. . .
+
+Let's begin with a **simple linear regression**:
+
+```{r, fig.width = 12, fig.height = 4, out.width = "1\\textwidth",  warning=FALSE,offset=3,uncover=TRUE, message=FALSE,overlay.plot=1,echo=FALSE}
+library(scales)
+old.par = par(mfrow=c(1,2), mar=c(4,4,4,4))
+
+m1 = lm(mpg ~ disp, data=mtcars)
+m2 = lm(mpg ~ wt, data=mtcars)
+
+plot(y=mtcars$mpg,x=mtcars$disp,col=alpha("dodgerblue3",0.81),pch=19,pex=0.5,xlab="disp",ylab="mpg")
+abline(m1,pcex = 0.3, pch=16)
+lines(c(rbind(mtcars$disp,mtcars$disp,mtcars$disp)),
+      c(rbind(mtcars$mpg,predict(m1),NA)),lw=2,col="grey")
+
+plot(y=mtcars$mpg,x=mtcars$wt,col=alpha("dodgerblue3",0.81),pch=19,pex=0.5,xlab="wt",ylab="mpg")
+abline(m2,pcex = 0.3, pch=16)
+lines(c(rbind(mtcars$wt,mtcars$wt,mtcars$wt)),
+      c(rbind(mtcars$mpg,predict(m2),NA)),lw=2,col="grey")
+
+```
+
+
+
+## Multivariate Regression with Quadratic Term
+
+. . .
+
+$$
+\textrm{mpg}_i=\beta_0 + \beta_1\textrm{wt}_i+\beta_2\textrm{wt}^2_i+\beta_3\textrm{disp}_i+u_i
+$$
+
+. . .
+
+```{r, fig.width = 14, fig.height = 4.5, out.width = "1\\textwidth", echo=FALSE, warning=FALSE,offset=1,uncover=TRUE, message=FALSE,overlay.plot=1}
+library(rockchalk)
+
+m1 = lm(mpg ~ poly(wt,2) + disp, data=mtcars)
+
+old.par = par(mfrow=c(1,2), mar=c(1,1,1,1))
+
+plotPlane(m1, "wt", "disp", pch=16,pcex = 2,pcol="dodgerblue3", drawArrows=TRUE, alength=0,acol="grey", alty=1,alwd=3, theta=25, phi=0, main="Perspective 1")
+
+plotPlane(m1, "wt", "disp", pch=16, pcex = 1.5, pcol="dodgerblue3", drawArrows=TRUE, alength=0,acol="grey", alty=1,alwd =3, theta=35, phi=20, main="Perspective 2")
+```
+
+
+## Example 2: Earnings, Age and Education
+
+. . .
+
+Let's return to the CPS data; first again as a bivariate regression (earnings on education).
+
+. . .
+
+```{r, fig.width = 12, dev="png", fig.height = 5, out.width = "1\\textwidth",  warning=FALSE, offset=3,uncover=TRUE, message=FALSE,overlay.plot=1,echo=FALSE}
+library(scales)
+library(AER)
+data("CPSSW8") 
+old.par = par(mfrow=c(1,2), mar=c(4,4,1,1))
+
+m1 = lm(earnings ~ education, data=CPSSW8)
+m2 = lm(earnings ~ age, data=CPSSW8)
+
+plot(y=CPSSW8$earnings,x=CPSSW8$education+0.05*rnorm(nrow(CPSSW8)),col=alpha("dodgerblue3",0.03),pch=19,cex=0.5,xlab="education",ylab="earnings")
+abline(m1, pch=16)
+plot(y=CPSSW8$earnings,x=CPSSW8$age,col=alpha("dodgerblue3",0.03),pch=19, cex=0.5,xlab="age",ylab="earnings")
+abline(m2, pch=16)
+```
+
+
+## Linear in Age and Education
+
+
+$$
+\begin{aligned}
+y_i=\beta_0+\beta_1\textrm{education}_i+\beta_2\textrm{age}_i+u_i\phantom{x_i^2} \\
+\phantom{x_i^2}
+\end{aligned}
+$$
+
+```{r, fig.width = 18, fig.height = 5.5,  dev="png", out.width = "100%",  warning=FALSE, message=FALSE,overlay.plot=1,echo=FALSE}
+library(scales); library(AER);library(plot3D)
+data("CPSSW8")
+old.par = par(mfrow=c(1,2), mar=c(2,2,2,2))
+grid.lines = 40
+age.pred <- seq(min(CPSSW8$age), max(CPSSW8$age), length.out = grid.lines)
+education.pred <- seq(min(CPSSW8$education), max(CPSSW8$education),
+                      length.out = grid.lines)
+xy <- expand.grid(education = education.pred,age = age.pred)
+m1 = lm(earnings ~ age + education, data=CPSSW8)
+# scatter plot with regression plane
+scatter3D(CPSSW8$education, CPSSW8$age, CPSSW8$earnings, pch = 19, cex = 0.5,
+          colvar = NULL, col=alpha("dodgerblue3",0.1),  theta=-30, phi=0, bty="b",
+          zlim=c(-1,60),   zlab = "Earnings",  xlab="Education", ylab="Age",
+          surf = list(y = age.pred, x = education.pred, z = matrix(predict(m1,
+          newdata = xy), nrow = grid.lines, ncol = grid.lines),  facets = TRUE,
+          fit = predict(m1), col=ramp.col (col = c("grey","seagreen2"),
+          n = 300, alpha=0.5), border="black"), main="Front View")
+
+scatter3D(CPSSW8$education, CPSSW8$age, CPSSW8$earnings, pch = 19, cex = 0.5,
+          colvar = NULL, col=alpha("dodgerblue3",0.1),  theta=110, phi=-10, bty="b",
+          zlim=c(-1,60),   zlab = "Earnings",  xlab="Education", ylab="Age",
+          surf = list( x = education.pred, y = age.pred, z = matrix(predict(m1,
+          newdata = xy), nrow = grid.lines, ncol = grid.lines),  facets = TRUE,
+          fit = predict(m1), col=ramp.col (col = c("grey","seagreen2"),
+          n = 300, alpha=0.5), border="black"), main="Back View")
+```
+
+
+
+## Age Squared, Linear in Education
+
+$$
+\begin{aligned}
+y_i=\beta_0+\beta_1\textrm{education}_i+\beta_2\textrm{age}_i+\beta_3\textrm{age}_i^2+u_i\\\phantom{x_i^2}
+\end{aligned}
+$$
+
+```{r, fig.width = 18, fig.height = 5.5,  dev="png", out.width = "100%",  warning=FALSE, message=FALSE,overlay.plot=1,echo=FALSE}
+old.par = par(mfrow=c(1,2), mar=c(2,2,2,2))
+
+m1 = lm(earnings ~ poly(age,2,raw=TRUE) + education, data=CPSSW8)
+
+# scatter plot with regression plane
+scatter3D(CPSSW8$education, CPSSW8$age, CPSSW8$earnings, pch = 19, cex = 0.5,
+          colvar = NULL, col=alpha("dodgerblue3",0.1),  theta=-30, phi=0, bty="b",
+          zlim=c(-1,60),   zlab = "Earnings",  xlab="Education", ylab="Age",
+          surf = list(y = age.pred, x = education.pred, z = matrix(predict(m1,
+          newdata = xy), nrow = grid.lines, ncol = grid.lines),  facets = TRUE,
+          fit = predict(m1), col=ramp.col (col = c("grey","seagreen2"),
+          n = 300, alpha=0.5), border="black"), main="Front View")
+
+scatter3D(CPSSW8$education, CPSSW8$age, CPSSW8$earnings, pch = 19, cex = 0.5,
+          colvar = NULL, col=alpha("dodgerblue3",0.1),  theta=110, phi=-10, bty="b",
+          zlim=c(-1,60),   zlab = "Earnings",  xlab="Education", ylab="Age",
+          surf = list( x = education.pred, y = age.pred, z = matrix(predict(m1,
+          newdata = xy), nrow = grid.lines, ncol = grid.lines),  facets = TRUE,
+          fit = predict(m1), col=ramp.col (col = c("grey","seagreen2"),
+          n = 300, alpha=0.5), border="black"), main="Back View")
+
+```
+
+## Age Squared, Interaction with Education
+
+$$
+\begin{aligned}
+y_i=&\beta_0+\beta_1\textrm{education}_i+\beta_2\textrm{age}_i+\beta_3\textrm{age}_i^2\\
+&+\beta_4\textrm{education}_i\times\textrm{age}_i
++\beta_5\textrm{education}_i\times\textrm{age}_i^2+u_i
+\end{aligned}
+$$
+
+
+```{r, fig.width = 18, fig.height = 5.5, dev="png", out.width = "100%", warning=FALSE, message=FALSE,overlay.plot=1,echo=FALSE}
+old.par = par(mfrow=c(1,2), mar=c(2,2,2,2))
+
+m1 = lm(earnings ~ poly(age,2,raw=TRUE) * education, data=CPSSW8)
+
+# scatter plot with regression plane
+scatter3D(CPSSW8$education, CPSSW8$age, CPSSW8$earnings, pch = 19, cex = 0.5, colvar = NULL, col=alpha("dodgerblue3",0.1),  theta=-30, phi=0, bty="b", zlim=c(-1,60),   zlab = "Earnings",  xlab="Education", ylab="Age", surf = list(y = age.pred, x = education.pred, z = matrix(predict(m1, newdata = xy), nrow = grid.lines, ncol = grid.lines),  facets = TRUE, fit = predict(m1), col=ramp.col (col = c("grey","seagreen2"), n = 300, alpha=0.5), border="black"), main="Front View")
+
+scatter3D(CPSSW8$education, CPSSW8$age, CPSSW8$earnings, pch = 19, cex = 0.5, colvar = NULL, col=alpha("dodgerblue3",0.1),  theta=110, phi=-10, bty="b", zlim=c(-1,60),   zlab = "Earnings",  xlab="Education", ylab="Age", surf = list( x = education.pred, y = age.pred, z = matrix(predict(m1, newdata = xy), nrow = grid.lines, ncol = grid.lines),  facets = TRUE, fit = predict(m1), col=ramp.col (col = c("grey","seagreen2"), n = 300, alpha=0.5), border="black"), main="Back View")
+
+```
+
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+# Appendix
+
+## OLS Derivation from the Optimization Problem {#appdix1}
+
+We begin with a transformation.
+
+$$
+\begin{aligned}
+\boldsymbol{u}'\boldsymbol{u}&=(\boldsymbol{y}-\boldsymbol{X\beta})'(\boldsymbol{y}-\boldsymbol{X\beta}) \\
+&= \boldsymbol{y}'\boldsymbol{y}-\boldsymbol{\beta}'\boldsymbol{X}'\boldsymbol{y}-\boldsymbol{y}'\boldsymbol{X\beta}+\boldsymbol{\beta}'\boldsymbol{X}'\boldsymbol{X\beta} \\
+&= \boldsymbol{y}'\boldsymbol{y}-2\boldsymbol{\beta}'\boldsymbol{X}'\boldsymbol{y}+\boldsymbol{\beta}'\boldsymbol{X}'\boldsymbol{X\beta}
+\end{aligned}
+$$
+
+In the third step, we use the fact that $\boldsymbol{\beta}'\boldsymbol{X}'\boldsymbol{y}=\boldsymbol{y}'\boldsymbol{X\beta}$ since it is a scalar. Now we need to differentiate:
+
+$$
+\textstyle\frac{\partial\boldsymbol{u}'\boldsymbol{u}}{\partial\boldsymbol{\beta}}=-2\boldsymbol{X}'\boldsymbol{y}+2\boldsymbol{X}'\boldsymbol{X\beta}\overset{!}{=}0,
+$$
+
+::::{.columns}
+:::{.column width="80%"}
+from which we obtain the estimator:
+:::
+:::{.column width="20%"}
+:::{.flushright}
+[Back](#olsderiv){.butn} 
+:::
+:::
+::::
+
+$$
+\hat{\boldsymbol{\beta}}=(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y}.
+$$
+
+## Derivation of Variance {#appdix2}
+
+$$
+\begin{aligned}
+\mathrm{Var}(\hat{\boldsymbol{\beta}}\mid \boldsymbol{X})
+&= \mathrm{Var}\Bigl(\bigl(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y}\Big|\boldsymbol{X}\Bigr) \\
+&= \mathrm{Var}\Bigl(\bigl(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'(\boldsymbol{X}\boldsymbol{\beta} + \boldsymbol{u})\Big|\boldsymbol{X}\Bigr) \\
+&= \mathrm{Var}\Bigl(\boldsymbol{\beta} + \bigl(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\Big|\boldsymbol{X}\Bigr) \\
+&= \mathrm{Var}\Bigl(\bigl(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\Big|\boldsymbol{X}\Bigr) \\
+&= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\mathrm{Var}(\boldsymbol{u}\mid \boldsymbol{X})\boldsymbol{X}(\boldsymbol{X}'\boldsymbol{X})^{-1} \\
+&=(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{I}\sigma^2\boldsymbol{X}(\boldsymbol{X}'\boldsymbol{X})^{-1}\\
+&= \sigma^2(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{X}(\boldsymbol{X}'\boldsymbol{X})^{-1}\\
+&=\sigma^2(\boldsymbol{X}'\boldsymbol{X})^{-1}
+\end{aligned}
+$$
+
+:::{.flushright}
+[Back](#variance){.butn} 
+:::

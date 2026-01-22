@@ -1,0 +1,746 @@
+---
+title: "Module 6: More on Identification and Other Issues"
+subtitle: "Econometrics II"
+author:
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+date: "2026-01-15"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+      - appxslideno.lua
+      - pdf-to-svg.lua
+      - space.lua
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @cunningham2021
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+```{r}
+#| label: setup
+#| include: false
+library(plotly)
+font_family <- "Inter" 
+```
+
+# Panel Data
+
+## Introduction to Panel Data
+
+. . . 
+
+We already know [**cross-sectional data**]{.col2} well. Cross-sectional data covers **many individuals** at **one point in time**:
+
+$$
+x_i
+$$
+
+. . .
+
+In Econometrics III / Applied Econometrics, we will learn about [**time series data**]{.col4}. Time series data covers **one individual** at **many different points in time**:
+
+$$
+x_t
+$$
+
+. . .
+
+Today, we will talk briefly about [**panel data**]{.col1} because it is very useful for answering causal questions. In a panel, we follow **many individuals** over **many time periods**:
+
+$$
+x_{it}
+$$
+
+. . .
+
+Panel data is especially useful because it allows us to **control for some unobserved effects** without actually observing them.
+
+
+
+## Examples
+
+. . .
+
+This is an example of a [**panel dataset**]{.col1}. You can see that we have data on **two individuals** for **two points in time**.
+
+:::{.bitsmall}
+| Individual | Date | Income | Age | Education |
+|------------|------|--------|-----|-----------|
+| A          | 2020 | 1200   | 20  | medium    |
+| A          | 2021 | 1300   | 21  | medium    |
+| B          | 2020 | 1800   | 24  | medium    |
+| B          | 2021 | 2600   | 25  | high      |
+:::
+
+. . .
+
+Panel data is not as uncommon as you might imagine. Examples for panel data include:
+
+:::{.incremental}
+- Many **surveys**, e.g. the EU-SILC (Statistics on Income and Living Conditions) or the HFCS (Household Finance and Consumption Survey).
+- Most **remotely sensed data**, e.g. data on temperature or precipitation that is measured by satellites.
+- Data that **companies** have on their user base. Google follows me through time, and so does it with you.
+:::
+
+
+## Why Panel Data?
+
+. . .
+
+Panel data and models have some useful [**advantages**]{.col1}, such as:
+
+:::{.incremental}
+- **More data** is good.
+- We can **follow** relationships **over time**.
+- We can consider **unobserved** individual or time-specific **effects**.
+:::
+
+. . .
+
+However, there also some potential [**issues**]{.col2}, including:
+
+:::{.incremental}
+- **panel mortality** (individuals drop out),
+- **panel effects** (impacts of repeated data collection), and
+- decreasing marginal returns of observations.
+:::
+
+## Pooled Cross-Sections
+
+. . . 
+
+The **simplest model** can be obtained by stacking cross-sectional models like this:
+
+$$
+\begin{aligned}
+\begin{pmatrix}
+\mathbf{y}_1 \\ \mathbf{y}_2 \\ \vdots \\ \mathbf{y}_T
+\end{pmatrix} &=
+\begin{pmatrix}
+\mathbf{X}_1 \\ \mathbf{X}_2 \\ \vdots \\ \mathbf{X}_T
+\end{pmatrix}
+\begin{pmatrix}
+\boldsymbol{\beta}_1 \\ \boldsymbol{\beta}_2 \\ \vdots \\ \boldsymbol{\beta}_T
+\end{pmatrix} +
+\begin{pmatrix}
+\mathbf{u}_1 \\ \mathbf{u}_2 \\ \vdots \\ \mathbf{u}_T
+\end{pmatrix}.
+\end{aligned}
+$$
+
+. . .
+
+Alternatively, we can write down the model for **a single cross-sectional unit** like this:
+
+$$
+y_{it}=\boldsymbol{x}_{it}'\boldsymbol{\beta} + u_{it}.
+$$
+
+. . .
+
+This is what we call [**pooled cross-sections**]{.col1}. **Coefficients** are assumed constant across time and individuals.
+
+. . .
+
+In this setting, (pooled) [**OLS**]{.col2} is [**consistent**]{.col2} as long as the assumption $\mathrm{E}(u_{\textcolor{var(--secondary-color)}{it}}\mid x_{\textcolor{var(--secondary-color)}{it}})=0$ holds.
+
+## Fixed Effects
+
+. . .
+
+In many cases, this assumption is problematic. Let's start discussing this by splitting up the error term in two components, [**time-invariant heterogeneity between individuals** $\mu_i$]{.col1} and a [**time-varying error** $\varepsilon_{it}$]{.col2}:
+
+$$
+u_{it} = \textcolor{var(--primary-color)}{\mu_i}+\textcolor{var(--secondary-color)}{\varepsilon_{it}}.
+$$
+
+. . .
+
+There are now two **problems** with the assumption that $\mathrm{E}(u_{it}\mid x_{it})=0$, which is equivalent to
+
+$$
+\mathrm{E}(u_{it}\mid x_{i1},x_{i2},\dots,x_{iT})=0\text{ for } i= 1,2,\dots,N.
+$$
+
+:::{.incremental}
+- The [**unobserved individual characteristics** $\mu_i$]{.col1} are likely correlated with the treatment (and outcome).
+- Within individuals, the [**time-varying error** $\varepsilon_{it}$]{.col2} at a certain $t$ will likely depend on the value of the error at $t-1$.
+:::
+
+## The Fixed Effects Estimator (Within Estimator)
+
+. . .
+
+We can circumvent this problem by considering [**individual fixed effects**]{.col2} explicitly:
+
+$$
+y_{it}=\boldsymbol{x}_{it}'\boldsymbol{\beta} + \mu_i+\varepsilon_{it}.
+$$
+
+. . .
+
+This is equivalent to estimating the model with **dummy variables for each individual**. These fixed effects capture unobserved individual heterogeneity.
+
+:::{.incremental}
+- The resulting estimator is called the [**Within Estimator**]{.col2} (because we are comparing observations “within” an individual) or alternatively, the [**Fixed Effects Estimator**]{.col2}. 
+- If we additionally use **time fixed effects**, we call the estimator [**Two-Way Fixed Effects**]{.col2} ([**TWFE**]{.col2}) Estimator.
+:::
+
+. . . 
+
+There are [**two things**]{.col1} that these estimators [**cannot do**]{.col1}:
+
+:::{.incremental}
+- They cannot capture heterogeneity that is **both time-varying and individual-specific**.
+- Even if there is no such heterogeneity, and thus all unobserved factors are captured, this does not remedy **endogeneity from other sources** such as reverse causality.
+:::
+
+## Difference-in-Differences
+
+. . .
+
+If we have panel data, we can use a [**difference-in-differences**]{.col1} ([**DiD**]{.col1}) approach. We divide our data in four and estimate:
+
+$$
+y_{i t} = \alpha + x_{\text{after}} \phi + x_{\text{treated}} \theta + x_{\text{interacted}} \delta + \ldots
+$$
+
+
+:vspace1
+
+
+. . .
+
+:::{.div}
+|                | Before        | After                           | **Difference** |
+|----------------|---------------|---------------------------------|----------------|
+| Control        | $\alpha$   | $\alpha + \phi$               | $\phi$       |
+| Treatment      | $\alpha + \theta$ | $\alpha + \theta + \phi + \delta$ | $\phi + \delta$ |
+| **Difference** | $\theta$    | $\theta + \delta$             | $\delta$     |
+:::
+
+:vspace1
+
+. . .
+
+By **comparing** and evaluating the **difference** between the two **before-after differences** (one for the treatment group, and one for the control group), we can directly obtain the treatment effect, $\hat{\delta}$.
+
+## Diff-in-Diff Illustration
+
+:::{.centering .fragment}
+![](figures/6_did.svg){width=80%}
+:::
+
+<!--
+\documentclass{article}
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+\usetikzlibrary{math}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{0.125pt}
+\usetikzlibrary{decorations.pathreplacing}
+
+\begin{document}
+\begin{tikzpicture}[scale=0.8]
+
+% Colors
+\definecolor{primary}{HTML}{ED017D}
+\definecolor{secondary}{HTML}{4072C2}
+
+% Lines
+\draw[black, thick] (0,-0.2) -- (0,4.5);
+\draw[secondary, very thick] (-4,0.6) -- (4,2.0);
+\draw[primary, very thick] (-4,1.4) -- (0,2.2) -- (4,4.0);
+\draw[primary, very thick, dashed] (0,2.2) -- (4,3.0);
+
+
+% Braces
+\draw[decorate, thick, decoration={brace, amplitude=3pt}]
+(-4.1,0.6) -- (-4.1,1.4)
+node[midway, left=6pt] {};
+
+\draw[decorate, thick, decoration={brace, amplitude=3pt}]
+(4.1,4.0) -- (4.1,3.0)
+node[midway, right=6pt] {};
+
+% Labels
+\node[rotate=90] at (-4.8,2.0) {Outcome differences};
+\node[rotate=90] at (5.2,3.6) {Intervention effect};
+
+\end{tikzpicture}
+
+\end{document}
+-->
+
+
+# Quasi-Experiments
+
+## Natural Experiments
+
+. . .
+
+::::{.columns}
+:::{.column width="60%"}
+
+:vspace1
+
+A [**natural experiment**]{.col1} is a study where an **experimental setting** is **induced by nature** or other factors outside our control.
+
+:::{.incremental}
+- It is an **observational study** with properties of randomised experiments.
+- This provides a good basis for **causal inference**, and
+- does not suffer from **potential issues** of a conducting an experiment, such as cost, ethics, feasibility, etc.
+- For a natural experiment, we need something to **happen exogenously** and **create variation in treatment**.
+:::
+:::
+:::{.column width="40%" .col0}
+
+:vspace2
+
+![](figures/draft.jpg){width=100%}
+
+U.S. Representative Alexander Pirnie of New York drawing the first capsule in the Vietnam war draft lottery.
+
+:::
+::::
+
+
+
+
+
+
+## Cholera
+
+. . .
+
+In the 1800s, London (as well as many other places) was repeatedly hit by waves of a **cholera epidemic**.
+
+:::{.incremental}
+- The predominant theory at the time was that the disease was spread by small **inanimate particles** that floated through the air (which is obviously incorrect).
+- **John Snow** was a physician working in London at the time, and he suspected instead that cholera was caused by **microscopic living organisms** that entered the body through water and food, multiplied in the body, and then exited the body through urine and feces.
+- This would imply that **clean water supply** was a way to slow the spread of the disease.
+- Unfortunately, he was only able to collect **anecdotal evidence**, which did not allow him to make a causal claim. 
+:::
+
+. . .
+
+Of course, running **an experiment** is infeasible in this context. It would requre randomizing households, and allocating clean water to only a subset of them. This was both logistically infeasible and ethically questionable.
+
+## A Natural Experiment
+
+. . .
+
+In 1849, the following happened:
+
+:::{.centering .fragment}
+![](drawio_charts/6_cholera.svg){.noinvert width=80%}
+:::
+
+. . .
+
+One water company **moved its pipes** further upstream, to a location that incidentally was upstream of the **main sewage discharge facility**. Suddenly, **households in the same neighborhoods** had access to **different qualities of water**.
+
+## A Natural Experiment
+
+::::{.columns .fragment}
+:::{.column width="70%" .incremental}
+There were a few other factors that made this situation a **natural experiment**:
+
+- Water companies were not serving disjoint geographical areas. Their networks intersected and often houses in the same street were chaotically served by pipes from different companies.
+- John Snow collected extensive additional data and compared characteristics of treatment and control households to confirm their comparability. 
+- Most crucially, the change in water supply happened for other reasons and thus induced **exogenous variation**.
+:::
+:::{.column width="30%" .col0}
+
+:vspace1
+
+![](figures/snow.jpg){width=100%}
+Photograph by @hisgett2015.
+:::
+::::
+
+. . .
+
+In the end, John Snow collected very convincing evidence for his theory and went on to identify a certain contaminated water pump. The theory, however, was deemed politically unpleasant and was thus not accepted until long after Snow's death.
+
+
+## Regression Discontinuity
+
+::::{.columns}
+:::{.column width="62%" .fragment}
+```{r}
+#| fig-width: 8
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+library(plotly)
+
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+set.seed(42)
+N <- 100
+x <- rnorm(N)
+y <- x * 0.25 + 0.5 * as.integer(x >= 0) + rnorm(N, sd = 0.1)
+
+# Fit models
+mdl_all <- lm(y ~ x)
+mdl_left <- lm(y[x < 0] ~ x[x < 0])
+mdl_right <- lm(y[x >= 0] ~ x[x >= 0])
+
+# Create line data
+x_range <- seq(min(x), max(x), length.out = 200)
+y_all <- coef(mdl_all)[1] + x_range * coef(mdl_all)[2]
+
+x_left <- x_range[x_range < 0]
+y_left <- coef(mdl_left)[1] + x_left * coef(mdl_left)[2]
+
+x_right <- x_range[x_range >= 0]
+y_right <- coef(mdl_right)[1] + x_right * coef(mdl_right)[2]
+
+xr <- c(min(x) - 0.2, max(x) + 0.2)
+yr <- c(min(y) - 0.1, max(y) + 0.1)
+
+p <- plot_ly() |>
+  # Points
+  add_markers(x = x, y = y, 
+              marker = list(size = 8, symbol = "circle",
+                            color = "rgba(120,120,120,0.85)"),
+              hoverinfo = "x+y", name = "Data") |>
+  # Overall regression (dashed gray)
+  add_lines(x = x_range, y = y_all,
+            line = list(color = "darkgray", width = 3, dash = "dash"),
+            hoverinfo = "name", name = "Overall fit") |>
+  # Left segment
+  add_lines(x = x_left, y = y_left,
+            line = list(color = "#ED017D", width = 5),
+            hoverinfo = "name", name = "Below cutoff") |>
+  # Right segment
+  add_lines(x = x_right, y = y_right,
+            line = list(color = "#4072c2", width = 5),
+            hoverinfo = "name", name = "Above cutoff") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = xr, zeroline = FALSE,
+                 showgrid = FALSE, title = "Running Variable"),
+    yaxis = list(range = yr, zeroline = FALSE,
+                 showgrid = FALSE, title = "Outcome",
+                 linecolor = "darkgray", linewidth = 1),
+    shapes = list(
+      # Vertical line at cutoff
+      list(type = "line", x0 = 0, x1 = 0, y0 = yr[1], y1 = yr[2],
+           line = list(color = "darkgray", width = 1))
+    ),
+    annotations = list(
+      list(x = 0.1, y = 0.2, xref = "x", yref = "y",
+           text = "<b>Discontinuity</b>", showarrow = FALSE,
+           xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "darkgray"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 8*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+
+p
+```
+:::
+:::{.column width="38%"}
+
+:vspace1
+
+[A [**Regression Discontinuity Design**]{.col1} ([**RDD**]{.col1}) is another type of **quasi-experimental design**.]{.fragment}
+
+:vspace1
+
+[We make use of **a sharp cutoff** in some **runnning variable** and compare values immediately below and immediately above the cutoff.]{.fragment}
+
+:vspace1
+
+[The **size** of the **discontinuity in outcomes** gives us the [**local treatment effect**]{.col1}.]{.fragment}
+:::
+::::
+
+## RDD Applications
+
+[RDDs are commonly used where there is some kind of artificial **cutoff**, e.g. test scores exceeding a minimal threshold for admission to a program. But they are not limited to that.]{.fragment}
+
+::::{.columns .fragment}
+:::{.column width="37%"}
+![](figures/evi_map.png){width=100%}
+:::
+:::{.column width="63%"}
+We [@vashold2026] made use of a **discontinuity in space**: Mines pollute water flows, but only in one direction. We found that vegetation is less healthy downstream of a mine.
+
+:::{.centering}
+![](figures/basins.svg){width=80%}
+:::
+:::
+::::
+
+## Requirements for an RDD
+
+. . .
+
+For an [**ideal RDD**]{.col1}, we need a few things:
+
+:::{.incremental}
+- All **other relevant variables** should be continuous at the cutoff, meaning that **they** do not jump.
+- There needs to be **randomness** in the assignment around the cutoff. People just below and just above the threshold should be otherwise comparable.
+- We also need to model the **functional form** (i.e., of the relationship between the running variable and the outcome) correctly.
+:::
+
+. . .
+
+In practice, these requirements are [**hard to check**]{.col2}.
+
+:::{.incremental}
+- Effects are often **contaminated** by other factors, as cutoffs often trigger multiple things simultaneously.
+- We (obviously) never truly know the **functional form**.
+- Treatment assignment can sometimes be **manipulated**. Think of us giving you a half-point you don't deserve in the exam to make you get the better grade.
+:::
+
+## Look, I've Found a Discontinuity
+
+::::{.columns}
+:::{.column width="62%" .fragment}
+```{r}
+#| fig-width: 8
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+library(plotly)
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+set.seed(727)
+N <- 100
+x <- 1 + rnorm(N)
+y <- 2 + x * 0.25 + rnorm(N)
+cutoff <- 1
+# Fit models
+mdl0 <- lm(y ~ x)
+mdl1 <- lm(y[x < cutoff] ~ x[x < cutoff] + I(x[x < cutoff]^2) + I(x[x < cutoff]^3))
+mdl2 <- lm(y[x >= cutoff] ~ x[x >= cutoff] + I(x[x >= cutoff]^2) + I(x[x >= cutoff]^3))
+# Create fitted values
+x_fit <- seq(min(x), max(x), length.out = 500)
+y_fit0 <- coef(mdl0)[1] + x_fit * coef(mdl0)[2]
+y_fit1 <- coef(mdl1)[1] + x_fit * coef(mdl1)[2] + 
+          x_fit^2 * coef(mdl1)[3] + x_fit^3 * coef(mdl1)[4]
+y_fit2 <- coef(mdl2)[1] + x_fit * coef(mdl2)[2] + 
+          x_fit^2 * coef(mdl2)[3] + x_fit^3 * coef(mdl2)[4]
+# Split for plotting
+x_left <- x_fit[x_fit < cutoff]
+y_left <- y_fit1[x_fit < cutoff]
+x_right <- x_fit[x_fit >= cutoff]
+y_right <- y_fit2[x_fit >= cutoff]
+xr <- c(min(x) - 0.2, max(x) + 0.2)
+yr <- c(min(y) - 0.2, max(y) + 0.2)
+p <- plot_ly() |>
+  # Points
+  add_markers(x = x, y = y, 
+              marker = list(size = 8, symbol = "circle",
+                            color = "rgba(120,120,120,0.85)"),
+              hoverinfo = "x+y", name = "Data") |>
+  # Overall regression (dashed gray)
+  add_lines(x = x_fit, y = y_fit0,
+            line = list(color = "darkgray", width = 3, dash = "dash"),
+            hoverinfo = "name", name = "Overall fit") |>
+  # Left polynomial
+  add_lines(x = x_left, y = y_left,
+            line = list(color = "#ED017D", width = 5),
+            hoverinfo = "name", name = "Below cutoff") |>
+  # Right polynomial
+  add_lines(x = x_right, y = y_right,
+            line = list(color = "#4072c2", width = 5),
+            hoverinfo = "name", name = "Above cutoff") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = xr, zeroline = FALSE,
+                 showgrid = FALSE, title = "Running Variable"),
+    yaxis = list(range = yr, zeroline = FALSE,
+                 showgrid = FALSE, title = "Outcome",
+                 linecolor = "darkgray", linewidth = 1),
+    shapes = list(
+      # Vertical line at cutoff
+      list(type = "line", x0 = cutoff, x1 = cutoff, y0 = yr[1], y1 = yr[2],
+           line = list(color = "darkgray", width = 1))
+    ),
+    annotations = list(
+      list(x = cutoff + 0.1, y = 3, xref = "x", yref = "y",
+           text = "<b>Discontinuity?</b>", showarrow = FALSE,
+           xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "darkgray"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 8*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+p
+```
+:::
+:::{.column width="38%"}
+
+:vspace2
+
+[A common problem is “fabricating” a discontinuity by **overfitting** the data to both sides of the cutoff.]{.fragment}
+
+:vspace2
+
+[In the example on the left, there is obviously no discontinuity – yet we can fit something that makes one appear.]{.fragment}
+:::
+::::
+
+# More Methods
+
+## Matching
+
+. . .
+
+Recall the fundamental problem of causal inference: We **cannot observe the counterfactual** to our treatment. What we can do is find specific treated observations that are very similar to other untreated observations. We call this procedure [**matching**]{.col1}. It works like this:
+
+:::{.incremental}
+- We start by dividing the dataset in **treated** and **control** units.
+- Next, we find the ones whose **characteristics match best**.
+- Then, we **discard unmatched observations** without creating selection bias.
+- Finally, we **perform** our **analysis** with the matched dataset.
+:::
+
+. . .
+
+This procedure allows us to create a **sample with balanced confounders**, emulating the balance induced by completely randomized or blocked experiments. 
+
+
+## How to Match
+
+. . .
+
+[**Propensity score matching**]{.col2} uses the **propensity of being treated** for each observation.
+
+- We estimate this propensity, assign a **propensity score**, and match observations with similar propensity scores. (Note that we reduce all information to one dimension.)
+- The method can sometimes induce imbalance rather than remedy it.
+
+. . .
+
+[**Distance matching**]{.col3} uses some measure of **distance** between observations.
+
+- Explaining what “distance” means in this context would require discussing Euclidean geometry. 
+- Intuitively, you can think distances between points in a scatterplot of covariates.
+
+. . .
+
+[**Coarsened exact matching**]{.col4} sorts variables into different **bins**.
+
+- First, we **coarsen** covariates, e.g. separating age values into bins.
+- Then, we group observations that are in the same set of bins, and discard all sets of bins that only have treated or control observations.
+
+
+## Synthetic Controls
+
+. . .
+
+The basic idea of the [**synthetic control estimator**]{.col1} is that we have a treated unit, and multiple untreated units that do not match the characteristics, or trajectory, of the treated unit. So, what we do is to compute a **weighted average** of untreated units that matches the treated unit (using a data-driven approach).
+
+::::{.columns .fragment}
+:::{.column width="50%"}
+![](figures/basque.png)
+:::
+:::{.column width="50%"}
+In the first study to use this design, @abadie2003 were researching the economic cost of the terrorist activity in the Basque Country in the 1970s.
+
+:vspace1
+
+[They construct the synthetic control from other Spanish regions. The mix they end up with is 85.1% Catalonia, 14.9% Madrid, and 0% of all other regions.]{.fragment}
+:::
+::::
+
+## A Second Synthetic Control Example
+
+::::{.columns .fragment}
+:::{.column width="40%"}
+Let us look at one more example. @andersson2019 investigated the effects of a carbon tax and a fuel-specific value added tax on CO₂ emissions from Sweden's transport sector. 
+
+:vspace0.5
+
+[The synthetic control is constructed from other OECD countries. The final mix is 38.4% Denmark, 19.5% Belgium, 17.7% New Zealand, 9% Greece, 8.8% U.S., 6.1% Switzerland, and 0.1% each of Australia, Iceland, and Poland.]{.fragment}
+:::
+:::{.column width="60%"}
+
+:vspace1
+
+![](figures/sweden.png)
+:::
+::::
+
+
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+

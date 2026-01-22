@@ -1,0 +1,37 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="26.1.1">
+  <diagram name="Page-1" id="NH4XsHHU8qs4nytId7CG">
+    <mxGraphModel dx="271" dy="518" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="HoosvAmUKr1eIr7q388a-1" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="160" y="144.76" as="sourcePoint" />
+            <mxPoint x="280" y="144.76" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="HoosvAmUKr1eIr7q388a-2" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;f&lt;/span&gt;(X)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Latin Modern Roman;fontStyle=3;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="120" y="120" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vVO2FQBAcd1KRai_eS7I-2" value="y" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Latin Modern Roman;fontStyle=3;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="280" y="132" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vVO2FQBAcd1KRai_eS7I-3" value="explained" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontStyle=1;fontSize=10;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;fontColor=#4072C2;" vertex="1" parent="1">
+          <mxGeometry x="160" y="127" width="120" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="vVO2FQBAcd1KRai_eS7I-5" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="160" y="170" as="sourcePoint" />
+            <mxPoint x="280" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vVO2FQBAcd1KRai_eS7I-6" value="u" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Latin Modern Roman;fontStyle=3;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="120" y="148" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vVO2FQBAcd1KRai_eS7I-7" value="unexplained" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Inter;fontStyle=1;fontSize=10;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DInter;fontColor=#74B83D;" vertex="1" parent="1">
+          <mxGeometry x="160" y="166" width="120" height="18" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

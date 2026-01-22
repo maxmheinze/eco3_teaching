@@ -1,0 +1,1673 @@
+---
+title: "Module 1: Statistical Learning and the Role of Econometrics"
+subtitle: "Econometrics II"
+author: 
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+date: "2025-10-16"
+date-format: long
+lang: en
+format: 
+  revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+      - appxslideno.lua
+      - pdf-to-svg.lua
+      - space.lua
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @james2021
+---
+
+
+```{r}
+#| label: setup
+#| include: false
+library(plotly)
+font_family <- "Inter" 
+```
+
+# Statistical Learning
+
+## Finding Relationships
+
+. . .
+
+We are interested in finding a [**relationship**]{.col1} between the samples
+
+:::{.incremental}
+* $\boldsymbol{y}\in\mathbb{R}^N$, the **dependent**, and
+* $\boldsymbol{X}=(\boldsymbol{x}_1,\dots, \boldsymbol{x}_K) \in \mathbb{R}^{N\times K}$, the **independent variables**.
+:::
+
+:::{.centering .fragment}
+![](drawio_charts/1_statistical_learning.svg){.noinvert width=40%}
+:::
+
+. . .
+
+We can write this [**relationship**]{.col1} as
+
+$$
+\boldsymbol{y} = \textcolor{var(--secondary-color)}{f(\boldsymbol{X})}+\boldsymbol{u},
+$$
+
+where [$f(\cdot)$]{.col2} is an unknown function that represents information that $\boldsymbol{X}$ provides about $\boldsymbol{y}$. All other relevant information is contained in the error term $\boldsymbol{u}$.
+
+## Notes on Terminology and Notation
+
+. . .
+
+As you know, there are many names for the **dependent** variable, such as:
+
+* outcome,
+* response, or
+* explained variable.
+
+. . .
+
+Likewise, we know a multitude of alternative terms for the **independent** variables, such as:
+
+* explanatory variables, or
+* predictors.
+
+. . .
+
+You also might come across different ways of denoting the **error term**, such as 
+
+$$
+\boldsymbol{u},\qquad\qquad\qquad\qquad\boldsymbol{e},\qquad\qquad\qquad\qquad\boldsymbol{\varepsilon}.
+$$
+
+We will use $\boldsymbol{u}$ in the materials of this course, but you can choose whichever you prefer.
+
+## Why Statistical Learning?
+
+. . .
+
+You may ask yourself, [**“what are we doing this for?”**]{.fragment} [This is a **very good question** (and you should ask these types of questions very often), and there are **two answers** to it.]{.fragment}
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+:::{.nicebox1b .centering}
+**Prediction**
+:::
+:::{.nicebox1l .centering}
+We want to learn about $Y$ beyond our sample $\boldsymbol{y}$.
+
+<br>
+
+**Example:** We know that a congestion tax reduces asthma in young children. There is a proposal to introduce a congestion tax, and we want to predict how large the health benefits are.
+:::
+:::
+:::{.column width="50%" .fragment}
+:::{.nicebox2b .centering}
+**Inference**
+:::
+:::{.nicebox2l .centering}
+We want to learn more about $f$, the relation between $Y$ and $X$.
+
+<br>
+
+**Example:** We observe that after the introduction of a carbon tax, carbon emissions declined. We want to find out whether there is a causal relationship between the two or whether emissions had declined anyway.
+:::
+:::
+::::
+
+# Prediction
+
+## What Does “Prediction” Mean?
+
+When we [**predict**]{.col1}, we use $\boldsymbol{X}$ and an estimate of $f$, $\hat{f}$, to obtain new values of $Y$. 
+
+:::{.incremental}
+* We can obtain an estimate of $\boldsymbol{y}$, which we call $\hat{\boldsymbol{y}}$. This is called an [**in-sample prediction**]{.col3}.
+* With **new data** $\tilde{\boldsymbol{X}}$, we can obtain an [**out-of-sample**]{.col4} prediction. 
+:::
+
+. . .
+
+In the **Kaggle Competition**, you will get a training dataset $\boldsymbol{X}$ and $\boldsymbol{y}$, which you will use to estimate $\hat{f}$. You can then predict $\hat{\boldsymbol{y}}$ and check the predictions against $\boldsymbol{y}$. 
+
+. . .
+
+There is a second part of the data, the test dataset, of which you get only $\tilde{\boldsymbol{X}}$, and we will keep the $\tilde{\boldsymbol{y}}$. You will try to get good [**out-of-sample**]{.col4} predictions, and in the end we will reveal who fared the best.
+
+## Which f to Choose?
+
+. . .
+
+For prediction, we **do not care** about what our $f(\cdot)$ looks like. As long as we get useful predictions, we can treat $f(\cdot)$ as a **black box**.
+
+:::{.centering .fragment}
+![](drawio_charts/1_prediction.svg){.noinvert width=50%}
+:::
+
+::::{.columns}
+:::{.column .fragment .centering width="50%"}
+![](figures/paul.jpg){.noinvert width="70%"}
+
+
+:::
+:::{.column width="50%"}
+[In 2010, Paul the octopus correctly predicted the outcome of all FIFA Mens' World Cup games in which the German national team played, plus the final.]{.fragment}
+
+<br>
+
+[Other examples include Spotify's and Youtube's recommendation algorithms, or Large Language Models like ChatGPT.]{.fragment}
+:::
+::::
+
+## Prediction Accuracy
+
+. . .
+
+The accuracy of our prediction depends on the sum of **two types of errors**:
+
+:::{.centering .fragment}
+![](drawio_charts/1_prediction_error.svg){.noinvert width="70%"}
+:::
+
+:::{.incremental}
+* The [**reducible error**]{.col3} stems from imperfectly estimating $f$.
+* The [**irreducible error**]{.col4} is contained in the error term, it consists of elements that cannot be explained by $\boldsymbol{X}$.
+:::
+
+## Error Decomposition {#decomp}
+
+. . .
+
+Let us look at the **mean squared prediction error**.
+
+$$
+\begin{aligned}
+\mathrm{E}\left((\hat{\boldsymbol{y}}-\boldsymbol{y})^2\right) &= \mathrm{E}\left(\left(f(\boldsymbol{X})+\boldsymbol{u}-\hat{f}(\boldsymbol{X})\right)^2\right)\\
+& =\textcolor{var(--tertiary-color)}{\mathrm{E}\left(\left(f(\boldsymbol{X})-\hat{f}(\boldsymbol{X})\right)^2\right)}+\textcolor{var(--quarternary-color)}{\mathrm{Var}(\boldsymbol{u})}.
+\end{aligned}
+$$
+
+. . .
+
+We have **decomposed** the mean squared error into a [**reducible**]{.col3} and an [**irreducible**]{.col4} part. [We can now split the reducible error once more.]{.fragment}
+
+. . .
+
+$$
+\phantom{\mathrm{E}\left((\hat{\boldsymbol{y}}-\boldsymbol{y})^2\right)\qquad\quad} =\textcolor{var(--tertiary-color)}{\mathrm{Bias}\left(\hat{f}(\boldsymbol{X})\right)^2+\mathrm{Var}\left(\hat{f}(\boldsymbol{X})\right)}+\textcolor{var(--quarternary-color)}{\mathrm{Var}(\boldsymbol{u})}.
+$$
+
+. . .
+
+The [**reducible error**]{.col3} consists of the **squared bias** of $\hat{f}$ and its variance.
+
+[show decomposition #1](#appdecomp){.butn} [show decomposition #2](#appbiasvar){.butn} 
+
+## Overfitting and Underfitting
+
+. . .
+
+We want to minimize the [**reducible error**]{.col3} as far as possible by **balancing bias and variance**. However, we want to **avoid** trying to reduce the [**irreducible error**]{.col4}.
+
+. . .
+
+When we try to minimize the irreducible error, we will overfit our model. 
+
+
+```{r, fig.width = 6, fig.height = 2, out.width="60%", fig.align="center"}
+
+# Bias‑variance illustration --------------------------------------------------
+set.seed(42)
+
+# simulate data
+n         <- 30
+x         <- seq(-3, 3, length.out = n)
+f_true    <- function(z) -z^2 + 4
+y         <- f_true(x) + rnorm(n, sd = 2)
+base_data <- data.frame(x, y)
+
+# prediction grid
+grid <- data.frame(x = seq(min(x), max(x), length.out = 300))
+
+# models
+fit_under <- lm(y ~ 1,                 data = base_data)                  # flat line
+fit_over  <- lm(y ~ poly(x, 20, raw=TRUE), data = base_data)             # very high degree
+fit_bal   <- lm(y ~ poly(x, 2,  raw=TRUE), data = base_data)             # quadratic
+
+pred_under <- data.frame(x = grid$x,
+                         y = predict(fit_under, grid))
+pred_over  <- data.frame(x = grid$x,
+                         y = predict(fit_over,  grid))
+pred_bal   <- data.frame(x = grid$x,
+                         y = predict(fit_bal,   grid))
+
+library(ggplot2)
+theme_set(theme_minimal(base_size = 10))
+
+p_under <- ggplot(base_data, aes(x, y)) +
+  geom_point(shape = 21, fill = "white") +
+  geom_line(data = pred_under, aes(x, y), colour = "#ED017D", linewidth = 1) +
+  labs(x = NULL, y = NULL) +
+  annotate("text", x = 0, y = min(y) - 2,
+           label = "underfitting model\nhigh bias", hjust = .5, size = 3.2) +
+  coord_cartesian(ylim = range(y_true <- f_true(x)) + c(-4, 4)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+p_over <- ggplot(base_data, aes(x, y)) +
+  geom_point(shape = 21, fill = "white") +
+  geom_line(data = pred_over, aes(x, y), colour = "#74b83d", linewidth = 1) +
+  labs(x = NULL, y = NULL) +
+  annotate("text", x = 0, y = min(y) - 2,
+           label = "overfitting model\nhigh variance", hjust = .5, size = 3.2) +
+  coord_cartesian(ylim = range(y_true) + c(-4, 4)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+p_bal <- ggplot(base_data, aes(x, y)) +
+  geom_point(shape = 21, fill = "white") +
+  geom_line(data = pred_bal, aes(x, y), colour = "#4072c2", linewidth = 1) +
+  labs(x = NULL, y = NULL) +
+  annotate("text", x = 0, y = min(y) - 2,
+           label = "balanced model", hjust = .5, size = 3.2) +
+  coord_cartesian(ylim = range(y_true) + c(-4, 4)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+# combine panels
+library(gridExtra)
+grid.arrange(p_under, p_bal, p_over, nrow = 1)
+```
+
+[Why is it **bad** to **overfit**?]{.fragment} [We call it an “irreducible” error for a reason. We can fit something that matches the data in the sample arbitrarily close. But this will lead to **poor out-of-sample performance**.]{.fragment}
+
+## Occam's Razor
+
+. . .
+
+[**Occam's**]{.col1} (or Ockham's, or Ocham's) [**Razor**]{.col1}, also called the **principle of parsimony**, is a simple rule:
+
+:::{.centering .bitlarge .fragment}
+**Of two competing theories, choose the simpler one.**
+:::
+
+:::{.incremental}
+- This relates to our notion of **overfitting**.
+- Of course, we should not omit valuable information (in the worst case, our results will be severely biased), but we should **not include unnecessary information**, either.
+:::
+
+. . .
+
+We can use this principle to inform our notion of which model is “better” than the other.
+
+:::{.incremental}
+- We know that there are ways to determine **how well a model fits** the data.
+- However, a very complicated model will fit the data well, and we have no idea when we **start to explain random noise**.
+- So instead of blatantly choosing the best-fitting model, we should **think about out-of-sample performance** and, if in doubt, choose the **simpler, more general model**.
+:::
+
+# Inference
+
+## Inference vs. Prediction
+
+. . .
+
+In a sense, **prediction** and **inference** are opposite approaches. Before, we cared only about the fitted value and treated $f(\cdot)$ as a black box; **now, we care only about $f(\cdot)$** (or, more precisely, our estimate $\hat{f}(\cdot)$).
+
+:::{.centering .fragment}
+![](drawio_charts/1_inference.svg){.noinvert width=50%}
+:::
+
+. . .
+
+With knowledge about $\hat{f}(\cdot)$, we can answer questions like these:
+
+:::{.incremental}
+* Are $X$ and $Y$ correlated?
+* What happens _if_ we increase $X$ by one?
+* Did this increase _cause_ a change in $Y$?
+* _How_ does $\hat{f}$ map $X$ to $Y$?
+:::
+
+## Inference: Which Questions Can We Ask?
+
+::::{.columns}
+:::{.column width="50%"}
+:::{.nicebox1l .centering .fragment data-fragment-index="7"}
+How much of the **gender pay gap** is caused by **discrimination**?
+:::
+:::{.nicebox2l .centering .fragment data-fragment-index="3"}
+Is a **long life** correlated with **olive oil consumption**?
+:::
+:::{.nicebox1l .centering .fragment data-fragment-index="9"}
+Will your **Econometrics II grade** improve if you spend time **studying** for the exam?
+:::
+:::{.nicebox2l .centering .fragment data-fragment-index="4"}
+Was the use of **facial masks** related to **Covid-19 prevalence**? If so, in which direction?
+:::
+:::
+:::{.column width="50%"}
+:::{.nicebox2l .centering .fragment data-fragment-index="6"}
+Do **malaria nets** reduce the number of people **infected** by the disease?
+:::
+:::{.nicebox1l .centering .fragment data-fragment-index="2"}
+Are **croplands** less fertile if they lie downstream of a **gold mine**?
+:::
+:::{.nicebox2l .centering .fragment data-fragment-index="1"}
+Do more generous **unemployment benefits** prompt people to **work less**?
+:::
+:::{.nicebox1l .centering .fragment data-fragment-index="8"}
+Is **wealth** correlated with **happiness**?
+:::
+:::{.nicebox2l .centering .fragment data-fragment-index="5"}
+Does an **Economics degree** make people more likely to **comment** on issues they have zero expertise about?
+:::
+:::
+::::
+
+## Parallel Universes 
+
+[**Causal inference is easy** under one assumption:]{.fragment} [We can **switch** between **two states** of the world.]{.fragment} [Consider this:]{.fragment}
+
+:::{.centering .fragment}
+:::{.column width="50%"}
+:::{.nicebox1l .centering}
+Will your **Econometrics II grade** improve if you spend time **studying** for the exam?
+:::
+:::
+:::
+
+. . .
+
+Say I want to answer this question. I now only need to do **two things**:
+
+:::{.incremental}
+1. At the end of the course, ask you how much you studied and record your exam results.
+2. **Switch** to a **world** where none of you studied, ask again, and compare.
+:::
+
+. . .
+
+It should be **apparent** that this is **not possible**. We call this the [**Fundamental Problem of Causal Inference**]{.col1}. [The existence of this problem is the reason that you have to take this course.]{.fragment}
+
+## Correlation is not Enough
+
+. . .
+
+We need to deal with the **Fundamental Problem of Causal Inference** in some way if we want to perform causal inference. Just looking at the data and checking correlations (which is what we do with a naive regression) is not enough:
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+:::{.nicebox2l .centering}
+Do **malaria nets** reduce the number of people **infected** by the disease?
+:::
+It is thinkable that people who install malaria nets are richer, more health-conscious, or both, than people who do not install malaria nets. This may cause part of the correlation.
+:::
+:::{.column width="50%" .fragment}
+:::{.nicebox2l .centering}
+Does an **Economics degree** make people more likely to **comment** on issues they have zero expertise about?
+:::
+We might observe this behavior more often in economists than in the general population. Even so, it may be caused by the fact that most economists are men, and not by their degree.
+:::
+::::
+
+
+
+## Correlation vs. Causality {auto-animate="true"}
+
+. . .
+
+You likely have heard this sentence before:
+
+:vspace1
+
+:::{.centering .col1 .bitlarge}
+**Correlation does not mean causality.**
+:::
+
+:vspace1
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+![](figures/frozenyogurt.png)
+
+:::{.col0 .bitsmall .centering}
+[@vigen2024]
+:::
+:::
+:::{.column width="50%" .fragment}
+You may also have seen examples like the one of the left, e.g. from Tyler Vigen's site [tylervigen.com/spurious-correlations](https://tylervigen.com/spurious-correlations).
+
+<br> <br>
+
+[In this course, we will investigate **why** correlation does not necessarily imply causality, and how we can **deal with this** when performing causal inference.]{.fragment}
+:::
+::::
+
+## Correlation vs. Causality {auto-animate="true"}
+
+:::{.centering}
+**Correlation does not mean causality.**
+:::
+
+
+But have you also thought about this?
+
+
+:::{.centering .col2 .bitlarge}
+**_No correlation_ does not mean _no causality_.**
+:::
+
+. . . 
+
+::::{.columns}
+:::{.column width="55%"}
+```{r}
+#| fig-width: 7
+#| fig-height: 4.5
+#| warning: false
+#| message: false
+
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(plotly)
+library(readr)
+library(htmlwidgets)
+
+font_family <- "Inter, sans-serif"
+
+stri <- read_csv("data/covid_stringency.csv")
+mort <- read_csv("data/excess_mortality.csv")
+
+stri <- stri |>
+  dplyr::filter(country_code %in% c("AUT")) |>
+  pivot_longer(`01Jan2020`:`20Feb2023`) |>
+  rename(ccode = country_code, cname = country_name, date = name, stringency = value) |>
+  mutate(date = dmy(date)) |>
+  dplyr::select(-region_code, -region_name, -jurisdiction)
+
+mort <- mort |>
+  rename(ccode = Code, cname = Entity, date = Day, mortality = p_avg_all_ages) |>
+  dplyr::filter(ccode %in% c("AUT"))
+
+dat <- stri |>
+  left_join(mort)
+
+p <- plot_ly()
+p <- add_lines(
+  p, data = dat, x = ~date, y = ~stringency,
+  name = "Stringency Index",
+  hovertemplate = "Date: %{x|%Y-%m-%d}<br>Stringency: %{y:.1f}<extra></extra>",
+  yaxis = "y1",
+  connectgaps = TRUE
+)
+p <- add_lines(
+  p, data = dat, x = ~date, y = ~mortality,
+  name = "Excess Mortality",
+  hovertemplate = "Date: %{x|%Y-%m-%d}<br>Excess mortality: %{y:.1f}<extra></extra>",
+  yaxis = "y2",
+  connectgaps = TRUE
+)
+p <- layout(
+  p,
+  font = list(family = font_family),
+  title = list(
+    text = "<b>Austria: Stringency vs. Excess Mortality</b>",
+    font = list(family = font_family)
+  ),
+  xaxis  = list(
+    title = list(text = "<b>Date</b>", font = list(family = font_family)),
+    tickfont = list(family = font_family),
+    rangeslider = list(visible = FALSE)
+  ),
+  yaxis  = list(
+    title = list(text = "<b>Stringency Index</b>", font = list(family = font_family)),
+    tickfont = list(family = font_family),
+    rangemode = "tozero",
+    automargin = TRUE,
+    title_standoff = 8
+  ),
+  yaxis2 = list(
+    title = list(text = "<b>Excess Mortality</b>", font = list(family = font_family)),
+    tickfont = list(family = font_family),
+    overlaying = "y", side = "right",
+    automargin = TRUE,
+    title_standoff = 8
+  ),
+  legend = list(font = list(family = font_family), orientation = "h", x = 0, y = -0.1),
+  hoverlabel = list(font = list(family = font_family)),
+  hovermode = "x unified",
+  margin = list(l = 60, r = 90, t = 60, b = 40)
+)
+
+# Apply CSS variable colors after render
+p <- onRender(p, "
+function(el, x) {
+  var gd = document.getElementById(el.id);
+  var root = getComputedStyle(document.documentElement);
+  var primary = (root.getPropertyValue('--primary-color') || '').trim();
+  var secondary = (root.getPropertyValue('--secondary-color') || '').trim();
+  if (!primary) primary = '#1f77b4';
+  if (!secondary) secondary = '#ff7f0e';
+  Plotly.restyle(gd, {'line.color': primary}, [0]);
+  Plotly.restyle(gd, {'line.color': secondary}, [1]);
+}
+")
+
+p <- p |>
+  layout(autosize = FALSE, width = 7*96, height = 4.5*96) |>
+  config(responsive = FALSE)
+
+p
+```
+:::
+:::{.column width="45%" .fragment}
+The chart on the left shows the [**stringency**]{.col1} of containment measures and the [**excess mortality**]{.col2} during the Covid-19 pandemic in Austria. The two time series are only **weakly correlated**.
+
+[**Different effects** could be at play **at the same time**. One hypothesis: Containment measures reduce mortality, but high mortality prompts stricter containment.]{.fragment}
+:::
+::::
+
+# Models
+
+## Is This a Bad Model?
+
+::::{.columns}
+:::{.column width="42%"}
+::: {.r-stack}
+![](drawio_charts/1_map1.svg){.fragment data-fragment-index="1" .noinvert}
+
+![](drawio_charts/1_map2.svg){.fragment data-fragment-index="2" .noinvert}
+
+![](drawio_charts/1_map3.svg){.fragment data-fragment-index="3" .noinvert}
+:::
+:::
+:::{.column width="58%"}
+
+<br>
+
+[My **workplace** is up here.]{.fragment data-fragment-index="2"}
+
+<br><br><br>
+
+[I tried to use this map to **bike** home. It was **utterly useless**, and it also didn't tell me that I was constantly biking uphill.]{.col1 .fragment data-fragment-index="4"}
+
+<br><br><br><br>
+
+[I live in the **10th District**.]{.fragment data-fragment-index="3"}
+:::
+::::
+
+## All Models are Beautiful
+
+. . .
+
+As we know,
+
+:::{.centering .col1 .bitlarge}
+**All models are wrong, but some are useful.**
+:::
+
+:::{.flushright .col0 .bitsmall}
+---Partly coined by @box1976
+:::
+
+. . .
+
+The model (i.e., subway map) on the previous slide is useful for navigating the subway. Of course, it is useless when you use a bike. Models are an **approximation of reality** that are specific to a certain context and allow us to learn specific things.
+
+. . .
+
+To learn about the true $f$, we need a [**model**]{.col1} that suits our purpose and the data at hand. We can characterize models, e.g., like this:
+
+:::{.incremental}
+* [**Parametric**]{.col2} (containing a finite number of parameters) vs. [**non-parametric**]{.col2} models,
+* [**Supervised**]{.col3} (fitted using information on $\boldsymbol{y}$) vs. [**unsupervised**]{.col3} models,
+* [**Regression**]{.col4} (quantitative $\boldsymbol{y}$) vs. [**classification**]{.col4} (qualitative $\boldsymbol{y}$).
+:::
+
+## Parametric and Non-Parametric Models
+
+. . .
+
+[**Parametric models**]{.col2} are models that impose a certain **parametric** structure on $f$. In case of a **linear model**, the dependent is a linear combination of $\boldsymbol{X}$, with parameters $\boldsymbol{\beta}\in\mathbb{R}^{K+1}$:
+
+$$
+\boldsymbol{y} = \boldsymbol{X\beta}
+$$
+
+:::{.incremental}
+* The **advantage** of this is that we only need to estimate $K+1$ parameters, which is easy to do and easy to interpret. Linear models are also less prone to overfitting. 
+* A **disadvantage** is their lacking flexibility, meaning that $\hat{f}$ may deviate too far from $f$.
+:::
+
+. . .
+
+[**Non-parametric models**]{.col2} do not impose a structure on $f$ a priori. Rather, we fit $f$ to be as cloase as possible to the data under certain constraints. 
+
+:::{.incremental}
+* **Advantages** include flexibility to mirror many possible forms of $f$, a better fit, and less reliance on model building.
+* **Disadvantages** are the high data requirements, difficulty to interpret $f$, and that the approach is more prone to overfitting.
+:::
+
+## Parametric vs. Non-Parametric Fit
+
+
+::::{.columns}
+:::{.column width="70%" .fragment}
+```{r}
+#| fig-width: 9
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+
+library(plotly)
+set.seed(2)
+n  <- 500
+x  <- seq(-12, 4, length.out = n)
+y  <- sin(x) + rnorm(n, sd = 0.35)
+yr <- c(-2.3, 2.3)
+
+style_plotly_scale <- function(p, scale = 1.35, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+p <- plot_ly() |>
+  add_markers(x = x, y = y, marker = list(size = 7, symbol = "circle",
+                                          color = "rgba(120,120,120,0.85)"),
+              hoverinfo="x+y") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = c(-12, 4),
+                 tickvals = c(-12, -8, -4, 0, 4),
+                 ticktext = c("t-12","t-8","t-4","t","t+4"),
+                 zeroline = FALSE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = ""),
+    yaxis = list(range = yr,
+                 tickvals = -2:2,
+                 zeroline = TRUE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = "",
+                 linecolor = "black", linewidth = 1, mirror = FALSE),
+    shapes = list(list(type = "rect", xref = "x", yref = "y",
+                       x0 = -12, x1 = 0, y0 = yr[1], y1 = yr[2],
+                       fillcolor = "rgba(200,200,200,0.35)", line = list(width = 0))),
+    annotations = list(
+      list(x = -4, y = 2, xref = "x", yref = "y",
+           text = "<b>Simulated sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif")),
+      list(x = 2.0, y = 2, xref = "x", yref = "y",
+           text = "<b>Out-of-sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif")
+
+p <- p |>
+  layout(autosize = FALSE, width = 9*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+
+p
+
+```
+:::
+:::{.column width="30%" .fragment}
+
+:vspace3
+
+We simulate some data from 
+
+$$
+Y = \mathrm{sin}(X)
+$$
+
+and plot them. We can now compare how well different models fit.
+:::
+::::
+
+
+
+## Parametric vs. Non-Parametric Fit 
+
+
+
+::::{.columns}
+:::{.column width="70%"}
+```{r}
+#| fig-width: 9
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+
+library(plotly)
+set.seed(2)
+n  <- 500
+x  <- seq(-12, 4, length.out = n)
+y  <- sin(x) + rnorm(n, sd = 0.35)
+yr <- c(-2.3, 2.3)
+
+style_plotly_scale <- function(p, scale = 1.35, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+p <- plot_ly() |>
+  add_markers(x = x, y = y, marker = list(size = 7, symbol = "circle",
+                                          color = "rgba(120,120,120,0.85)"),
+              hoverinfo="x+y") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = c(-12, 4),
+                 tickvals = c(-12, -8, -4, 0, 4),
+                 ticktext = c("t-12","t-8","t-4","t","t+4"),
+                 zeroline = FALSE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = ""),
+    yaxis = list(range = yr,
+                 tickvals = -2:2,
+                 zeroline = TRUE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = "",
+                 linecolor = "black", linewidth = 1, mirror = FALSE),
+    shapes = list(list(type = "rect", xref = "x", yref = "y",
+                       x0 = -12, x1 = 0, y0 = yr[1], y1 = yr[2],
+                       fillcolor = "rgba(200,200,200,0.35)", line = list(width = 0))),
+    annotations = list(
+      list(x = -4, y = 2, xref = "x", yref = "y",
+           text = "<b>Simulated sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif")),
+      list(x = 2.0, y = 2, xref = "x", yref = "y",
+           text = "<b>Out-of-sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif")
+
+fit <- lm(y ~ x)
+x_fit <- seq(min(x), max(x), length.out = 500)
+y_fit <- predict(fit, newdata = data.frame(x = x_fit))
+
+p <- p |> add_lines(
+  x = x_fit, y = y_fit,
+  line = list(width = 4), name = "Linear fit",
+  hoverinfo="name"
+)
+
+p <- p |> onRender("
+function(el, x) {
+  var gd = document.getElementById(el.id);
+  var root = getComputedStyle(document.documentElement);
+  var primary = (root.getPropertyValue('--primary-color') || '').trim();
+  if (!primary) primary = '#1f77b4';
+  Plotly.restyle(gd, {'line.color': primary}, [1]);
+}
+")
+
+p <- p |>
+  layout(autosize = FALSE, width = 9*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+
+p
+
+```
+:::
+:::{.column width="30%" .fragment}
+
+
+We start by fitting a [**straight line**]{.col1}, i.e., the following linear model:
+
+$$
+\boldsymbol{y}=\beta_0+\boldsymbol{x}\beta_1.
+$$
+
+We can see that the fit is far from perfect **in-sample**. **Out of sample**, it has comparable accuracy. The one parameter is easy to interpret, but we are missing out on important information.
+:::
+::::
+
+
+## Parametric vs. Non-Parametric Fit 
+
+
+::::{.columns}
+:::{.column width="70%"}
+```{r}
+#| fig-width: 9
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+
+library(plotly)
+set.seed(2)
+n  <- 500
+x  <- seq(-12, 4, length.out = n)
+y  <- sin(x) + rnorm(n, sd = 0.35)
+yr <- c(-2.3, 2.3)
+
+style_plotly_scale <- function(p, scale = 1.35, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+p <- plot_ly() |>
+  add_markers(x = x, y = y, marker = list(size = 7, symbol = "circle",
+                                          color = "rgba(120,120,120,0.85)"),
+              hoverinfo="x+y") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = c(-12, 4),
+                 tickvals = c(-12, -8, -4, 0, 4),
+                 ticktext = c("t-12","t-8","t-4","t","t+4"),
+                 zeroline = FALSE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = ""),
+    yaxis = list(range = yr,
+                 tickvals = -2:2,
+                 zeroline = TRUE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = "",
+                 linecolor = "black", linewidth = 1, mirror = FALSE),
+    shapes = list(list(type = "rect", xref = "x", yref = "y",
+                       x0 = -12, x1 = 0, y0 = yr[1], y1 = yr[2],
+                       fillcolor = "rgba(200,200,200,0.35)", line = list(width = 0))),
+    annotations = list(
+      list(x = -4, y = 2, xref = "x", yref = "y",
+           text = "<b>Simulated sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif")),
+      list(x = 2.0, y = 2, xref = "x", yref = "y",
+           text = "<b>Out-of-sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif")
+
+fit <- lm(y ~ x)
+x_fit <- seq(min(x), max(x), length.out = 500)
+y_fit <- predict(fit, newdata = data.frame(x = x_fit))
+
+p <- p |> add_lines(
+  x = x_fit, y = y_fit,
+  line = list(width = 4), name = "Linear fit",
+  hoverinfo="name"
+)
+
+# Polynomial fit (6th order)
+poly_fit <- lm(y ~ poly(x, 6, raw = TRUE))
+y_poly <- predict(poly_fit, newdata = data.frame(x = x_fit))
+
+# Add polynomial line
+p <- p |> add_lines(
+  x = x_fit, y = y_poly,
+  line = list(width = 4),
+  name = "6-th Order Polynomial",
+  hoverinfo="name"
+)
+
+# Apply primary to linear (trace 1), secondary to poly (trace 2)
+p <- p |> onRender("
+function(el, x) {
+  const gd = document.getElementById(el.id);
+  const root = getComputedStyle(document.documentElement);
+  const primary = (root.getPropertyValue('--primary-color') || '').trim() || '#1f77b4';
+  const secondary = (root.getPropertyValue('--secondary-color') || '').trim() || '#ff7f0e';
+  Plotly.restyle(gd, {'line.color': primary}, [1]);
+  Plotly.restyle(gd, {'line.color': secondary}, [2]);
+}
+")
+
+p <- p |>
+  layout(autosize = FALSE, width = 9*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+
+p
+
+```
+:::
+:::{.column width="30%" .fragment}
+
+:vspace1.5
+
+Next, we still fit a linear and parametric model, but we increase the number of a parameters by using a [**sixth-order polynomial**]{.col2}. 
+
+We can see that the model fit improves, but we run into problems **out-of-sample**. The fit is bad there and gets infinitely worse. 
+:::
+::::
+
+
+## Parametric vs. Non-Parametric Fit 
+
+
+::::{.columns}
+:::{.column width="70%"}
+```{r}
+#| fig-width: 9
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+
+library(plotly)
+library(splines)
+set.seed(2)
+n  <- 500
+x  <- seq(-12, 4, length.out = n)
+y  <- sin(x) + rnorm(n, sd = 0.35)
+yr <- c(-2.3, 2.3)
+
+style_plotly_scale <- function(p, scale = 1.35, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+p <- plot_ly() |>
+  add_markers(x = x, y = y, marker = list(size = 7, symbol = "circle",
+                                          color = "rgba(120,120,120,0.85)"),
+              hoverinfo="x+y") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = c(-12, 4),
+                 tickvals = c(-12, -8, -4, 0, 4),
+                 ticktext = c("t-12","t-8","t-4","t","t+4"),
+                 zeroline = FALSE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = ""),
+    yaxis = list(range = yr,
+                 tickvals = -2:2,
+                 zeroline = TRUE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = "",
+                 linecolor = "black", linewidth = 1, mirror = FALSE),
+    shapes = list(list(type = "rect", xref = "x", yref = "y",
+                       x0 = -12, x1 = 0, y0 = yr[1], y1 = yr[2],
+                       fillcolor = "rgba(200,200,200,0.35)", line = list(width = 0))),
+    annotations = list(
+      list(x = -4, y = 2, xref = "x", yref = "y",
+           text = "<b>Simulated sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif")),
+      list(x = 2.0, y = 2, xref = "x", yref = "y",
+           text = "<b>Out-of-sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif")
+
+
+# In-sample data only (x < 0)
+x_in  <- x[x < 0]
+y_in  <- y[x < 0]
+x_fit <- seq(min(x), max(x), length.out = 500)
+
+# Fit splines on in-sample data
+spline_6    <- lm(y_in ~ ns(x_in, df = 6))
+spline_100  <- lm(y_in ~ ns(x_in, df = 100))
+
+# Predict on full x_fit using models trained on x < 0
+y_spline6   <- predict(spline_6, newdata = data.frame(x_in = x_fit))
+y_spline100 <- predict(spline_100, newdata = data.frame(x_in = x_fit))
+
+
+
+# Add spline lines to plot
+p <- p |> add_lines(
+  x = x_fit, y = y_spline6,
+  line = list(width = 4, dash = "solid"),
+  name = "Spline\n(df=6)",
+  hoverinfo = "name"
+) |>
+  add_lines(
+    x = x_fit, y = y_spline100,
+    line = list(width = 4, dash = "solid"),
+    name = "Spline\n(df=100)",
+    hoverinfo = "name"
+  )
+
+# Apply CSS-based colors
+p <- p |> onRender("
+function(el, x) {
+  const gd = document.getElementById(el.id);
+  const root = getComputedStyle(document.documentElement);
+  const primary = (root.getPropertyValue('--tertiary-color') || '').trim() || '#1f77b4';
+  const secondary = (root.getPropertyValue('--quarternary-color') || '').trim() || '#ff7f0e';
+  Plotly.restyle(gd, {'line.color': primary}, [1]);
+  Plotly.restyle(gd, {'line.color': secondary}, [2]);
+}
+")
+
+p <- p |>
+  layout(autosize = FALSE, width = 9*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+
+p
+
+```
+:::
+:::{.column width="30%" .fragment}
+
+Finally, we try out some **non-parametric models**. A **spline** is a piecewise-defined polynomial function. We are fitting one with [**6 degrees of freedom**]{.col3} and one with [**100 degrees of freedom**]{.col4}.
+
+Both fit very well in-sample, and both do not perform perfectly out-of-sample. In the [**latter case**]{.col4}, we are **blatantly overfitting**.
+
+:::
+::::
+
+## Supervised and Unsupervised Learning
+
+. . .
+
+[**Supervised Learning**]{.col3} includes **everything we did so far**. We have **data on** $\boldsymbol{y}$ on which we can **train** our model, e.g.
+
+:::{.incremental .li3}
+* We run a **regression** of income on education. Our dataset includes income information as well as education information.
+* We try to **classify** images in whether they picture a turtle or not. We have a dataset of images that includes information on whether the image shows a turtle or not.
+:::
+
+::::{.columns}
+:::{.column width="40%" .fragment}
+[**Unsupervised Learning**]{.col3} is when we train a model on **large amounts of data**, **without any labeling**.
+
+[Initially, an unsupervised model may have difficulty telling whether this image pictures a turtle.]{.fragment}
+:::
+:::{.column width="25%" .fragment}
+![](figures/turtle.jpeg)
+:::
+:::{.column width="35%" .fragment}
+:::{.callout-tip title="Think"}
+[Have you ever been asked to tell a machine whether an image contains a traffic light?]{.bitsmall}
+:::
+:::
+::::
+
+## Unsupervised Learning
+
+. . .
+
+Another example of [**Unsupervised Learning**]{.col3} are **Large Language Models**. [Since ChatGPT was released in late 2022, they have been pretty well known, but their development and public availability predates ChatGPT.]{.fragment}
+
+. . .
+
+The first **Generative Pre-Trained Transformer (GPT)** was introduced by OpenAI in mid-2018. The model was called GPT-1, had 117 million parameters, and was trained on 7,000 unpublished books.
+
+. . .
+
+The model is able to complete a text prompt with meaningful sentences, but noticeably lacks context awareness.
+
+:vspace1
+
+:::{.monotext .bitsmall .fragment}
+This is our Econometrics II course. In this course, we  [will be able to calculate]{.col2 .fragment} [the trajectory of the nuclear bomb."]{.col2 .fragment}
+
+["what do you mean, calculate the trajectory?" "this is a simple calculation of the time it would take the bomb to detonate."]{.col2 .fragment}
+
+["we have three minutes," the technician said. "it could go either way."]{.col2 .fragment}
+:::
+
+## Unsupervised Learning {auto-animate="true"}
+
+. . .
+
+The successor model, GPT-2, was published in early 2019. It was trained on text from documents and webpages that were upvoted on Reddit, and contained 1.5 billion parameters.
+
+:::{.monotext .bitsmall .fragment}
+This is our Econometrics II course. In this course, we  [take a look at some of the statistical principles and statistics used in Econometrics.]{.col2 .fragment}
+
+[We will take a look at a number of different statistics, both in terms of number of data items and of quality of data.]{.col2 .fragment}
+:::
+
+. . .
+
+This model is more context-aware, but you can still easily see that it is generating words rather than meaning.
+
+. . .
+
+:vspace1
+
+In 2020, OpenAI released GPT-3, which is no longer publicly available; and in 2022, it released GPT-3.5 These models have 175 billion parameters:
+
+## Unsupervised Learning {auto-animate="true"}
+
+In 2020, OpenAI released GPT-3, which is no longer publicly available; and in 2022, it released GPT-3.5. These models have 175 billion parameters:
+
+:::{.monotext .bitsmall .fragment}
+This is our Econometrics II course. In this course, we [will learn advanced statistical and econometric methods for analyzing economic data. This course will build upon the foundational knowledge acquired in Econometrics I and will delve deeper into topics such as panel data analysis, time series analysis, and instrumental variables. We will also explore advanced topics such as endogeneity, selection bias, and nonlinear models.]{.col2 .fragment}
+:::
+
+. . .
+
+Of course, it does not know our syllabus, but this is a pretty reasonable guess for what a course entitled “Econometrics II” could be about.
+
+. . .
+
+Current models GPT-4o, GPT-4.5 and GPT-4.1 are rumored to have between 200 billion and 1 trillion parameters. The current product by Chinese competitor DeepSeek, DeepSeek V3, has 671 billion parameters. Claude 4 by Anthropic likely has a comparable number of parameters.
+
+
+
+## Regression and Classification
+
+. . .
+
+A [**regression problem**]{.col4} is a problem with a [**quantitative**]{.fragment} dependent variable [(e.g., height, econometrics grade, carbon emissions, ...).]{.fragment}
+
+. . .
+
+:vspace0.5
+
+In contrast, we refer to a problem with a **qualitative** dependent variable as a [**classification problem**]{.col4}.
+
+. . .
+
+:vspace2
+
+The distinction between the two is not always perfectly clear:
+
+
+:::{.incremental .li4}
+* **Linear regression** is undoubtedly a regression method. 
+* However, we can use linear regression with a **binary dependent variable**, yielding a Linear Probability Model (LPM). This can be viewed as a form of classification; or you could argue that class probabilities are still numbers and this is still regression.
+* In any case, what matters for distinction is the **dependent variable**, while whether **explanatory variables** are quantitative or qualitative is generally less important.
+:::
+
+## The Interpretability-Flexibility Tradeoff
+
+. . .
+
+Different methods have different degrees of **flexibility**, i.e. they can only produce a narrow range of possible shapes of $f$. For example, linear regression is rather inflexible.
+
+. . .
+
+The **benefit** of choosing a flexible approach is evident. However, there is an important downside: **More flexible** methods yield results that are **less easy to interpret**.
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+```{r}
+#| fig-width: 6
+#| fig-height: 4.5
+#| warning: false
+#| message: false
+
+library(plotly)
+library(splines)
+set.seed(2)
+n  <- 500
+x  <- seq(-12, 4, length.out = n)
+y  <- sin(x) + rnorm(n, sd = 0.35)
+yr <- c(-2.3, 2.3)
+
+style_plotly_scale <- function(p, scale = 1.35, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+p <- plot_ly() |>
+  add_markers(x = x, y = y, marker = list(size = 7, symbol = "circle",
+                                          color = "rgba(120,120,120,0.85)"),
+              hoverinfo="x+y") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = c(-12, 4),
+                 tickvals = c(-12, -8, -4, 0, 4),
+                 ticktext = c("t-12","t-8","t-4","t","t+4"),
+                 zeroline = FALSE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = ""),
+    yaxis = list(range = yr,
+                 tickvals = -2:2,
+                 zeroline = TRUE, zerolinewidth = 1, zerolinecolor = "black",
+                 showgrid = FALSE, title = "",
+                 linecolor = "black", linewidth = 1, mirror = FALSE),
+    shapes = list(list(type = "rect", xref = "x", yref = "y",
+                       x0 = -12, x1 = 0, y0 = yr[1], y1 = yr[2],
+                       fillcolor = "rgba(200,200,200,0.35)", line = list(width = 0))),
+    annotations = list(
+      list(x = -4, y = 2, xref = "x", yref = "y",
+           text = "<b>Simulated sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif")),
+      list(x = 2.0, y = 2, xref = "x", yref = "y",
+           text = "<b>Out-of-sample</b>", showarrow = FALSE,
+           font = list(size = 22, family = "Inter, sans-serif"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif")
+
+
+# In-sample data only (x < 0)
+x_in  <- x[x < 0]
+y_in  <- y[x < 0]
+x_fit <- seq(min(x), max(x), length.out = 500)
+
+# Fit splines on in-sample data
+spline_6    <- lm(y_in ~ ns(x_in, df = 6))
+spline_100  <- lm(y_in ~ ns(x_in, df = 100))
+
+# Predict on full x_fit using models trained on x < 0
+y_spline6   <- predict(spline_6, newdata = data.frame(x_in = x_fit))
+y_spline100 <- predict(spline_100, newdata = data.frame(x_in = x_fit))
+
+fit <- lm(y ~ x)
+x_fit <- seq(min(x), max(x), length.out = 500)
+y_fit <- predict(fit, newdata = data.frame(x = x_fit))
+
+p <- p |> add_lines(
+  x = x_fit, y = y_fit,
+  line = list(width = 4), name = "Linear fit",
+  hoverinfo="name"
+)
+
+# Add spline lines to plot
+p <- p |>
+  add_lines(
+    x = x_fit, y = y_spline100,
+    line = list(width = 4, dash = "solid"),
+    name = "Spline\n(df=100)",
+    hoverinfo = "name"
+  )
+
+# Apply CSS-based colors
+p <- p |> onRender("
+function(el, x) {
+  const gd = document.getElementById(el.id);
+  const root = getComputedStyle(document.documentElement);
+  const primary = (root.getPropertyValue('--primary-color') || '').trim() || '#1f77b4';
+  const secondary = (root.getPropertyValue('--quarternary-color') || '').trim() || '#ff7f0e';
+  Plotly.restyle(gd, {'line.color': primary}, [1]);
+  Plotly.restyle(gd, {'line.color': secondary}, [2]);
+}
+")
+
+p
+
+```
+:::
+:::{.column width="50%" .fragment}
+
+The [**linear fit**]{.col1} from before is relatively easy to interpret. We have a relationship that is goverened by one parameter:
+
+$$
+\boldsymbol{y} = \boldsymbol{x}\beta+\boldsymbol{u}.
+$$
+
+In contrast, the $f$ we get from the [**100-df spline**]{.col4} is extremely complicated, and it is difficult for us to understand how predictors relate to the $Y$ values.
+:::
+::::
+
+## How to Choose a Model?
+
+. . .
+
+We choose a model and estimation method depending on the issue of interest, and the available data. Central questions we may ask ourselves include the following.
+
+:::{.incremental}
+- What is the **goal** of our analysis?
+  - How easy to interpret should our estimate $\hat{f}$ be?
+  - Do we need to generate accurate predictions?
+- What does our **data** look like?
+  - How much data do we have (observations $N$, and covariates $K$)?
+  - Are we dealing with a regression or classification problem?
+- In what ways can we **test** our model?
+- How much **time** (personal and computer) and money do we have to spare?
+:::
+
+# The Role of Econometrics
+
+## Economics, Statistics, Econometrics
+
+. . .
+
+Econometrics seeks to **apply and develop statistical methods** to **learn about economic phenomena** using **empirical data**.
+
+
+:::{.centering .fragment}
+![](drawio_charts/1_econometrics.svg){.noinvert width="50%"}
+:::
+
+
+
+## An Empirical Shift in Economics
+
+. . .
+
+Econometrics plays an important role in an **empirical shift in economic research**, away from pure theory [@angrist2017; @hamermesh2013]. Today, economic theories are routinely confronted with real-world data.
+
+. . .
+
+> “Experience has shown that each [...] of statistics, economic theory, and mathematics, is a necessary [...] condition for a real understanding of the quantitative relations in modern economic life.” --- Ragnar Frisch (1933)
+
+::::{.columns .fragment}
+:::{.column width="50%" .centering}
+![](figures/empirical_publications.png){.noinvert width="100%"}
+:::
+:::{.column width="50%"}
+
+:vspace1.5
+
+Weighted share of empirical publications in various economic fields ([Angrist et al., 2017](https://doi.org/10.1257/aer.p20171117)).
+
+:::{.centering}
+![](figures/empirical_publications_legend.png){.noinvert width="90%"}
+:::
+:::
+::::
+
+## The Credibility Revolution
+
+. . .
+
+Econometric methods are **constantly developing**. There is **no one-size-fits-all approach** that fits any kind of data and research question. Econometrics has seen **considerable challenges and developments** since its inception. Important milestones concern
+
+:::{.incremental}
+- uncertainty around model choice [e.g. @leamer1983; @steel2020],
+- better research designs [e.g. @angrist2010],
+- randomised experiments [see @athey2017],
+- more flexible methods [@athey2019].
+:::
+
+. . .
+
+
+
+You can be sure that the methods we learn today will **evolve and change** within the next years, during your carreer, and beyond. This gives you an opportunity to go into econometric research if you choose this career path, but it also means that you have to keep up with new developments.
+
+
+# The Linear Model
+
+## Why Is the Linear Model so Popular?
+
+. . .
+
+Consider how to transform the following **economic model** into an **econometric model**:
+
+$$
+\text{wage} \approx f({\text{education}}, {\text{experience}}).
+$$
+
+. . .
+
+:vspace1
+
+A sensible choice might be the following **linear regression model**:
+
+$$
+\textbf{wage} = \textbf{education}\: \beta_1 + \textbf{experience}\: \beta_2 + \boldsymbol{u}.
+$$
+
+. . .
+
+:vspace1
+
+Why is a linear model a **sensible choice** and why do we choose them **so often**?
+
+:::{.incremental}
+* They are easy to interpret,
+* parsimonious (meaning as simple and minimalistic as reasonably possible),
+* and can be easily extended.
+:::
+
+
+## Goals of Econometrics
+
+. . .
+
+The linear model's popularity is not surprising, given the classical tasks:
+
+:::{.incremental}
+- testing a theory --- Does class size affect grades?,
+- evaluating a policy --- What are impacts of an oil embargo?,
+- forecasting the future --- How quickly do stocks go up?
+:::
+
+. . .
+
+The central task is arguably distilling a **causal effect** from *observational data*, since experimental data is rare. 
+
+. . .
+
+When forecasting, economic theory can provide us with valuable **structural information**.
+
+
+
+## Linear Algebra and the Linear Model
+
+. . .
+
+The linear model is an essential building block, and **linear algebra** gives us a very convenient way of expressing and dealing with these models. Let
+
+$$
+\textcolor{var(--primary-color)}{\boldsymbol{y}} = \textcolor{var(--secondary-color)}{\boldsymbol{X}} \boldsymbol{\beta} + \boldsymbol{u},
+$$
+
+where the $N \times 1$ vector $\symbf{y}$ holds the dependent variable for all $N$ observations, and the $N \times K$ matrix $\symbf{X}$ contains all $K$ explanatory variables. 
+
+. . .
+
+That is,
+
+$$
+\textcolor{var(--primary-color)}{
+\begin{pmatrix}
+  y_1 \\ y_2 \\ \vdots \\ y_N
+\end{pmatrix}}=
+\textcolor{var(--secondary-color)}{
+\begin{pmatrix}
+  x_{1 1} & x_{1 2} & \dots & x_{1 K} \\
+  x_{2 1} & x_{2 2} & \dots & x_{2 K} \\
+  \vdots & \vdots & \ddots & \vdots \\
+  x_{N 1} & x_{N 2} & \dots & x_{N K}
+\end{pmatrix}}
+\begin{pmatrix}
+  \beta_1 \\ \beta_2 \\ \vdots \\ \beta_K
+\end{pmatrix} +
+\begin{pmatrix}
+  u_1 \\ u_2 \\ \vdots \\ u_N
+\end{pmatrix}.
+$$
+
+## The OLS Estimator {#ols}
+
+. . .
+
+The **ordinary least squares** (OLS) estimator minimises the [**sum of squared residuals**]{.col4}, which is given by [$\hat{\boldsymbol{u}}' \hat{\boldsymbol{u}}$]{.col4} (i.e. [$\sum_{i = 1}^N \hat{u}_i^2$]{.col4}). To find the estimate $\hat{\boldsymbol{\beta}}_{OLS}$, we  
+
+:::{.incremental}
+1. re-express the [**sum of squared residuals**]{.col4},  
+2. find an **extreme value** via the partial derivative ($\frac{\partial \textcolor{var(--quarternary-color)}{\hat{\boldsymbol{u}}' \hat{\boldsymbol{u}}}}{\partial \hat{\boldsymbol{\beta}}} = 0$),  
+3. check whether we found a **minimum** via the second partial derivative.
+:::
+
+. . .
+
+$$
+\begin{aligned}
+\textcolor{var(--quarternary-color)}{\hat{\boldsymbol{u}}'\hat{\boldsymbol{u}}}
+ & = (\boldsymbol{y} - \boldsymbol{X} \hat{\boldsymbol{\beta}})'(\boldsymbol{y} - \boldsymbol{X} \hat{\boldsymbol{\beta}}) \\
+&  = \boldsymbol{y}'\boldsymbol{y} - 2 \hat{\boldsymbol{\beta}}' \boldsymbol{X}' \boldsymbol{y} + \hat{\boldsymbol{\beta}}' \boldsymbol{X}' \boldsymbol{X} \boldsymbol{\beta}.
+  \end{aligned}
+$$
+
+:::{.bitsmall}
+$$
+\frac{\partial \textcolor{var(--quarternary-color)}{\hat{\boldsymbol{u}}'\hat{\boldsymbol{u}}}}{\partial \hat{\boldsymbol{\beta}}}
+  = - 2 \boldsymbol{X}' \boldsymbol{y} + 2 \boldsymbol{X}' \boldsymbol{X} \hat{\boldsymbol{\beta}}, \qquad
+\frac{\partial^2 \textcolor{var(--quarternary-color)}{\hat{\boldsymbol{u}}'\hat{\boldsymbol{u}}}}{\partial^2 \hat{\boldsymbol{\beta}}}
+  = 2 \boldsymbol{X}' \boldsymbol{X}.
+$$
+:::
+
+. . .
+
+The estimator $\hat{\boldsymbol{\beta}}_{OLS} = (\boldsymbol{X}' \boldsymbol{X})^{-1} \boldsymbol{X}' \boldsymbol{y}$ is directly available and a minimum.  [derivation](#appols){.butn} 
+
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+# Appendix {.appendix}
+
+## Reducible and Irreducible Error – Decomposition {#appdecomp}
+
+We have $\boldsymbol{y}=f(\boldsymbol{X})+\boldsymbol{u}$, $\hat{\boldsymbol{y}}=\hat{f}(\boldsymbol{X})$, and $\mathrm{E}(\boldsymbol{u})=0$, Recall that $\mathrm{Var}(\boldsymbol{u})=\mathrm{E}\bigl((\boldsymbol{u}-\mathrm{E}(\boldsymbol{u}))^{2}\bigr)$.
+
+$$
+\begin{aligned}
+\mathrm{E}\bigl((\boldsymbol{y}-\hat{\boldsymbol{y}})^{2}\bigr)
+&=\mathrm{E}\bigl((f(\boldsymbol{X})+\boldsymbol{u}-\hat{f}(\boldsymbol{X}))^{2}\bigr)\\
+&=\mathrm{E}\bigl(((f(\boldsymbol{X})-\hat{f}(\boldsymbol{X}))+\boldsymbol{u})^{2}\bigr)\\
+&=\mathrm{E}\bigl((f(\boldsymbol{X})-\hat{f}(\boldsymbol{X}))^{2}+2\boldsymbol{u}(f(\boldsymbol{X})-\hat{f}(\boldsymbol{X}))+\boldsymbol{u}^{2}\bigr)\\
+&=\mathrm{E}\bigl((f(\boldsymbol{X})-\hat{f}(\boldsymbol{X}))^{2}\bigr)
+  +\mathrm{E}\bigl(2\boldsymbol{u}(f(\boldsymbol{X})-\hat{f}(\boldsymbol{X}))\bigr)
+  +\mathrm{E}\bigl(\boldsymbol{u}^{2}\bigr)\\
+&=\mathrm{E}\bigl((f(\boldsymbol{X})-\hat{f}(\boldsymbol{X}))^{2}\bigr)+0+\mathrm{E}\bigl(\boldsymbol{u}^{2}\bigr)\\
+&=\mathrm{E}\bigl((f(\boldsymbol{X})-\hat{f}(\boldsymbol{X}))^{2}\bigr)+\mathrm{Var}(\boldsymbol{u}).
+\end{aligned}
+$$
+
+[go back](#decomp){.butn} 
+
+## Bias and Variance – Decomposition {#appbiasvar}
+
+We use the shorthands $f=f(\boldsymbol{X})$ and $\hat{f}=\hat{f}(\boldsymbol{X})$. Recall that $\operatorname{Bias}(\hat{f})=\mathrm{E}(\hat{f})-f$.
+
+:::{.bitsmall}
+$$
+\begin{aligned}
+\mathrm{E}\bigl((\boldsymbol{y}-\hat{\boldsymbol{y}})^{2}\bigr)
+&=\mathrm{E}\bigl((f-\hat{f})^{2}\bigr)+\mathrm{Var}(\boldsymbol{u})\\
+&=\mathrm{E}\bigl((f-\mathrm{E}(\hat{f})+\mathrm{E}(\hat{f})-\hat{f})^{2}\bigr)+\mathrm{Var}(\boldsymbol{u})\\
+&=\mathrm{E}\bigl(((f-\mathrm{E}(\hat{f})) + (\mathrm{E}(\hat{f})-\hat{f}))^{2}\bigr)+\mathrm{Var}(\boldsymbol{u})\\
+&=\mathrm{E}\bigl((f-\mathrm{E}(\hat{f}))^{2}\bigr)
+  +2\,\mathrm{E}\bigl((f-\mathrm{E}(\hat{f}))(\mathrm{E}(\hat{f})-\hat{f})\bigr)
+  +\mathrm{E}\bigl((\mathrm{E}(\hat{f})-\hat{f})^{2}\bigr)
+  +\mathrm{Var}(\boldsymbol{u})\\
+&=(f-\mathrm{E}(\hat{f}))^{2}+0+\mathrm{E}\bigl((\mathrm{E}(\hat{f})-\hat{f})^{2}\bigr)+\mathrm{Var}(\boldsymbol{u})\\
+&=\operatorname{Bias}(\hat{f})^{2}+\mathrm{Var}(\hat{f})+\mathrm{Var}(\boldsymbol{u}).
+\end{aligned}
+$$
+:::
+
+[go back](#decomp){.butn} 
+
+## OLS estimator -- Derivartion {#appols}
+
+:::{.bitsmall}
+We have $\boldsymbol{y} = \boldsymbol{X} \boldsymbol{\beta} + \hat{\boldsymbol{u}}$, which lets us re-express the sum of squared residuals as
+
+$$
+\begin{aligned}
+\hat{\boldsymbol{u}}'\hat{\boldsymbol{u}}
+  &= (\boldsymbol{y} - \boldsymbol{X} \boldsymbol{\beta})'(\boldsymbol{y} - \boldsymbol{X} \boldsymbol{\beta}) = (\boldsymbol{y}' - \boldsymbol{\beta}' \boldsymbol{X}') (\boldsymbol{y} - \boldsymbol{X} \boldsymbol{\beta}) \\
+  &= \boldsymbol{y}'\boldsymbol{y} - \boldsymbol{y}' \boldsymbol{X} \boldsymbol{\beta} - \boldsymbol{\beta}' \boldsymbol{X}' \boldsymbol{y} + \boldsymbol{\beta}' \boldsymbol{X}' \boldsymbol{X} \boldsymbol{\beta} \\
+  &= \boldsymbol{y}'\boldsymbol{y} - 2 \boldsymbol{\beta}' \boldsymbol{X}' \boldsymbol{y} + \boldsymbol{\beta}' \boldsymbol{X}' \boldsymbol{X} \boldsymbol{\beta},
+\end{aligned}
+$$
+
+where we use the fact that for a scalar $\alpha = \alpha'$ to simplify $\boldsymbol{y}' \boldsymbol{X} \boldsymbol{\beta} = (\boldsymbol{y}' \boldsymbol{X} \boldsymbol{\beta})' = \boldsymbol{\beta}' \boldsymbol{X}' \boldsymbol{y}$. Next, we set the first derivative $\frac{\partial \hat{\boldsymbol{u}}' \hat{\boldsymbol{u}}}{\partial \boldsymbol{\beta}} = - 2 \boldsymbol{X}' \boldsymbol{y} + 2 \boldsymbol{X}' \boldsymbol{X} \boldsymbol{\beta}$ to zero
+
+$$
+\begin{aligned}
+-2 \boldsymbol{X}' \boldsymbol{y} + 2 \boldsymbol{X}' \boldsymbol{X} \boldsymbol{\beta} &= 0 \\
+\boldsymbol{X}' \boldsymbol{X} \boldsymbol{\beta} &= \boldsymbol{X}' \boldsymbol{y} \\
+\boldsymbol{\beta} &= \left( \boldsymbol{X}' \boldsymbol{X} \right)^{-1} \boldsymbol{X}' \boldsymbol{y}.
+\end{aligned}
+$$
+
+The second partial derivative $2 \boldsymbol{X}' \boldsymbol{X}$ is positive (definite) as long as it is invertible.
+:::
+
+[go back](#ols){.butn} 
+

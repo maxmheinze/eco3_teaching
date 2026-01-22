@@ -1,0 +1,554 @@
+---
+title: "Module 6: Heteroskedasticity"
+subtitle: "Econometrics I"
+author: "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Based on a Slide Set by [Simon Heß](https://github.com/simonheb)"
+date: "2025-06-05"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+engine: knitr
+execute: 
+  cache: false
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @wooldridge2020
+---
+
+{{< include "./_extensions/r-wasm/live/_knitr.qmd" >}}
+
+# What is Heteroskedasticity?
+
+## Homoskedasticity and Heteroskedasticity
+
+. . .
+
+Let’s recall assumption **MLR.5** about [**homoskedasticity**]{.col1}:
+
+:::{.nicebox1l}
+
+$$
+\mathrm{Var}(u_i\mid x_{i1},\dots,x_{iK}) = \mathrm{Var}(u_i) =  \sigma^2,
+$$
+:::
+
+:::{.incremental}
+* We’ve already discussed that this assumption is **frequently violated**.
+  * People with more education likely have higher income variance.
+  * People with higher income likely have higher variance in how much CO₂ emissions they cause.
+* We call the case in which MLR.5 is violated [**heteroskedasticity**]{.col2}.
+  * Heteroskedasticity occurs when **certain individuals** or **groups of individuals** have [**more or less unexplained variation**]{.col2} than the rest.
+:::
+
+## Heteroskedasticity
+
+. . .
+
+If our error term is [**heteroskedastic**]{.col2}, then the variance depends on $i$:
+
+:::{.nicebox2l}
+
+$$
+\mathrm{Var}(u_i\mid x_{i1},\dots,x_{iK}) = \mathrm{E}(u_i^2\mid x_{i1},\dots,x_{iK})=  \sigma^2_{\textcolor{var(--secondary-color)}{i}}\qquad\neq\sigma^2,
+$$
+
+$$
+\mathrm{Var}(\boldsymbol{u}\mid\boldsymbol{X}) = \mathrm{E}(\boldsymbol{uu}'\mid\boldsymbol{X})=\mathrm{diag}(\sigma^2_{\textcolor{var(--secondary-color)}{1}}, \dots, \sigma^2_{\textcolor{var(--secondary-color)}{N}})\qquad\neq\sigma^2\boldsymbol{I}.
+$$
+:::
+
+:::{.incremental}
+* The **OLS estimator** is still **unbiased** and **consistent** in such a case, since these properties only require MLR.1 to MLR.4. 
+* However, the **formula we used to calculate $\mathrm{Var}(\hat{\boldsymbol{\beta}})$ and $\mathrm{s.e.}(\hat{\boldsymbol{\beta}})$** is no longer valid, and OLS is also no longer **efficient**.
+:::
+
+## Illustration
+
+```{r include=FALSE}
+library(scales)
+set.seed(1234)
+
+n  <- 1000
+x  <- runif(n)^1.7
+e  <- rnorm(n)
+
+err_homo  <- (runif(n) - .5) * (abs(x))^0   + e/5
+err_heter <- (runif(n) - .5) * (abs(x))^4   + e/100
+err_homo  <- err_homo  / sd(err_homo)  / 2.5
+err_heter <- err_heter / sd(err_heter) / 2.5
+
+y_homo    <- .5 * x + err_homo
+y_heter   <- .5 * x + err_heter
+
+samples        <- rep(.03, 1000)
+show_examples  <- c(1:10, 25, 50, 100, 500, 1000)
+olslines_homo  <- list()
+olslines_heter <- list()
+
+dir.create("frames", showWarnings = FALSE)
+
+for (i in seq_along(samples)) {
+  idx   <- sample(n, n * samples[i])
+  ols_h <- lm(y_homo[idx]   ~ x[idx])
+  ols_he<- lm(y_heter[idx]  ~ x[idx])
+  colz  <- ifelse(seq_len(n) %in% idx, "#4072c2", "grey50")
+  alph  <- ifelse(seq_len(n) %in% idx, 1, .4)
+  olslines_homo  <- c(list(ols_h),  olslines_homo)
+  olslines_heter <- c(list(ols_he), olslines_heter)
+
+  if (i %in% show_examples) {
+    png(sprintf("frames/frame_%03d.png", i), 1400, 600, res = 150)
+    par(mfrow = c(2,2), mar = c(2,4,2,1))
+
+    ## plot 1
+    plot(x, y_homo, col = alpha(colz, alph), pch = 19,
+         xlim = c(-.1,1.1), ylim = c(-.5,1.5),
+         main = "Homoskedastic Sample", ylab = "One Sample")
+    abline(a=0, b=.5, lwd = 3, col = "grey50"); abline(ols_h, col="#4072c2", lwd=3)
+
+    ## plot 2
+    plot(x, y_heter, col = alpha(colz, alph), pch = 19,
+         xlim = c(-.1,1.1), ylim = c(-.5,1.5),
+         main = "Heteroskedastic Sample", ylab = "")
+    abline(a=0, b=.5, lwd = 3, col = "grey50"); abline(ols_he, col="#4072c2", lwd=3)
+
+    ## plot 3
+    plot(x, y_homo, col = alpha("grey", .1), pch = 19,
+         xlim = c(-.1,1.1), ylim = c(-.4,1.4),
+         ylab = paste(i, "Line(s)"))
+    for (m in olslines_homo)  abline(m, col = alpha("#ED017D", 3/log1p(i)), lwd = 1)
+    abline(a=0, b=.5, lwd = 3, col = "grey50")
+
+    ## plot 4
+    plot(x, y_heter, col = alpha("grey", .1), pch = 19,
+         xlim = c(-.1,1.1), ylim = c(-.4,1.4), ylab = "")
+    for (m in olslines_heter) abline(m, col = alpha("#ED017D", 3/log1p(i)), lwd = 1)
+    abline(a=0, b=.5, lwd = 3, col = "grey50")
+
+    dev.off()
+  }
+}
+```
+
+::: {.r-stack .centering}
+```{r, echo=FALSE, results='asis'}
+cat(paste0(
+  sprintf('![](frames/frame_%03d.png){.fragment}', show_examples),
+  collapse = '\n\n'))
+```
+:::
+
+## What to do?
+
+. . .
+
+Let’s summarize: We often deal with [**heteroskedastic errors**]{.col2}. [That means the OLS estimator is **no longer efficient**, and we can no longer compute the variance of $\hat{\boldsymbol{\beta}}$ as before.]{.fragment}
+
+:::{.incremental}
+* That causes a **number of problems**:
+  * Our **standard errors** are no longer accurate.
+  * So our **t-statistics**, **F-statistics**, etc. are misleading.
+  * Inefficiency means that there must now be a **_better_ estimator**.
+* What can we **do about that**? [[**Nothing**]{.col2}.]{.fragment} [But we can learn how to **deal with it**.]{.fragment}
+  * In sufficiently large samples, the efficiency problem becomes smaller.
+  * We can keep the **inefficient OLS estimator**, but **replace the standard errors**.
+  * We can **test for the presence of heteroskedasticity**.
+  * We can **use a different, efficient estimator**.
+:::
+
+# Robust Standard Errors
+
+## Variance of the OLS Estimator with Heteroskedasticity {#var}
+
+. . .
+
+Originally, we assumed that $\mathrm{Var}(\boldsymbol{u}\mid\boldsymbol{X}) = \sigma^2\boldsymbol{I}_N.$ Under this assumption, the [**variance of the OLS estimator**]{.col1} was:
+
+$$
+\mathrm{Var}\left(\hat{\boldsymbol{\beta}}\right)=\sigma^2(\boldsymbol{X}'\boldsymbol{X})^{-1}.
+$$
+
+. . .
+
+We now make a less restrictive assumption: 
+
+$$
+\mathrm{Var}(\boldsymbol{u}\mid\boldsymbol{X}) = \mathrm{E}(\boldsymbol{uu}'\mid\boldsymbol{X}) = \mathrm{diag}(\sigma_1^2,\dots,\sigma_N^2) =:\boldsymbol{\Omega}
+$$
+
+::::{.columns}
+:::{.column width="57%" .fragment}
+
+Under **this assumption**, the [**variance of the OLS estimator**]{.col2} is:
+
+$$
+\mathrm{Var}(\hat{\boldsymbol{\beta}}\mid\boldsymbol{X})=(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{\Omega X}(\boldsymbol{X}'\boldsymbol{X})^{-1}.
+$$
+
+:::{.flushright}
+[Proof](#appdix1){.butn} 
+:::
+:::
+:::{.column width="43%" .fragment}
+:::{.callout-tip title="Practice Question"}
+What happens to this formula if $\boldsymbol{\Omega}=\sigma^2\boldsymbol{I}$?
+:::
+:::
+::::
+
+## We Need an Estimator Again
+
+. . .
+
+We have a problem with this equation:
+
+$$
+\mathrm{Var}(\hat{\boldsymbol{\beta}}\mid\boldsymbol{X})=(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{\Omega X}(\boldsymbol{X}'\boldsymbol{X})^{-1}.
+$$
+
+We **don’t know $\boldsymbol{\Omega}$**. [However, $\mathrm{diag}(\hat{u}_1^2,\dots,\hat{u}_N^2)$ is a **consistent estimator for $\boldsymbol{\Omega}$**.]{.fragment}
+
+. . .
+
+::::{.columns}
+:::{.column width="65%"}
+
+With this estimator, we can construct the following [**estimator for the variance of $\hat{\boldsymbol{\beta}}$**]{.col2}:
+
+$$
+\widehat{\mathrm{Var}}(\hat{\boldsymbol{\beta}}\mid\boldsymbol{X})=\textcolor{var(--tertiary-color)}{(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'}\textcolor{var(--quarternary-color)}{\mathrm{diag}(\hat{u}_1^2,\dots,\hat{u}_N^2)}\textcolor{var(--tertiary-color)}{\boldsymbol{X}(\boldsymbol{X}'\boldsymbol{X})^{-1}}.
+$$
+
+This estimator is sometimes called the **sandwich estimator** (see the image for an explanation).
+
+:::
+:::{.column width="35%"}
+![](figures/sandwich.png)
+:::
+::::
+
+
+## Robust Standard Errors
+
+:::{.incremental}
+* Standard errors computed with this estimator are called **heteroskedasticity-robust standard errors**.
+* The resulting **t-statistics** and **F-statistics** are also referred to as **robust**.
+* **Robust standard errors** are valid under both heteroskedasticity and homoskedasticity.
+* **Non-robust standard errors** are only valid under homoskedasticity.
+* **t-statistics** computed with **robust** standard errors are only approximately t-distributed in **large samples**. In small samples, the distribution can differ substantially.
+* **t-statistics** computed with **non-robust** standard errors are exactly t-distributed even in **small samples**, but only **if the errors are homoskedastic**.
+:::
+
+## Let's Estimate a School Model Again 🧑‍🏫
+
+. . .
+
+```{webr}
+# Load packages
+library(AER) # Contains our dataset
+library(dplyr)
+library(sandwich) # Robust standard errors
+libtaty(lmtest) # Robust tests
+
+# Load data
+data("CASchools")
+
+# Compute variables with mutate()
+CASchools <- CASchools |>
+  mutate(student_teacher_ratio = students / teachers,
+         test_score = (read + math)/2)
+```
+
+## Usual Output (and Usual Standard Errors 🚨)
+
+. . .
+
+:::{.bitsmall}
+```{webr}
+model_1 <- lm(test_score ~ student_teacher_ratio + income + I(income^2) + lunch + english, data = CASchools)
+summary(model_1)
+```
+:::
+
+## Robust Standard Errors 🥳
+
+. . .
+
+```{webr}
+robust_se <- vcovHC(model_1, type = "HC1")
+coeftest(model_1, vcov. = robust_se)
+```
+
+# Tests for Heteroskedasticity
+
+## Breusch-Pagan Test
+
+. . .
+
+We can **test** whether specific forms of **heteroskedasticity** are present (although we typically don’t know the exact form of the heteroskedasticity).
+
+. . .
+
+The first approach we discuss is the **Breusch-Pagan test** from @breusch1979. With this **LM test**, we check whether $\sigma^2_i$ depends linearly on the regressors:
+
+$$
+\sigma^2_i = \delta_0 + \delta_1x_{i1} + \dots + \delta_Kx_{iK} + \text{error}.
+$$
+
+. . .
+
+The **null hypothesis** of the test is:
+
+$$
+H_0:\delta_1=\dots=\delta_K=0
+$$
+
+. . .
+
+In large samples, the **LM statistic** of this test is $\chi^2$-distributed under the null hypothesis with $K$ degrees of freedom.
+
+## Breusch-Pagan Test
+
+. . .
+
+We conduct the **Breusch-Pagan test** as follows:
+
+:::{.incremental}
+(1) Estimate the main regression $\boldsymbol{y}=\boldsymbol{X\beta}+\boldsymbol{u}$ using OLS and retain the residuals $\hat{u}_i.$  
+(2) Next, estimate the following auxiliary regression:
+  $$
+  \hat{u}_i^2=\delta_0+\delta_1x_{i1}+\dots+x_{iK}+\text{error},
+  $$
+  and retain the $R^2$ of this regression.  
+(3) The statistic $NR^2$ is the approximate LM statistic and is $\chi^2_K$-distributed in large samples.
+:::
+
+## White Test
+
+. . .
+
+The **White test** from @white1980 is a variant of the Breusch-Pagan test with a more flexible specification: it also includes **all possible squared terms and interactions** of the regressors. [We conduct it as follows:]{.fragment}
+
+:::{.incremental}
+(1) Estimate the main regression $\boldsymbol{y}=\boldsymbol{X\beta}+\boldsymbol{u}$ using OLS and retain the residuals $\hat{u}_i.$  
+(2) Next, estimate the following auxiliary regression:
+  $$
+  \begin{aligned}
+  \hat{u}_i^2=\delta_0+&\delta_1x_{i1}+\dots+x_{iK}+\\
+  &\delta_{K+1}x_{i1}^2+\dots+\delta_{2K}x_{iK}^2+\\
+  &\delta_{2K+1}x_{i1}x_{i2}+\dots+\delta_{(K(K+3)2)}x_{i,K-1}x_{iK}+\text{error},
+  \end{aligned}
+  $$
+  and retain the $R^2$ of this regression.  
+(3) The statistic $NR^2$ is the approximate LM statistic and is $\chi^2_K$-distributed in large samples.
+:::
+
+## White Test
+
+. . . 
+
+$$
+\begin{aligned}
+\hat{u}_i^2=\delta_0+&\delta_1x_{i1}+\dots+x_{iK}+\\
+&\delta_{K+1}x_{i1}^2+\dots+\delta_{2K}x_{iK}^2+\\
+&\delta_{2K+1}x_{i1}x_{i2}+\dots+\delta_{(K(K+3)2)}x_{i,K-1}x_{iK}+\text{error},
+\end{aligned}
+$$
+
+This regression has $(K(K+3)2)$ regressors. [That’s a lot of regressors.]{.fragment} [If $K$ is large and $N$ is small, it might even be too many.]{.fragment}
+
+. . .
+
+An **alternative version** of the White test is:
+
+$$
+\hat{u}_i^2 = \delta_0 + \delta_1\hat{y}_i + \delta_2\hat{y}_i^2+\text{error}.
+$$
+
+:::{.incremental}
+* So we **regress** $\hat{u}_i^2$ on the **fitted values** from step [(1)]{.col1}.
+* Since $\hat{y}_i$ is a linear function of the explanatory variables, $\hat{y}_i^2$ is a specific **function of the squares and cross-products** of the explanatory variables.
+:::
+
+## Tests for Heteroskedasticity in R
+
+. . .
+
+:::{.bitsmall}
+```{webr}
+# Breusch-Pagan Test
+cat("Breusch-Pagan Test:")
+bptest(model_1)
+
+# White Test (alternative form)
+cat("White Test:")
+bptest(model_1, ~ fitted(model_1) + I(fitted(model_1)^2), data = CASchools)
+```
+:::
+
+# Weighted Least Squares
+
+## How Do We Find an Efficient Estimator?
+
+. . .
+
+Assume we have **heteroskedasticity**, but we **know the $\sigma^2_i$**. We want to estimate the following regression:
+
+$$
+y_i = \beta_0+\beta_1x_{i1}+\dots+\beta_Kx_{iK}+u_i,
+$$
+
+but we know that [**OLS is inefficient**]{.col2}.
+
+. . .
+
+However, with the **error variances $\sigma^2_i$**, we can construct an [**efficient estimator**]{.col1}. To do this, we [**divide the regression by $\sigma_i=\sqrt{\sigma^2_i}$**]{.col1}:
+
+$$
+\frac{y_i}{\sigma_i}=\beta_0\frac{1}{\sigma_i}+\beta_1\frac{x_{i1}}{\sigma_i}+\dots+\beta_K\frac{x_{iK}}{\sigma_i}+\frac{u_i}{\sigma_i}
+$$
+
+. . .
+
+**Why** do we do this? [**Because this way we scale the variance so that it is equal for all $i$.**]{.col1}
+
+. . .
+
+* If $\mathrm{Var}(u_i)=\sigma^2_i$, then $\mathrm{Var}(u_i/\sigma_i)=1$. Thus, MLR.5 is satisfied.
+
+## WLS Estimator
+
+. . .
+
+We [**weight**]{.col1} observations with higher variance less than those with lower variance — hence the name **weighted least squares**. In matrix notation:
+
+$$
+\tilde{\boldsymbol{y}} = \tilde{\boldsymbol{X}}\boldsymbol{\beta}_{\mathrm{WLS}}+\tilde{\boldsymbol{u},}
+$$
+
+where $\tilde{\boldsymbol{y}}=\boldsymbol{\Omega}^{-1/2}\boldsymbol{y}$, $\tilde{\boldsymbol{X}}=\boldsymbol{\Omega}^{-1/2}\boldsymbol{X}$, and $\tilde{\boldsymbol{u}}=\boldsymbol{\Omega}^{-1/2}\boldsymbol{u}$; $\boldsymbol{\Omega}=\mathrm{diag}(\sigma_1^2,\dots,\sigma_N^2)$.
+
+. . .
+
+The [**WLS estimator**]{.col1} in this case is:
+
+$$
+\hat{\boldsymbol{\beta}}_{\mathrm{WLS}} = (\tilde{\boldsymbol{X}}'\tilde{\boldsymbol{X}})^{-1}\tilde{\boldsymbol{X}}'\tilde{\boldsymbol{y}}=(\boldsymbol{X}'\boldsymbol{\Omega}^{-1}\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{\Omega}^{-1}\boldsymbol{y}.
+$$
+
+. . .
+
+This [**WLS estimator**]{.col1} is a special case of the **generalized least squares estimator** (GLS). GLS can be used with any variance-covariance matrix $\boldsymbol{\Omega}$, not just the diagonal one above.
+
+## Variance of the WLS Estimator
+
+. . . 
+
+The variance of the [**WLS estimator**]{.col1} is:
+
+$$
+\mathrm{Var}(\hat{\boldsymbol{\beta}}_{\mathrm{WLS}}\mid\boldsymbol{X})=(\tilde{\boldsymbol{X}}'\tilde{\boldsymbol{X}})^{-1} = (\boldsymbol{X}'\boldsymbol{\Omega}^{-1}\boldsymbol{X})^{-1}
+$$
+
+. . .
+
+We can **estimate this variance using $\hat{\boldsymbol{\Omega}}$**. This allows us to obtain **standard errors** for tests. The variance of the [**WLS estimator**]{.col1} is **lower than that of the OLS estimator** (proof omitted):
+
+$$
+\mathrm{Var}(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}\mid\boldsymbol{X})=(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{\Omega}\boldsymbol{X}
+(\boldsymbol{X}'\boldsymbol{X})^{-1}
+$$
+
+## Feasible Generalized Least Squares
+
+. . .
+
+The **problem** is: [We cannot [**estimate**]{.col2} this.]{.fragment} [**GLS (WLS) requires us to know the $\sigma_i^2$**, but we don’t.]{.fragment}
+
+:::{.incremental}
+* But we **can estimate** the $\sigma_i^2$.
+* For example, we can **assume** that
+  $$
+  \sigma_i^2=\sigma^2\mathrm{exp}(\delta_0+\delta_1x_i+\dots+\delta_Kx_K),
+  $$
+  using the exponential function to avoid negative values.
+* We take the log and plug in $\hat{u}_i^2$ for $\sigma_i^2$:
+  $$
+  \mathrm{log}(\hat{u}_i^2)=\alpha_0 +\delta_1x_i+\dots+\delta_Kx_K+\mathrm{error},\qquad\qquad \alpha_0=\mathrm{log}(\sigma^2)+\delta_0
+  $$
+* We call the **fitted values** from this regression $\hat{g}_i$ and use $\hat{\sigma}_i=\sqrt{\mathrm{exp}(\hat{g}_i)}$ as **weights**. The resulting estimator is called [**feasible generalized least squares**]{.col4} (**fGLS**).
+:::
+
+## How Do We Implement fGLS?
+
+. . .
+
+If we want to apply [**feasible generalized least squares**]{.col4}, we can proceed as follows:
+
+:::{.incremental .bitsmall}
+(1) Regress $y$ on $x_1,\dots,x_K$ using OLS and retain the residuals $\hat{u}$.  
+(2) Compute $\mathrm{log}(\hat{u}^2)$ using these residuals.  
+(3) Regress $\mathrm{log}(\hat{u}^2)$ on $x_1,\dots,x_K$ using OLS and retain the fitted values $\hat{g}$.  
+(4) To obtain variance estimates, compute $\hat{\sigma}_i^2=\mathrm{exp}(\hat{g}_i)$.  
+(5) Finally, regress $y$ on $x_1,\dots,x_K$ using WLS, with weights $1/\sqrt{\hat{\sigma}_i\smash{^2}}$.
+:::
+
+. . .
+
+One **remaining problem**: We don’t know the “true” **functional form of the heteroskedasticity**, we’ve only applied one possible form.
+
+:::{.incremental}
+* WLS is only guaranteed to be **efficient** if this form is **correctly specified**.
+* If this is **not the case**, [**fGLS**]{.col4} is still **more efficient than OLS** in **large samples**.
+* Additionally, [**fGLS**]{.col4} is **consistent**, although it is **not unbiased**.
+:::
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+# Appendix
+
+## Variance of the OLS Estimator in the General Case {#appdix1}
+
+$$
+\begin{aligned}
+\mathrm{Var}(\hat{\boldsymbol{\beta}}\mid\boldsymbol{X}) 
+&= \mathrm{Var}\left((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{y}\mid\boldsymbol{X}\right) \\
+&= \mathrm{Var}\left((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'(\boldsymbol{X}\boldsymbol{\beta}+\boldsymbol{u})\mid\boldsymbol{X}\right) \\
+&= \mathrm{Var}\left((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{X}\boldsymbol{\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\mid\boldsymbol{X}\right) \\
+&= \mathrm{Var}\left(\boldsymbol{\beta}+(\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\mid\boldsymbol{X}\right) \\
+&= \mathrm{Var}\left((\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{u}\mid\boldsymbol{X}\right) \\
+&= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\mathrm{Var}(\boldsymbol{u}\mid\boldsymbol{X})\boldsymbol{X}(\boldsymbol{X}'\boldsymbol{X})^{-1} \\
+&= (\boldsymbol{X}'\boldsymbol{X})^{-1}\boldsymbol{X}'\boldsymbol{\Omega}\boldsymbol{X}(\boldsymbol{X}'\boldsymbol{X})^{-1}
+\end{aligned}
+$$
+
+
+:::{.flushright}
+[Back](#var){.butn} 
+:::
+

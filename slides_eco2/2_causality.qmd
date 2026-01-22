@@ -1,0 +1,258 @@
+---
+title: "Module 2: Causality"
+subtitle: "Econometrics II"
+author:
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+date: "2025-10-23"
+date-format: long
+lang: en
+format: 
+  revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+      - appxslideno.lua
+---
+
+# Causality
+
+
+## Causality
+
+* Causality is when one [**cause**]{.col1} leads to some [**effect**]{.col2}. 
+* The [**cause**]{.col1} is partly responsible for the [**effect**]{.col2}, and the [**effect**]{.col2} partly depends on the [**cause**]{.col1}.
+* A **causal** relationship is useful for making [**predictions**]{.col4} about the consequences of changing circumstances or policies; it tells us what would happen in alternative (**counterfactual**) worlds. 
+* e.g. The effect of colonial institutions on economic growth by Acemoglu, Johnson, and Robinson. 
+ 
+Consider a binary treatment X, and outcome Y. We can think of the **causal effect** $\tau$ as the difference in **potential outcomes**: 
+
+$$
+\tau = Y(X=1) - Y(X=0)
+$$
+ 
+ 
+
+## Problem of Causal Inference
+
+In reality, only [**one outcome**]{.col1} is realised, the other is [**counterfactual**]{.col2}. Thus, we have to estimate this missing outcome to learn about the causal effect. 
+
+The potential outcomes framework is called the Neyman-Rubin causal model. 
+
+| *i*   | $X_i$ | $Y_i$ | $Y_i(1)$ | $Y_i(0)$ |
+|------|-------|-------|----------|----------|
+| 1    | 0     | 1     | ?        | 1        |
+| 2    | 0     | 1     | ?        | 1        |
+| 3    | 1     | 1     | 1        | ?        |
+| 4    | 1     | 0     | 0        | ?        |
+| ...  |       |       |          |          |
+| *N*  | 1     | 1     | 1        | ?        |
+
+
+# Identification
+
+## Identification
+
+* We say an effect is **causally identified** if we can interpret it causally in our framework and scope. 
+* If we want to understand the causal impact of studying on income, $y^{inc} = x^{stu} \beta + e$:
+  Studying → Income 
+* We likely run into an issue, as you don't get paid for studying but for your skills: 
+  Studying → Skills → Income
+* Moreover, ability may confound your effect estimates of studying on income, $y^{inc} = x^{stu} \beta + e$, affecting studying, skills, and income. 
+* You cannot identify the causal effect of studying on income. 
+
+## Causal Quantities
+
+* [**Average Treatment Effect:**]{.col1} the average causal effect is simply the mean of all treatment effects
+  $$
+  \tau_{ATE} = \mathrm{E}[\tau_i] = \mathrm{E}[Y(1)-Y(0)]=  \mathrm{E}[Y(1)]- \mathrm{E}[Y(0)]
+  $$
+* [**Conditional Average Treatment Effect:**]{.col2} often, we want to control for some third characteristic $Z_i$: 
+  $$
+  \tau_{CATE} = \mathrm{E}[\tau_i| Z_i = z] 
+  $$
+* [**Average Treatment Effect on the Treated:**]{.col4} we condition on received treatment  $Z_i = X_i = 1$: 
+
+## Average Treatment Effect
+
+* We can use $\mathrm{E}[Y_i(0)] = 0.25$ and $\mathrm{E}[Y_i(1)] = 0.75$ to find that the average treatment effect:
+  $$
+  \tau_{ATE} =   \mathrm{E}[Y(1)]- \mathrm{E}[Y(0)] = 0.5
+  $$
+
+* We can also run an OLS regression and estimate $\tau_{ATE}$ : 
+  $$
+  y= x\tau + e
+  $$
+
+## Ignorability
+
+* A treatment X is [**ignorable**]{.col1} if both potential outcomes are independent of X, the treatment: 
+$$
+(Y(1),Y(0))\perp X
+$$
+
+* When X is [**ignorable**]{.col1}, the treatment is [**randomly assigned**]{.col2} and only affects the outcome Y by either realising Y(0) or Y(1): 
+
+$$
+Y = Y(1)X + Y(0)(1-X)
+$$
+
+* This condition would be violated in the case of targeted assignment of the subjects, or if the subjects select themselves (survey response)
+
+## Conditional Ignorability 
+
+A treatment X is [**ignorable**]{.col1}, conditional on covariates Z, if:
+
+* $(Y(1),Y(0))\perp X|Z$
+* $P(X=1) \in (0,1)$
+
+Potential outcomes are independent of X, conditional on Z, and there are both treated and untreated subjects.
+
+If X is [**ignorable**]{.col1}, we can use the sample averages $\mathrm{E}[Y_i(0)]$ and $\mathrm{E}[Y_i(1)]$ as estimates for Y(0) and Y(1), then the estimate of $\tau_{ATE}$ will be causally identified.
+
+# Randomization
+
+## Randomised Experiment
+
+* We have seen that we can estimate a causal effect if we have access to both the **realised outcomes** and its **counterfactual** or if the treatment is **ignorable**. 
+* Until someone figure a way to use the first option, experiment with [**random assignment**]{.col1} of the treatment is our best option. 
+* [**random assignment**]{.col1} of the treatment solves the selection problem as it makes the treatment independent of potential outcomes.
+* However, even in properly randomized experiment there remains [**threats**]{.col2} to causal inference.
+* The first question to ask is whether the randomization successfully [**balanced subjects' characteristics**]{.col2} across the different treatments groups
+* The second question to ask is whether there is [**sufficient overlap**]{.col2} across the different treatment groups
+* For the moment let's focus on two groups:  [**treated**]{.col4} and  [**control**]{.col4}
+
+## Imbalance
+
+* An [**imbalance**]{.col1} between the treated and control groups occurs when there are differences between the groups i.e, they don't have similar **characteristics**. 
+* [**Imbalance**]{.col1} refers to differences in the distribution of covariates Z between the treatment and the controls. Even if we have [**overlap**]{.col2}, the groups might systematically differ on key covariates. 
+* This is problematic when there are differences in terms of third variables that affect [**outcome Y**]{.col4}
+* With enough data, these imbalances should disappear, otherwise we need to account for them before comparing sample means of the groups. 
+
+## Imbalance (2)
+
+:::{.centering}
+![](figures/Imbalance.png)
+:::
+
+## Imbalance Regression Table 
+
+:::{.centering}
+![](figures/balanced_regression_table.png){width="50%"}
+:::
+
+
+
+## Overlap
+
+* [**Overlap**]{.col2} describes how similar the range of the data is across groups.
+* [**Overlap**]{.col2} means that for every combination of observed covariate Z, there is a non-zero probability of observing both treatment and control. 
+* A lack of [**overlap**]{.col2} means that there are no equivalents in the two groups , and we may have to extrapolate beyond the support of the data. 
+
+:::{.centering}
+![](figures/Overlap.png)
+:::
+
+
+
+## Blocked Experiment
+
+When designing an experiment, we can use **prior information** to get more precise and accurate estimates. Imagine an experiment to test the efficacy of a training program:
+
+* We know that age may be an important factor
+* We could divide the data into different blocks
+* Subjects in a block should have similar ages 
+* **Random assignment** of the treatment happens within an age block
+* This helps us minimize issues with imbalance and overlap by running **several** small experiments
+
+## Blocked Experiment(2)
+
+If we conduct an experiment with B blocks:
+
+* we can estimate the **ATE** within a block $B_b$ by comparing the sample averages and estimate the overall **ATE** by taking a weighted average: 
+
+$$
+\hat{\tau}^b_{ATE}= \mathrm{E}[Y_j(1)] - \mathrm{E}[Y_j(0)]  \text{ where } j\in B_b \\
+\hat{\tau}_{ATE}=\frac{\sum_iN_i \hat{\tau}^i}{\sum_iN_i}
+$$
+
+* Or by estimating a regression with block indicators
+
+$$
+y_i= \alpha + x_i \tau_{ATE} + 𝟙  (i \in B_1)\gamma_1 + ...+ 𝟙  (i \in B_b)\gamma_b + e_i
+$$
+
+## Blocked Experiment(3)
+
+:::{.centering}
+![](figures/blocked_experiment.png){width="70%"}
+:::
+
+# Practice
+
+## Exercise
+
+Below are 2 causal questions:
+
+* How would you answer it?
+* What model to use?
+* What are the issues?
+* What solutions can be applied? 
+
+:::{.callout-tip title="Practice task"}
+1. The effect of media on voting preferences?
+
+2. The effect of gang presence on income? 
+:::
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,582 @@
+---
+title: "Module 1: Introduction"
+subtitle: "Econometrics I"
+author: "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Partly based on a slide set [Simon Heß](https://github.com/simonheb), with additional thanks to [Gustav Pirich](https://github.com/gustavpirich), [Lucas Unterweger](https://github.com/therealLucasPaul) and [Fynn Lohre](https://github.com/VARFynn) for their inputs"
+date: "2025-03-06"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+engine: knitr
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @wooldridge2020
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+# What is Econometrics?
+
+## What is Econometrics?  {auto-animate=true}
+
+::::{.columns}
+:::{.column width="50%" .fragment data-fragment-index="1"}
+<div style="width: 600px; height: 600px; border: 5px solid var(--primary-color-lightened); border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+  Econometrics is a subfield of <strong>economics</strong>. <br><br> We deal with <strong>economic questions</strong>.
+</div>
+:::
+:::{.column width="50%" .fragment data-fragment-index="2"}
+<div style="width: 600px; height: 600px; border: 5px solid var(--secondary-color-lightened); border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+  Econometrics is a kind of <strong>applied statistics</strong>.<br><br>We use statistical methods to <strong>test hypotheses</strong>.
+</div>
+:::
+::::
+
+## What is Econometrics? {auto-animate=true}
+
+::::{.columns}
+:::{.column width="50%"}
+<div style="width: 600px; height: 400px; border: 5px solid var(--primary-color-lightened); border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+  Econometrics is a subfield of <strong>economics</strong>. <br><br> We deal with <strong>economic questions</strong>.
+</div>
+:::
+:::{.column width="50%"}
+<div style="width: 600px; height: 400px; border: 5px solid var(--secondary-color-lightened); border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+  Econometrics is a kind of <strong>applied statistics</strong>.<br><br>We use statistical methods to <strong>test hypotheses</strong>.
+</div>
+:::
+::::
+
+<div style="width: 1235px; height: 160px; border: 5px solid #ccc; border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+  Econometrics differs from mathematical statistics mainly in its focus on the problems associated with the use of <strong>non-experimental data</strong>.
+</div>
+
+## Our Research Question
+
+. . .
+
+What does such an **economic question** look like?
+
+:::{.incremental}
+- Suppose the government is interested in evaluating the effectiveness of government-funded **educational leave**.
+- How do we as economists and econometricians approach this question?
+:::
+
+. . .
+
+We need to think carefully about what specific question we want to investigate.
+
+:::{.incremental}
+- In order to test a [**hypothesis**]{.col1} using [**data**]{.col2}, we need both [**data**]{.col2} and a [**hypothesis**]{.col1}.
+  - We can derive the hypothesis from a formal **economic model**, for example.
+  - We can **collect** data, or we can use data that someone has already collected. This data typically needs to be **processed**.
+:::
+
+## Our Model
+
+. . .
+
+We could formulate our question like this:
+
+. . .
+
+If a worker takes advantage of [**educational leave**]{.col1b}, does their [**wage**]{.col2b} increase over the course of their career?
+
+. . .
+
+We assume the following **model**:
+
+$$
+\mathrm{Wage} = f\left(\mathrm{Education},\mathrm{Experience},\mathrm{Talent},\mathrm{EducationalLeave},\dots\right)
+$$
+
+. . .
+
+Wages depend on our **variable of interest**, the use of educational leave, but also on a number of **other factors**.
+
+. . .
+
+How does the variable education differ from the variable talent?
+
+. . .
+
+- We can easily **observe** how much education a person has, but not how much talent.
+- Our outcome (the wage) is therefore influenced by both **observed** and **unobserved** variables.
+
+## Why Do We Do This?
+
+::::{.columns}
+:::{.column width="50%"}
+::: {.fragment data-fragment-index="1"}
+<div style="width: 600px; height: 275px; border: 5px solid var(--primary-color-lightened); border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+<strong>Test and falsify economic theories</strong><br>Do households save more when interest rates rise?<br>Do countries converge to a common equilibrium?
+</div>
+:::
+::: {.fragment data-fragment-index="2"}
+<div style="width: 600px; height: 275px; border: 5px solid var(--secondary-color-lightened); border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+<strong>Quantify relationships between economic variables</strong><br>What is the causal effect of education on wages?<br>How large is the average gender pay gap?
+</div>
+:::
+:::
+:::{.column width="50%"}
+::: {.fragment data-fragment-index="3"}
+<div style="width: 600px; height: 275px; border: 5px solid var(--tertiary-color-lightened); border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+<strong>Evaluate policy measures</strong><br>Does a minimum wage reduce unemployment?<br>Does a reduction in class size have different effects on male and female students?
+</div>
+:::
+::: {.fragment data-fragment-index="4"}
+<div style="width: 600px; height: 275px; border: 5px solid var(--quarternary-color-lightened); border-radius: 20px; display: flex; justify-content: center; align-items: center; text-align: center; margin: auto; margin-top: 10px; font-family: 'Inter', sans-serif;">
+<strong>Predictions and forecasts</strong><br>How much will GDP grow next year?<br>How volatile will stock markets be next week?
+</div>
+:::
+:::
+::::
+
+## A Practical Example
+
+. . .
+
+Suppose we are tasked with investigating:
+
+:::{.centering}
+[**Does the average class size in a district influence test performance?**]{.col1b}
+:::
+
+... and if so, by how much?
+
+. . .
+
+As before, we can assume there are both **observed** and **unobserved** influencing factors.
+
+. . .
+
+::::{.columns}
+:::{.column width="50%"}
+#### Observed Influencing Factors
+:::{.incremental}
+- Average household income in the district
+- Average reading competence
+- Share of students who do not speak the language of instruction at home
+- ...
+:::
+:::
+:::{.column width="50%"}
+#### Unobserved Influencing Factors
+:::{.incremental}
+- Average student motivation
+- Average teacher motivation
+- ...
+:::
+:::
+::::
+
+## What a Coincidence, There’s a Dataset for That
+
+. . .
+
+`CASchools` is a dataset on math and reading test scores from 420 California schools in 1999. So let's create **a plot**.
+
+. . .
+
+First, we prepare our data.
+
+```{webr}
+# Load packages
+library(AER) # Contains our dataset
+library(dplyr) # Contains mutate()
+
+# Load data
+data("CASchools")
+
+# Compute variables with mutate()
+CASchools <- CASchools |>
+  mutate(student_teacher_ratio = students / teachers,
+         test_score = (read + math)/2)
+```
+
+## A Plot
+
+```{webr}
+#| fig-height: 4.5
+plot(CASchools$student_teacher_ratio, CASchools$test_score,
+     xlab="Class Size", ylab="Test Scores")
+# abline(lm(test_score~student_teacher_ratio, data = CASchools), col="red")
+```
+
+## Interpretation
+
+[What does this plot tell us?]{.fragment data-fragment-id="2"} [**Not much.**]{.col2 .fragment data-fragment-id="2"}
+
+:::{.incremental}
+- The data is quite **noisy**.
+- If we draw a line through it, it slopes slightly downward.
+- What does that tell us?
+  - [**Not much.**]{.col2} 🙃
+- Are average scores different in districts with class sizes > 22?
+:::
+
+. . .
+
+::::{.columns}
+:::{.column width="50%"}
+
+```{webr}
+CASchools[CASchools$student_teacher_ratio > 22,]$test_score |>
+  mean()
+
+CASchools[CASchools$student_teacher_ratio <= 22,]$test_score |>
+  mean()
+```
+:::
+:::{.column width="50%"}
+:::{.incremental}
+- In districts with a student-teacher ratio over 22, the average test score is slightly lower.
+- What does that tell us?
+  - Again, [**not much**.]{.col2}
+:::
+:::
+::::
+
+## Why “not much”? There’s a line, right?
+
+. . .
+
+We face two major problems with this analysis:
+
+:::{.incremental}
+- Our estimate comes with **uncertainty**.
+  - 383 districts have a student-teacher ratio of ≤ 22, only 37 have > 22.
+  - We can be **much more confident** in the mean of the larger subsample than the smaller.
+  - Whenever we analyze **samples**, we deal with uncertainty.
+- We can't say anything about **causality**.
+  - Why are results worse in high-ratio districts?
+  - Would they improve if we changed the ratio?
+  - Or are the students in those districts different?
+  - If they are different, then they likely differ in both observed *and* unobserved characteristics.
+:::
+
+## So What Do We Do in Econometrics?
+
+:::{.incremental}
+- It’s not enough to simply analyze **economic data** using **statistical methods**.
+- We must also think **carefully** about how we analyze and interpret the data.
+  - That starts with **data collection**,
+  - involves deciding **which methods** we use and **how** we apply them,
+  - and includes the **interpretation** of our results.
+:::
+
+. . .
+
+:::{.nicebox1}
+In **Econometrics I**, **Econometrics II**, and **Applied Econometrics**, we learn step by step how to address these issues. By the end of these three courses, we are able to **independently answer econometric research questions**.
+:::
+
+# Causality
+
+## Just Semantics?
+
+<br>
+
+::::{.columns}
+:::{.column width="50%" .fragment data-fragment-index="1"}
+:::{.nicebox1}
+One **additional year of education** [leads to]{.fragment .custom .col2f .quitelargef data-fragment-index="4"} an average **20% increase in wages**.
+:::
+:::
+:::{.column width="50%" .fragment data-fragment-index="2"}
+:::{.nicebox2}
+People who have **one more year of education** earn on average **20% more**.
+:::
+:::
+::::
+
+:::{.nicebox0 height="150px" .fragment data-fragment-index="3"}
+Do these **two statements** mean the **same thing**?  [[**No.** 🙃]{.col2 .quitelarge}]{.fragment data-fragment-index="5"}
+:::
+
+## Causal Effects {auto-animate=true}
+
+. . .
+
+As economists, we are often interested in **causal effects**, where [**one variable**]{.col1} affects [**another variable**]{.col2}.
+
+:::{.incremental}
+- how does [**price**]{.col1} affect [**demand**]{.col2} for a product?
+- how does a particular [**policy measure**]{.col1} affect [**unemployment**]{.col2}?
+- how does the use of [**fertilizer**]{.col1} affect [**agricultural yields**]{.col2}?
+:::
+
+. . .
+
+:::{.callout-note title="Informal Definition: Causality"}
+We speak of a **causal effect** when the isolated change of a variable has a **direct, measurable effect** on another variable.
+:::
+
+. . .
+
+Let’s take the example of [**fertilizer**]{.col1} and [**agricultural yields**]{.col2}. How could we isolate a **causal effect** here?
+
+## Experiments (1) {auto-animate=true}
+
+Let’s take the example of [**fertilizer**]{.col1} and [**agricultural yields**]{.col2}. How could we isolate a **causal effect** here?
+
+. . .
+
+::::{.columns}
+:::{.column width="40%"}
+<br>
+```{r}
+#| fig-width: 6
+#| fig-height: 6
+
+set.seed(123)
+grid_size <- 10
+total_cells <- grid_size * grid_size
+red_indices <- sample(1:total_cells, 50)
+color_matrix <- matrix("#6b522d", nrow = grid_size, ncol = grid_size)
+color_matrix[red_indices] <- "#689acc"
+
+par(mar = c(0, 0, 0, 0))
+plot(NULL, xlim = c(0, grid_size), ylim = c(0, grid_size), xaxt = 'n', yaxt = 'n',
+     xlab = "", ylab = "", asp = 1, bty = "n")
+
+for (i in 1:grid_size) {
+  for (j in 1:grid_size) {
+    rect(i - 1, j - 1, i, j, col = color_matrix[i, j], border = "black", lwd = 1)
+  }
+}
+```
+:::
+:::{.column width="60%" .incremental}
+- Let’s do an **experiment**!
+- We have a square **field** divided into 100 subplots.
+- We **randomly** choose 50 plots to fertilize.
+- At the end, we measure yields and compare the groups.
+:::
+::::
+
+## Experiments (2) {auto-animate=true}
+
+Let’s take the example of [**fertilizer**]{.col1} and [**agricultural yields**]{.col2}. How could we isolate a **causal effect** here?
+
+:::{.callout-note title="Randomized Controlled Trials (RCTs)"}
+We assign an intervention to a **randomly selected** study group. A **control group** does not receive the intervention. Such a study approximates a natural science **experiment**.
+:::
+
+. . .
+
+Under certain **assumptions**, our results are valid:
+
+:::{.incremental}
+- Yields are also influenced by other variables. We assume that the **expectation** of those variables does not differ between groups.
+  - That’s why we randomize the groups.
+- We also assume that using fertilizer has **no effect on neighboring subplots**.
+  - Is that assumption realistic in the setting we thought about?
+:::
+
+## Sounds good, let's just do more experiments {auto-animate=true}
+
+. . .
+
+We can’t always run an **experiment** (RCT or lab experiment). There are
+
+:::{.incremental}
+- practical reasons,
+- financial reasons,
+- legal reasons, and
+- ethical reasons.
+:::
+
+. . .
+
+@coville2020 want to find out if people who haven’t paid their water bills pay faster when their water is shut off.
+
+:::{.incremental}
+- They randomly select, among households in Nairobi with payment issues, households where the water is shut off.
+- Because customers signed a contract that includes this as a last resort, the authors interpret this as informed consent.
+:::
+
+## Sounds good, let's just do more experiments {auto-animate=true}
+
+@coville2020 want to find out if people who haven’t paid their water bills pay faster when their water is shut off.
+
+- They randomly select households in Nairobi with payment issuesand shut off their water access.
+- Customers signed a contract that includes this measure as a last resort. The authors interpret this as informed consent.
+
+. . .
+
+@cohen2008 examine whether co-payments for malaria nets reduce “wasteful” usage.
+
+:::{.incremental}
+- They randomize the price (from 0 to 40 Kenyan shillings) at which malaria nets are distributed to pregnant women.
+- They find no evidence that lack of cost leads to wasteful use.
+:::
+
+## Sounds good, let's just do more experiments {auto-animate=true}
+
+@cohen2008 examine whether co-payments for malaria nets reduce “wasteful” usage.
+
+- They randomize the price (from 0 to 40 Kenyan shillings) at which malaria nets are distributed to pregnant women.
+- They find no evidence that lack of cost leads to wasteful use.
+
+:::{.nicebox1 style="height: 300px;"}
+In many cases, conducting an experiment is **unrealistic**. In other cases, it is **ethically questionable**.<br><br>So we often rely on **observational data**.
+:::
+
+## Observational Data
+
+. . .
+
+Experiments are becoming more common in economic research, but like other social sciences, we usually work with **observational data**.
+
+:::{.incremental}
+- Observational data is **non-experimental**, i.e. not generated through a lab or RCT experiment.
+- We can obtain it from many sources: **surveys**, **administrative data**, **satellite data**, ...
+:::
+
+. . .
+
+::::{.columns}
+:::{.column width="50%"}
+#### Advantages
+::: {.incremental}
+- Often large **scale**, sometimes covering the entire population of a country.
+- Reflects **real behavior**.
+:::
+:::
+:::{.column width="50%"}
+#### Disadvantages
+:::{.incremental}
+- Not collected **specifically for the study**, so isolating the effect of interest is harder.
+- Under certain assumptions and in specific situations, we can still investigate **causal effects**.
+:::
+:::
+::::
+
+# Structure of Econometric Data
+
+## Observations {auto-animate=true}
+
+. . .
+
+Back to our **model** for educational leave:
+
+$$
+\mathrm{Wage} = f\left(\mathrm{Education},\mathrm{Experience},\mathrm{Talent},\mathrm{EducationalLeave,\dots}\right)
+$$
+
+. . . 
+
+What would a **dataset** look like for studying such a question?
+
+. . .
+
+:::{data-id="tab1" .bitsmall}
+| [**?**]{.col2 .quitelarge} | Wage | Education | Experience | Educational Leave |
+|----------------|-----:|-----------:|----------:|---------------:|
+| 1              |   15 |         12 |         9 |           Yes |
+| 2              |   21 |         14 |         2 |            No |
+| 3              |   14 |         11 |         7 |            No |
+| 4              |   18 |          9 |        22 |            No |
+| 5              |  ... |        ... |       ... |           ... |
+: {.striped}
+:::
+
+In this dataset, [**columns are variables**]{.col1} and [**rows**]{.col2} are [**observations**]{.col2}.
+
+## Cross-Sectional Data {auto-animate=true}
+
+:::{data-id="tab1" .bitsmall}
+| [**Individuals**]{.col2 .bitlarge} | Wage | Education | Experience | Educational Leave |
+|----------------|-----:|-----------:|----------:|---------------:|
+| i = 1              |   15 |         12 |         9 |           Yes |
+| i = 2              |   21 |         14 |         2 |            No |
+| i = 3              |   14 |         11 |         7 |            No |
+| i = 4              |   18 |          9 |        22 |            No |
+| i = 5              |  ... |        ... |       ... |           ... |
+: {.striped}
+:::
+
+. . .
+
+:::{.callout-note title="Cross-Sectional Data"}
+**Cross-sectional data** consists of a sample of individuals, households, firms, cities, countries, etc., for which data is collected at **one point in time**. We use index $i$ for each observation. The number of observations is denoted $N$.
+:::
+
+. . .
+
+- *As a rule*, we assume the sample is **randomly drawn** from a population.
+
+## Time Series Data {auto-animate=true}
+
+:::{data-id="tab1" .bitsmall}
+| [**Time Points**]{.col2 .bitlarge} | Wage | Education | Experience | Educational Leave |
+|----------------|-----:|-----------:|----------:|---------------:|
+| t = 2021              |   0 |         8 |         0 |            No |
+| t = 2022              |   0 |         9 |         0 |            No |
+| t = 2023              |  12 |        10 |         1 |            No |
+| t = 2024              |  14 |        10 |         2 |           Yes |
+| t = 2025              |  ... |        ... |       ... |           ... |
+: {.striped}
+:::
+
+. . .
+
+:::{.callout-note title="Time Series Data"}
+**Time series data** consists of a sequence of time points at which data is collected on the **same individual** or unit. We use index $t$ for each observation. The number of observations is denoted $T$.
+:::
+
+. . .
+
+- We cannot assume a random sample here. Later observations **depend on earlier ones**.
+
+## Panel Data {auto-animate=true}
+
+:::{data-id="tab1" .bitsmall}
+| [**Individuals**]{.col2 .bitlarge} | [**Time Points**]{.col2 .bitlarge} | Wage | Education | Experience | Educational Leave |
+|-----------|----------------|-----:|-----------:|----------:|---------------:|
+| i = 1  | t = 2023              |   20 |         14 |         1 |            No |
+| i = 2  | t = 2023              |   12 |         10 |         1 |            No |
+| i = 1  | t = 2024              |   21 |         14 |         2 |            No |
+| i = 2  | t = 2024              |   14 |         10 |         2 |            No |
+| i = 1  | t = 2025              |  ... |        ... |       ... |           ... |
+: {.striped}
+:::
+
+. . .
+
+:::{.callout-note title="Panel Data"}
+**Panel data** includes both a cross-sectional and time component. Each observation is indexed by $i$ and $t$. We observe $N$ units over $T$ periods, for a total of $NT$ observations.
+:::
+
+. . .
+
+- A major advantage of panel data is that we can account for certain kinds of unobserved variation.
+
+## Literature
+
+<br>
+
+::: {#refs}
+:::

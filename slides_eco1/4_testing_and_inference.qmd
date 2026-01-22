@@ -1,0 +1,981 @@
+---
+title: "Module 4: Testing and Inference"
+subtitle: "Econometrics I"
+author: "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+date: "2025-05-08"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+engine: knitr
+execute: 
+  cache: false
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @wooldridge2020
+---
+
+{{< include "./_extensions/r-wasm/live/_knitr.qmd" >}}
+
+
+# Introduction
+
+## Motivation 
+
+. . .
+
+In **Module 2** (and 3), we took a closer look at what it means for our OLS estimator to be a [**random variable**]{.col1}. We determined the **expected value** and **variance** of the estimator and also conducted the following simulation:
+
+. . .
+
+::::{.columns}
+:::{.column width="50%"}
+``` {r}
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 5
+
+library(scales)
+set.seed(12346)
+pop<-5000               #population
+x <- runif(pop) * 2     #some variable between 0 and 2
+y <- 0+x+0.5*rnorm(pop) #beta0 = 0, beta1=1, sigma=0.5
+samples <- c(rep(0.006,4000)) #draw 4k samples of size 0.6% of the pop
+#estimate 4k regression lines on 4k samples
+beta1 <- c() #prepare an empty list
+plot(x, y, col = alpha("grey", 0.1), pch = 19,        #prepare plot
+     xlim = 1 + c(-1.05, 1.05),ylim=1 + c(-1.4, 1.4))
+for (i in seq_along(samples)) {
+  sample_i <- sample(1:pop,pop * samples[i])
+  ols <- lm(y[sample_i] ~ x[sample_i])
+  abline(reg=ols, col=alpha("#4072C2",1/sqrt(sqrt(i))), lwd = 1.5)
+  beta1 <- c(beta1, coefficients(ols)[2])  #add beta to the list
+}
+abline(b=1, col = "black")
+```
+:::
+:::{.column width="50%"}
+``` {r}
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 5
+hist(beta1, main = "")
+```
+:::
+::::
+
+## Motivation 
+
+. . .
+
+For everything we discuss in this chapter, we need more than just the two moments of expected value and variance. We must ask ourselves: [**What is the sampling distribution of the OLS estimator?**]{.col4}
+
+. . .
+
+Why do we need information about this distribution? [In **Module 1** we said:]{.fragment}
+
+:::{.fragment}
+> In order to test a [**hypothesis**]{.col1} using [**data**]{.col2}, we need [**data**]{.col2} and a [**hypothesis**]{.col1}.
+:::
+
+:::{.incremental}
+* Ideally, we have a **theory** from which we can derive a [**falsifiable hypothesis**]{.col1}.
+* Then we can try to empirically [**test**]{.col2} this [**hypothesis**]{.col1}.
+:::
+
+## Hypothesis Tests
+
+. . .
+
+But how do we **test** a [**hypothesis**]{.col1}? [Suppose we want to know whether the parameter $\beta_1$ is not equal to zero, i.e., whether the corresponding variable $x_1$ has an effect on $y$.]{.fragment}
+
+:::{.incremental}
+* **First idea**: We estimate our model using OLS and check whether the absolute value of the estimate $|\hat{\beta}_1|>0$.
+  * This **idea** is a [**bad idea**.]{.fragment}
+  * **Intuition**: We know that there is some **uncertainty** in our estimate. If our estimate is, for example, close to zero and/or the uncertainty is large — how “sure” can we be that our estimate is not just randomly different from zero?
+* **Better idea**: We [**_assume_** that the true $\beta_1$ **equals zero**]{.col4} and try to find out what the [**probability**]{.col2} is that we [still obtain **the estimate we actually got**]{.col2}.
+  * If this probability is small, we can say that it is [**unlikely** to obtain such an estimate]{.col2}, [**if** the true parameter $\beta_1=0$]{.col4}.
+:::
+
+## Hypothesis Tests
+
+. . . 
+
+What we discussed on the previous slide is called a **hypothesis test**. [A bit more formally:]{.fragment}
+
+:::{.incremental}
+(1) We formulate a so-called **null hypothesis**:
+  $$
+  H_0:\beta_1=0.
+  $$
+  From this, we also derive an alternative hypothesis:
+  $$
+  H_A:\beta_1\neq 0.
+  $$
+(2) We assume that the [**null hypothesis is true**]{.col4}, and calculate the probability of [**obtaining the estimate $\hat{\beta}_1$**]{.col2} in this case.
+(3) If this probability is **sufficiently low**, we **reject** the **null hypothesis**.
+:::
+
+## Null and Alternative Hypothesis {auto-animate="true"}
+
+. . .
+
+Why is our null hypothesis $\beta_1=0$ and not $\beta_1\neq 0$? 
+
+:::{.incremental}
+* On one hand, classical statistical tests only allow us to **test whether $\beta_0$ is a specific value**, for example 0. 
+  * We said we assume the null hypothesis is true, and then calculate the probability of obtaining a specific $\hat{\beta}_1$ under this null hypothesis.
+  * If the null hypothesis is $\beta_1=0$, this is meaningful and intuitive. If $\beta_1=0$, then it's more likely to obtain $\hat{\beta}_1=1$ than $\hat{\beta}_1=5$.
+  * If we had $\beta_1\neq 0$ as the null hypothesis, such thinking would be outright impossible. The discussed probability would be completely different for $\beta_1=12$, $\beta_1=0.000000001$, and $\beta_1=-10^6$.
+:::
+
+## Rejecting Doesn't Mean Confirming the Opposite {auto-animate="true"}
+
+Why is our null hypothesis $\beta_1=0$ and not $\beta_1\neq 0$? 
+
+:::{.incremental}
+* Furthermore, with statistical tests, we can **never confirm a hypothesis**, only **reject** it.
+  * We want to find out whether $x_1$ has an effect on $y$.
+  * If our **null hypothesis** is that it has **no effect** ($\beta_1=0$), then **rejecting this hypothesis** gives us an important clue that the variable may have an effect.
+  * But we can **never confirm** that a variable has an effect — we can only **reject** the hypothesis that it has no effect.
+  * This is because when rejecting a hypothesis, we settle for a **sufficiently small probability**, but this probability is never 0.
+:::
+
+. . .
+
+In any case, for this testing procedure we need **information about the sampling distribution of $\hat{\beta}_1$**, so we will first deal with that before returning to hypothesis tests.
+
+# Small Samples
+
+## Moments vs. Distribution#
+
+. . .
+
+Using the **assumptions MLR.1 through MLR.5**, we were able to make statements about the expected value and variance of the OLS estimator.
+
+. . .
+
+::::{.columns}
+:::{.column width="50%"}
+
+``` {r}
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 6
+
+set.seed(123)
+
+# Panel layout: 2 rows, 2 columns
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))
+
+# Panel 1: Standard Normal
+x <- seq(-4, 4, length.out = 1000)
+y <- dnorm(x)
+plot(x, y, type = "n", main = "Standard normal dist.", xlab = "", ylab = "Density")
+polygon(c(x, rev(x)), c(y, rep(0, length(y))), col = "#4072c299", border = "black")
+
+# Panel 2: Uniform [-√3, √3]
+x <- seq(-3, 3, length.out = 1000)
+y <- dunif(x, min = -sqrt(3), max = sqrt(3))
+plot(x, y, type = "n", main = "Uniform dist.\nwith [-√3, √3]", xlab = "", ylab = "Density")
+polygon(c(x, rev(x)), c(y, rep(0, length(y))), col = "#ED017D99", border = "black")
+
+# Panel 3: Multimodal (Bimodal mixture of two normals)
+x <- seq(-3, 3, length.out = 1000)
+y <- 0.5 * dnorm(x, mean = 0.8, sd = 0.6) + 0.5 * dnorm(x, mean = -0.8, sd = 0.6)
+plot(x, y, type = "n", main = "Mixture of\nN(0.8, 0.36) and N(-0.8, 0.36)", xlab = "", ylab = "Density")
+polygon(c(x, rev(x)), c(y, rep(0, length(y))), col = "#d18b2a99", border = "black")
+
+# Panel 4: Standardized Exponential (shifted)
+x <- seq(-1, 8, length.out = 1000)
+y <- ifelse(x >= 0, exp(-(x)), 0)
+plot(x, y, type = "n", main = "Standard exponential dist.", xlab = "", ylab = "Density")
+polygon(c(x, rev(x)), c(y, rep(0, length(y))), col = "#74b83d99", border = "black")
+```
+:::
+:::{.column width="50%" .incremental}
+* But this is not enough to make statements about the **distribution**.
+* One example: The four distributions on the left all have a mean of 0 and a variance of 1. 
+* Even under the **Gauss-Markov assumptions**, the distribution of $\hat{\beta}_1$ can take very different shapes.
+* We therefore need an **additional assumption**.
+:::
+::::
+
+## (MLR.6) Normality
+
+. . .
+
+:::{.nicebox1l}
+The error term of the population is independent of the explanatory variables $x_1, \dots, x_K$ and is normally distributed with mean 0 and variance $\sigma^2$:
+
+$$
+u\sim\mathrm{N}\left(0,\sigma^2\right)
+$$
+:::
+
+:::{.incremental}
+* This assumption implies assumptions MLR.4 and MLR.5. We still refer to MLR.1 through MLR.6 to make clear that we assume MLR.6 “in addition.”
+* This assumption is an **extremely strong assumption**. More on that will follow.
+* We refer to MLR.1 through MLR.6 collectively as the **Classical Linear Model assumptions** (**CLM** assumptions).
+* Under the CLM assumptions, OLS is not only BLUE, but also **BUE** (not limited to linear estimators).
+:::
+
+## (MLR.6) Normality
+
+. . .
+
+We can summarize the CLM assumptions about the population as follows:
+
+$$
+y\mid\boldsymbol{x}\sim\mathrm{N}\left(\boldsymbol{x}'\boldsymbol{\beta},\sigma^2\right).
+$$
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+```{r, engine="tikz"}
+#| fig-align: center
+
+\begin{tikzpicture}[thick, scale=0.8]
+% Axes
+\draw[->] (0,0) -- (7,0) node[right] {$x$};
+\draw[->] (0,0) -- (0,5.5) node[above] {$y$};
+
+% Vertical lines
+\draw[dashed] (1,0) -- (1,3);
+\draw[dashed] (3,0) -- (3,4);
+\draw[dashed] (5,0) -- (5,5);
+
+% Normal distributions
+\fill[cyan!20, domain=-3:3, samples=60] plot ({exp(-0.5*\x*\x)+1}, {\x*0.5+1.5}) -- (1,3) -- (1,0) -- cycle;
+\fill[cyan!20, domain=-3:3, samples=60] plot ({exp(-0.5*\x*\x)+3}, {\x*0.5+2.5})  -- (3,4) -- (3,1) -- cycle;
+\fill[cyan!20, domain=-3:3, samples=60] plot ({exp(-0.5*\x*\x)+5}, {\x*0.5+3.5})  -- (5,5) -- (5,2) -- cycle;
+\draw plot[domain=-3:3, samples=60] ({exp(-0.5*\x*\x)+1}, {\x*0.5+1.5});
+\draw plot[domain=-3:3, samples=60] ({exp(-0.5*\x*\x)+3}, {\x*0.5+2.5});
+\draw plot[domain=-3:3, samples=60] ({exp(-0.5*\x*\x)+5}, {\x*0.5+3.5});
+
+
+    
+% Horizontal lines
+\draw[dotted] (1,1.5) -- (2,1.5);
+\draw[dotted] (3,2.5) -- (4,2.5);
+\draw[dotted] (5,3.5) -- (6,3.5);
+
+% Ascending line
+\draw (0,1) -- (6,4);
+
+% Labels
+\node[below] at (1,0) {$x_1$};
+\node[below] at (3,0) {$x_2$};
+\node[below] at (5,0) {$x_3$};
+\end{tikzpicture}
+```
+:::
+:::{.column width="50%" .incremental}
+* The graph on the left illustrates this fact for the **bivariate case** (so the subscripts are $i$, not $k$).
+* Under the CLM assumptions, the $y$ for an observation $i$ are normally distributed with 
+  * mean $\boldsymbol{x}'\boldsymbol{\beta}$ (in the bivariate case on the left, $\beta_1x$), and
+  * constant variance $\sigma^2$.
+:::
+::::
+
+## Does MLR.6 Make Sense?
+
+:::{.incremental}
+* As mentioned earlier, $u\sim\mathrm{N}\left(0,\sigma^2\right)$ is a very **strong assumption**. Can we justify this assumption?
+* One argument: The error term $u$ is a **sum of many unobserved factors** that affect $y$. Therefore, the **central limit theorem** (next slide) can be applied, and $u$ is **approximately normally distributed**.
+  * However, the various factors in $u$ may have **very different distributions**, which worsens the approximation.
+  * Also, nothing guarantees that the individual factors appear **additively** in the error term. This is an even bigger issue.
+* Later, we will discuss why non-normality of the errors is **not a big problem in larger samples**. For now, we will simply assume **normality**.
+  * Sometimes, in smaller samples, **transformations** (e.g., taking logarithms) are used to make the $y$ values resemble a normal distribution more closely.
+:::
+
+## Central Limit Theorem
+
+. . .
+
+The **Central Limit Theorem** (**CLT**) states:
+
+. . .
+
+:::{.nicebox1l}
+Let $\{X_1, X_2, \dots, X_N\}$ be a sequence of independently and identically distributed random variables with mean $\mu$ and variance $\sigma^2$. Then the distribution function of the standardized random variable
+
+$$
+Z_N=\frac{\bar{X}_N-\mu}{\sigma/\sqrt{N}},
+$$
+
+where $\bar{X}_N=\frac{1}{N}\sum^N_{i=1}X_i$, converges in distribution to the distribution function of the **standard normal distribution**.
+:::
+
+:::{.incremental}
+* $Z_n$ is a standardized version of the sample mean.
+* Intuitively: As $N$ increases, the distribution of the sample mean of the $X_i$ converges to a normal distribution.
+:::
+
+## Distribution of the OLS Estimator, Part 1
+
+. . .
+
+:::{.nicebox1l}
+Under the **CLM assumptions** MLR.1 through MLR.6, the OLS estimator, given the sample values of the independent variables, is normally distributed:
+
+$$
+\hat{\beta}_k\sim\mathrm{N}(\beta_k,\mathrm{Var}(\hat{\beta}_k)),
+$$
+
+where $\mathrm{Var}(\hat{\beta}_k)=\frac{\sigma^2}{\sum^N_{i=1}(x_{ik}-\bar{x}_k)^2}\times\frac{1}{1-R^2_k},$ and $R^2_k$ is the $R^2$ from a regression of $x_{k}$ on all other regressors $x_j,j\neq k$.
+:::
+
+:::{.incremental}
+* $\hat{\beta}_k$ is **normally distributed**, any linear combination of the $\hat{\beta}_k$ is also normally distributed, and the joint distribution of a subset of the $\hat{\beta}_j$ is a multivariate normal distribution.
+* The **standardized coefficient** $(\hat{\beta}_k-\beta_k)/\mathrm{sd}(\hat{\beta}_k)$ follows a standard normal distribution.
+:::
+
+# t-Test
+
+## Hypotheses About the OLS Estimator
+
+. . .
+
+In this section, we deal with testing **hypotheses about one parameter** of the population model:
+
+$$
+y = \beta_0 + \beta_1 x_1 + \dots + \beta_K x_K + u
+$$
+
+:::{.incremental}
+* As before: We don't know the $\beta_k$. We can only estimate them.
+* But we can formulate **hypotheses** about the $\beta_k$.
+* Next, we can use statistical inference to **test these hypotheses**.
+:::
+
+## Distribution of the OLS Estimator, Part 2
+
+. . .
+
+::::{.columns}
+:::{.column width="60%"}
+:::{.nicebox1l}
+Under the **CLM assumptions** MLR.1 through MLR.6, the following holds:
+
+$$
+(\hat{\beta}_k-\beta_k)/\mathrm{se}(\hat{\beta}_k) \sim \mathrm{t}_{N-K-1}
+$$
+:::
+
+:::{.incremental}
+* If we replace $\mathrm{sd}(\cdot)$ in the standardized coefficient with $\mathrm{se}(\cdot)$ (i.e., replace $\sigma$ with $\hat{\sigma}$), it no longer follows a standard normal distribution, but a **t-distribution** with $N-K-1$ **degrees of freedom**.
+:::
+:::
+:::{.column width="40%" .fragment}
+``` {r}
+#| fig-align: center
+#| fig-width: 4
+#| fig-height: 4.5
+
+x <- seq(-5, 5, length.out = 1000)
+norm_vals <- dnorm(x)
+t2_vals <- dt(x, df = 2)
+t5_vals <- dt(x, df = 5)
+t10_vals <- dt(x, df = 10)
+
+par(mar = c(3, 3, 1, 1))
+plot(x, norm_vals, type = "l", lwd = 2, col = "black", 
+     ylim = c(0, max(c(norm_vals, t2_vals, t5_vals, t10_vals))), 
+     xlab = "", ylab = "", main = "")
+lines(x, t2_vals, col = "#ED017D", lwd = 3)
+lines(x, t5_vals, col = "#4072c2", lwd = 3)
+lines(x, t10_vals, col = "#74b83d", lwd = 3)
+legend("topright", legend = c("N(0,1)", "t(2)", "t(5)", "t(10)"),
+       col = c("black", "#ED017D", "#4072c2", "#74b83d"), lwd = 3)
+
+
+```
+:::
+::::
+
+. . .
+
+* The **t-distribution** looks very similar to a **standard normal distribution**, but has **fatter tails**. The more degrees of freedom the distribution has, the closer it can be approximated by a normal distribution.
+
+## Null Hypothesis and t-Statistic
+
+. . .
+
+We specify the following **null hypothesis**:
+
+:::{.nicebox1l}
+::::{.columns}
+:::{.column width="30%"}
+$$
+H_0:\beta_k=0
+$$
+:::
+:::{.column width="70%"}
+After accounting for all $x_j,j\neq k$, $x_k$ has **no effect** on $y$.
+:::
+::::
+:::
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+We can test this null hypothesis with the following [**test statistic**]{.col4}:
+
+$$
+t_{\hat{\beta}_k}=\frac{\hat{\beta}_k-\beta_k}{\mathrm{se}(\hat{\beta}_k)}.
+$$
+
+This particular [**test statistic**]{.col4} is called the [**t-statistic**]{.col1}. 
+:::
+:::{.column width="50%" .fragment}
+Under the null hypothesis, $\beta_k=0$ and the [**t-statistic**]{.col1} is
+
+$$
+t_{\hat{\beta}_k}=\frac{\hat{\beta}_k}{\mathrm{se}(\hat{\beta}_k)}.
+$$
+
+This [**t-statistic**]{.col1} is **t-distributed** with mean 0 and $N-K-1$ degrees of freedom.
+
+:::
+::::
+
+## Two-Sided Hypothesis Tests
+
+::::{.columns}
+:::{.column width="43%" .nostretch .fragment}
+<br>
+``` {r}
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 7
+
+x <- seq(-5, 5, length.out = 1000)
+df <- 25
+y <- dt(x, df = df)
+
+par(mar = c(3, 3, 1, 1), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5, lwd = 2)
+plot(x, y, type = "n", ylim = c(0, max(y)), xlab = "", ylab = "", main = "", lwd = 3)
+
+x_left <- seq(min(x), -2.06, length.out = 500)
+y_left <- dt(x_left, df = df)
+polygon(c(min(x_left), x_left, -2.06), c(0, y_left, 0), col = "#4072c299", border = NA)
+
+x_right <- seq(2.06, max(x), length.out = 500)
+y_right <- dt(x_right, df = df)
+polygon(c(2.06, x_right, max(x_right)), c(0, y_right, 0), col = "#4072c299", border = NA)
+
+lines(x, y, lwd = 2, col = "black")
+
+segments(-2.06, 0, -2.06, dt(-2.06, df = df), col = "#ED017D", lwd = 2)
+segments(2.06, 0, 2.06, dt(2.06, df = df), col = "#ED017D", lwd = 2)
+
+segments(0, 0, 0, dt(0, df = df), col = "#4072c2", lwd = 2)
+
+```
+:::
+:::{.column width="57%" .incremental}
+* We are testing the null hypothesis, $\beta_k=0$, against a **two-sided alternative**, $\beta_k\neq 0.$
+* In the plot on the left, a $t$-distribution with 25 degrees of freedom is shown. 
+* [**If the null hypothesis is true**]{.col4}, then [**the t-statistics of the estimators we get**]{.col2} should be distributed as shown on the left.
+* The idea is: If our [**actual t-statistic**]{.col2} is so “extreme” (i.e., so large or so small) that it falls into the blue [**rejection regions**]{.col1} of this distribution, then we consider it **unlikely** that the null hypothesis is true and **reject it**.
+:::
+::::
+
+## When Do We Reject the Null Hypothesis?
+
+::::{.columns}
+:::{.column width="43%" .nostretch}
+<br>
+``` {r}
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 7
+
+x <- seq(-5, 5, length.out = 1000)
+df <- 25
+y <- dt(x, df = df)
+
+par(mar = c(3, 3, 1, 1), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5, lwd = 2)
+plot(x, y, type = "n", ylim = c(0, max(y)), xlab = "", ylab = "", main = "", lwd = 3)
+
+x_left <- seq(min(x), -2.06, length.out = 500)
+y_left <- dt(x_left, df = df)
+polygon(c(min(x_left), x_left, -2.06), c(0, y_left, 0), col = "#4072c299", border = NA)
+
+x_right <- seq(2.06, max(x), length.out = 500)
+y_right <- dt(x_right, df = df)
+polygon(c(2.06, x_right, max(x_right)), c(0, y_right, 0), col = "#4072c299", border = NA)
+
+lines(x, y, lwd = 2, col = "black")
+
+segments(-2.06, 0, -2.06, dt(-2.06, df = df), col = "#ED017D", lwd = 2)
+segments(2.06, 0, 2.06, dt(2.06, df = df), col = "#ED017D", lwd = 2)
+
+segments(0, 0, 0, dt(0, df = df), col = "#4072c2", lwd = 2)
+
+```
+:::
+:::{.column width="57%" .incremental}
+* In the graph on the left, the [**rejection region**]{.col1}, where we reject the null hypothesis, has a [**total area of 0.05**]{.col1}. We call 0.05 the [**significance level**]{.col1}.
+* For a t-distribution with 25 degrees of freedom, this yields [**critical values of -2.06 and 2.06**]{.col2}.
+* So if the absolute value of the t-statistic is greater than 2.06, we reject the null hypothesis.
+* The threshold of 2.06 depends on:
+  * the number of **degrees of freedom**, and
+  * the [**significance level**]{.col1}.
+:::
+::::
+
+## What Is a Significance Level?
+
+:::{.incremental}
+* We chose a [**significance level of 0.05** (or 5%)]{.col1}. This means that
+  * [**if the null hypothesis is true**]{.col4}, we will [**falsely reject it in 5% of cases**]{.col2};
+  * because under the null hypothesis, there is a 5% chance that the t-statistic is greater than 2.06 in absolute value; and in these cases we always reject the null.
+  * This is called a **type 1 error**, or false positive. We set the probability for this error ourselves via the significance level.
+  * The probability of a **type 2 error**, a false negative (we do not reject the null although it is false), is harder to determine.
+* [**0.05**]{.col1} is the most commonly used [**significance level**]{.col1}; other frequently used levels are [**0.10**]{.col1}, [**0.025**]{.col1}, [**0.01**]{.col1}, [**0.001**]{.col1}, ...
+  * The **critical values** for a given level and number of degrees of freedom can be obtained from a table or statistical software.
+:::
+
+## Testing More Specific Hypotheses
+
+::::{.columns}
+:::{.column width="43%" .nostretch .fragment}
+<br>
+``` {r}
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 7
+
+x <- seq(-5, 5, length.out = 1000)
+df <- 25
+y <- dt(x, df = df)
+
+par(mar = c(3, 3, 1, 1), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5, lwd = 2)
+plot(x, y, type = "n", ylim = c(0, max(y)), xlab = "", ylab = "", main = "", lwd = 3)
+
+x_left <- seq(min(x), -1.734, length.out = 500)
+y_left <- dt(x_left, df = df)
+polygon(c(min(x_left), x_left, -1.734), c(0, y_left, 0), col = "#4072c299", border = NA)
+
+lines(x, y, lwd = 2, col = "black")
+
+segments(-1.734, 0, -1.734, dt(-1.734, df = df), col = "#ED017D", lwd = 2)
+
+segments(0, 0, 0, dt(0, df = df), col = "#4072c2", lwd = 2)
+
+```
+:::
+:::{.column width="57%" .incremental}
+* We can also perform a **one-sided t-test**, e.g. with 
+  $$
+  H_0:\beta_k\geq 0, \qquad H_A:\beta_k<0.
+  $$
+* In a one-sided test, the entire rejection region is on one side, and the critical value for the same significance level and degrees of freedom is different.
+* We can also perform both **one- and two-sided tests** with **other null hypotheses**, e.g. $H_0:\beta_k=1$. The distribution of the t-statistic does not change.
+:::
+::::
+
+## p-Values
+
+::::{.columns}
+:::{.column width="43%" .nostretch .fragment}
+<br>
+``` {r}
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 7
+
+x <- seq(-5, 5, length.out = 1000)
+df <- 25
+y <- dt(x, df = df)
+
+par(mar = c(3, 3, 1, 1), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5, lwd = 2)
+plot(x, y, type = "n", ylim = c(0, max(y)), xlab = "", ylab = "", main = "", lwd = 3)
+
+x_left <- seq(min(x), -2.06, length.out = 500)
+y_left <- dt(x_left, df = df)
+polygon(c(min(x_left), x_left, -2.06), c(0, y_left, 0), col = "#4072c299", border = NA)
+
+x_right <- seq(2.06, max(x), length.out = 500)
+y_right <- dt(x_right, df = df)
+polygon(c(2.06, x_right, max(x_right)), c(0, y_right, 0), col = "#4072c299", border = NA)
+
+lines(x, y, lwd = 2, col = "black")
+
+segments(-2.06, 0, -2.06, dt(-2.06, df = df), col = "#4072c2", lwd = 2)
+segments(2.06, 0, 2.06, dt(2.06, df = df), col = "#4072c2", lwd = 2)
+
+segments(0, 0, 0, dt(0, df = df), col = "#4072c2", lwd = 2)
+
+x_left <- seq(min(x), -2.5, length.out = 500)
+y_left <- dt(x_left, df = df)
+polygon(c(min(x_left), x_left, -2.5), c(0, y_left, 0), col = "#ED017D99", border = NA)
+
+x_right <- seq(2.5, max(x), length.out = 500)
+y_right <- dt(x_right, df = df)
+polygon(c(2.5, x_right, max(x_right)), c(0, y_right, 0), col = "#ED017D99", border = NA)
+
+segments(-2.5, 0, -2.5, dt(-2.5, df = df), col = "#ED017D", lwd = 2)
+segments(2.5, 0, 2.5, dt(2.5, df = df), col = "#ED017D", lwd = 2)
+
+segments(0, 0, 0, dt(0, df = df), col = "#4072c2", lwd = 2)
+
+```
+:::
+:::{.column width="57%" .incremental}
+* Suppose we conduct a test as before $(\alpha=0.05,\mathrm{df}=25)$ and obtain a t-statistic of $t=2.5$.
+* In the plot on the left, the region [**with “more extreme” t-statistics than 2.5**]{.col2} (i.e., $|t|>2.5$) is [**marked in pink**]{.col2}.
+* The **probability of obtaining a “more extreme” t-statistic** than 2.5 is [**0.019**]{.col2}. This is the **total area of both pink regions**.
+* We call this value the [**p-value**]{.col2}. The p-value makes interpretation easier: we don’t need to know a critical value, just check whether the p-value is smaller than the significance level. If it is, we reject the null hypothesis.
+:::
+::::
+
+## p-Values and Significance: Interpretation
+
+:::{.incremental}
+* If the [**p-value**]{.col2} is smaller than the chosen [**significance level**]{.col1}, we **reject the null hypothesis.** 
+* Suppose the p-value for $\beta_2$ is 0.03 and the significance level is 0.05. Then we can **say**:
+  * $x_2$ is **statistically significant** at a 0.05 (or 5%) significance level.
+  * $\beta_2$ is **statistically significantly different from zero** at a 0.05 significance level.
+  * We **reject the null hypothesis** at a 0.05 significance level.
+  * At a significance level of 3%, the test would be indifferent between rejection and non-rejection.
+* The following statements are [**false**]{.col2} and we **cannot say them**:
+  * We accept the alternative hypothesis.
+  * The probability that the null hypothesis is true is 3%.
+  * \[...\] at a 0.95 significance level.
+  * We are 97% confident that $x_2$ has an effect.
+:::
+
+## Statistical vs. “Economic” Significance
+
+:::{.incremental}
+* So far, we have focused on whether a variable is [**statistically significant**]{.col1}.
+  * Statistical significance depends solely on the **t-statistic** associated with a coefficient.
+* Another important concept for interpretation is [**economic**]{.col4} or [**practical significance**]{.col4}.
+  * The idea: Not every statistically significant variable is also an important factor affecting $y$.
+  * We begin by checking statistical significance.
+  * If a variable is statistically significant, we can next check the magnitude of the coefficient.
+  * If the coefficient is very close to zero, the variable has little effect on $y$, even if it is statistically significant.
+  * A variable that is statistically significant and has a meaningfully large effect can be interpreted as “statistically and economically significant.”
+* So for **interpretation**, it is always important to also consider the **size** of the coefficient.
+:::
+
+## Confidence Intervals
+
+. . .
+
+Under the **CLM assumptions**, we can also calculate a [**confidence interval**]{.col1} for a population parameter $\beta_k$. We’ll discuss this using a 95% confidence interval as an example.
+
+:::{.incremental}
+* We can **interpret** a 95% confidence interval as follows: If we repeatedly draw samples and compute the confidence interval, it will contain the true parameter in 95% of cases.
+* We [**cannot**]{.col2} say that the parameter (of the population) falls within the interval in 95% of cases, since the confidence interval changes, and **not** the parameter.
+* The 95% confidence interval for a parameter $\beta_k$ is:
+  $$
+  \left[\hat{\beta}_k-c\times\mathrm{se}(\hat{\beta}_k),\quad \hat{\beta}_k+c\times\mathrm{se}(\hat{\beta}_k)\right],
+  $$
+  where $c$ is the 97.5th percentile of a $t_{N-K-1}$ distribution.
+:::
+
+# F-Test
+
+## How Many Restrictions Do We Want to Test? {auto-animate="true"}
+
+. . .
+
+With the **t-test**, we were able to impose a single **restriction** on our model, e.g.
+
+$$
+\beta_1=0,
+$$
+
+and test this restriction.
+
+. . .
+
+But what if we want to test **multiple restrictions jointly**? For example, we may be interested in whether a particular group of independent variables collectively has no effect on $y$:
+
+$$
+\beta_1=0,\beta_2=0,\beta_3=0.
+$$
+
+To test such restrictions, we need a different test: the [**F-test**]{.col1}.
+
+## Multiple Restrictions: Hypotheses {auto-animate="true"}
+
+$$
+\beta_1=0,\beta_2=0,\beta_3=0.
+$$
+
+. . .
+
+The null and alternative hypotheses in this case are:
+
+$$
+H_0:\beta_1=0,\beta_2=0,\beta_3=0;\qquad H_A:H_0\text{ is not true}.
+$$
+
+:::{.incremental}
+* In this case, we are testing **three exclusion restrictions**, i.e., we are testing **multiple hypotheses** simultaneously.
+* Since we are testing the hypotheses [**simultaneously**]{.col2}, we can't rely on the separate t-statistics for each parameter.
+* Therefore, we need a [**different test statistic**]{.col1}, whose distribution we know, to carry out such a test.
+:::
+
+## Unrestricted and Restricted Model
+
+. . .
+
+We start by writing down our **full** (unrestricted) model:
+
+$$
+y = \beta_0+\beta_1x_1+\beta_2x_2+\beta_3x_3+\beta_4x_4+\beta_5x_5+u.
+$$
+
+. . .
+
+Then we apply all **restrictions** and obtain the **restricted model**:
+
+$$
+y = \beta_0 + \beta_4x_4+\beta_5x_5+u.
+$$
+
+. . .
+
+How can we **compare** these models?
+
+:::{.incremental}
+* One approach: We consider the **sum of squared residuals** (SSR) of both models.
+* Since SSR _always_ increases when we remove variables from a model, we seek a test statistic that evaluates **how large the relative increase** in SSR is when we apply our restrictions.
+:::
+
+## F-Statistic
+
+. . .
+
+Such a test statistic is
+
+$$
+F = \frac{(\mathrm{SSR}_r-\mathrm{SSR}_{ur})/q}{\mathrm{SSR}_{ur}/(N-K-1)},
+$$
+
+where $q$ is the number of restrictions imposed.
+
+:::{.incremental}
+* Under the CLM assumptions, this test statistic, the [**F-statistic**]{.col1}, follows an F-distribution with $q$ degrees of freedom in the numerator and $(N-K-1)$ degrees of freedom in the denominator.
+* The test statistic is **always greater than zero**.
+* An alternative form of the F-statistic using $R^2$ instead of SSR is
+  $$
+  F=\frac{(R^2_{ur}-R^2_r)/q}{(1-R^2_{ur})/(N-K-1)}.
+  $$
+:::
+
+## F-Distribution
+
+::::{.columns}
+:::{.column width="40%" .nostretch .fragment}
+<br>
+``` {r}
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 7
+
+df1 <- 3
+df2 <- 50
+x <- seq(0, 5, length.out = 1000)
+y <- df(x, df1, df2)
+
+
+f_upper <- qf(0.95, df1, df2)
+
+par(mar = c(3, 3, 1, 1), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5, lwd = 2)
+plot(x, y, type = "n", ylim = c(0, max(y)), xlab = "", ylab = "", main = "", lwd = 3)
+
+x_right <- seq(f_upper, max(x), length.out = 500)
+y_right <- df(x_right, df1, df2)
+polygon(c(f_upper, x_right, max(x)), c(0, y_right, 0), col = "#4072c299", border = NA)
+
+lines(x, y, lwd = 2, col = "black")
+segments(f_upper, 0, f_upper, df(f_upper, df1, df2), col = "#ED017D", lwd = 2)
+
+
+```
+:::
+:::{.column width="60%" .incremental}
+* The graph shows an F-distribution with 3 and 50 degrees of freedom. The critical value is 2.798; we reject the null hypothesis if we obtain an F-statistic **greater** than this value (**one-sided** test).
+* If we cannot reject the null hypothesis, we say the variables are **jointly insignificant**.
+* If we reject the null hypothesis, we say the variables are **jointly significant**.
+* An F-test for only one restriction gives the same result as the corresponding t-test. However, several individually insignificant variables can be jointly significant. 
+:::
+::::
+
+## F-Statistic for Overall Significance
+
+. . .
+
+When we run a regression, the statistics software typically tests a particular set of restrictions:
+
+$$
+H_0:\beta_1=0,\beta_2=0,\dots,\beta_K=0,
+$$
+
+i.e., that **all independent variables jointly do not contribute** to **explaining $y$**.
+
+. . .
+
+The **F-statistic** for this case can be written as
+
+$$
+F=\frac{R^2/K}{(1-R^2)/(N-K-1)}.
+$$
+
+. . .
+
+For both this “global” F-statistic and all other F-statistics, statistics software provides a **p-value**, which makes interpretation easier—just like with t-statistics.
+
+# Interpretation of Regression Tables
+
+## Huh, a Baseball Dataset ⚾
+
+. . .
+
+We use the baseball dataset from the Wooldridge textbook to take a look at everything using a practical example.
+
+```{webr}
+# Load packages
+library(wooldridge) # Contains the dataset
+library(dplyr)
+library(car) # For F-test later
+
+# Load data
+data("mlb1") # Baseball data
+
+# Keep only the variables we're interested in
+mlb1 <- mlb1 |>
+  select(salary, years, gamesyr, bavg, hrunsyr, rbisyr)
+```
+
+## We're Eagerly Estimating Regressions
+
+::::{.columns}
+:::{.column width="50%" .bitsmall .fragment}
+
+```{webr}
+lm(log(salary) ~ years + gamesyr + bavg + hrunsyr + rbisyr, data = mlb1) |>
+  summary()
+```
+:::
+:::{.column width="50%" .bitsmall .fragment}
+
+```{webr}
+lm(log(salary) ~ years + gamesyr, data = mlb1) |>
+  summary()
+```
+:::
+::::
+
+## Significant or Not Significant, That Is the Question
+
+::::{.columns}
+:::{.column width="60%" .bitsmall .fragment}
+
+```{webr}
+model <- lm(log(salary) ~ years + gamesyr + bavg + hrunsyr + rbisyr, data = mlb1)
+
+linearHypothesis(model, c("bavg = 0", "hrunsyr = 0", "rbisyr = 0"))
+```
+:::
+:::{.column width="40%" .incremental}
+
+* **None** of the three variables `bavg`, `hrunsyr`, and `rbisyr` were **significant** on their own.
+* But when we test whether the three variables are **jointly significant**, we can reject the null hypothesis.
+* The p-value of the F-statistic for the entire regression model was **very small** in both models.
+
+:::
+::::
+
+# Large Samples
+
+## What Is a Large Sample?
+
+:::{.incremental}
+* All properties of the OLS estimator we’ve discussed so far apply to all [**finite samples**]{.col1}, no matter how large or small $N$ is. 
+  * This includes the **unbiasedness** of the OLS estimator, the **Gauss-Markov theorem**, etc.
+  * It also includes everything we discussed about the sampling distribution of OLS estimators, t- and F-tests [… [**as long as we assume MLR.6**]{.col2}.]{.fragment}
+* In addition to these, OLS has certain [**large sample properties**]{.col4}.
+  * These refer to properties that arise when $N$ **approaches infinity**, so they do not necessarily hold for a particular sample size $N$ (or even for all possible $N$).
+  * Some properties hold in large samples even when certain assumptions are not satisfied.
+:::
+
+## What Happens Without Assumption MLR.6? {auto-animate="true"}
+
+:::{.incremental}
+* **Without assuming MLR.6**, the t-statistic does not necessarily follow a t-distribution, and the F-statistic does not necessarily follow an F-distribution. We cannot test hypotheses about parameters as we did before.
+* However, we also discussed that MLR.6 is **unrealistic**. MLR.6 implies that $y\mid\boldsymbol{x}$ is normally distributed, which clearly doesn’t make sense for certain $y$ variables.
+* Conveniently, using the Central Limit Theorem, the following can be shown for [**large samples**]{.col4}:
+:::
+
+:::{.nicebox1l .fragment}
+Under assumptions **MLR.1 through MLR.**[**5**]{.col2}, the t-statistic is [**asymptotically**]{.col4} **normally distributed**:
+
+$$
+\frac{\hat{\beta}_k-\beta_k}{\mathrm{se}(\hat{\beta}_k)}\:\overset{\mathrm{d}}{\rightarrow}\mathrm{N}(0,1)\qquad\text{or}\qquad \frac{\hat{\beta}_k-\beta_k}{\mathrm{se}(\hat{\beta}_k)}\:\overset{\mathrm{d}}{\rightarrow}\mathrm{t}_{N-K-1}.
+$$
+:::
+
+## What Happens Without Assumption MLR.6? {auto-animate="true"}
+
+:::{.nicebox1l}
+Under assumptions **MLR.1 through MLR.**[**5**]{.col2}, the t-statistic is [**asymptotically**]{.col4} **normally distributed**:
+
+$$
+\frac{\hat{\beta}_k-\beta_k}{\mathrm{se}(\hat{\beta}_k)}\:\overset{\mathrm{d}}{\rightarrow}\mathrm{N}(0,1)\qquad\text{or}\qquad \frac{\hat{\beta}_k-\beta_k}{\mathrm{se}(\hat{\beta}_k)}\:\overset{\mathrm{d}}{\rightarrow}\mathrm{t}_{N-K-1}.
+$$
+:::
+
+:::{.incremental}
+* Since the t-distribution converges in distribution to a standard normal distribution as the degrees of freedom increase, we can use either the left or right expression.
+* This means we can use the **t-statistic** just like with MLR.6, as long as our sample size is large enough.
+* The asymptotic normality of OLS estimators also implies that the **F-statistic** is asymptotically F-distributed in large samples.
+:::
+
+## LM Statistic
+
+. . .
+
+The **Lagrange Multiplier Test** (**LM test**) is an alternative to the F-test in large samples.
+
+:::{.incremental}
+* The LM statistic is asymptotically $\chi^2_q$-distributed under assumptions MLR.1 through MLR.5 (its small-sample distribution is unknown).
+* We obtain the LM statistic as follows:
+  (1) Estimate only the restricted model.
+  (2) Take the residuals from this regression and regress them on all $K$ independent variables from the *full* model.
+  (3) Compute the LM statistic as $LM = N R^2$, where $R^2$ is from the regression in step [(2)]{.col1}.
+* The idea: Can the additional explanatory variables **explain the residuals** from the restricted model?
+* **LM test** and **F test** rarely lead to different results.
+:::
+
+## References
+
+<br>
+
+::: {#refs}
+:::

@@ -1,0 +1,2124 @@
+---
+title: "Module 2: Simple Linear Regression"
+subtitle: "Econometrics I"
+author: "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Based on a slide set by [Simon Heß](https://github.com/simonheb)"
+date: "2025-03-06"
+date-format: long
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+engine: knitr
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @wooldridge2020
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+# Motivation
+
+## What do these headlines have in common?
+
+![](figures/ci1.png){width=35% style="position: absolute; left: 2%; top: 25%; transform: rotate(10deg);" class="fragment"}  
+![](figures/ci2.png){width=40% style="position: absolute; left: 2%; top: 70%; transform: rotate(-6deg);" class="fragment"}  
+
+![](figures/ci3.png){width=40% style="position: absolute; left: 18%; top: 12%; transform: rotate(-2deg);" class="fragment"}  
+![](figures/cis2.png){width=30% style="position: absolute; left: 33%; top: 47%; transform: rotate(7deg);" class="fragment"}  
+
+![](figures/cis1.jpg){width=40% style="position: absolute; left: 55%; top: 15%; transform: rotate(-2deg);" class="fragment"}  
+![](figures/cis3.png){width=40% style="position: absolute; left: 58%; top: 63%; transform: rotate(4deg);" class="fragment"}  
+
+
+## Conditional Expectation of $y$
+
+The statements on the previous slide all concern the **conditional expectation** of a [**dependent variable** $y$]{.col1}, given an [**explanatory variable** $x$]{.col2}.
+
+:::{.incremental}
+- Some statements are still **nonsense**.
+- We will learn how to show why.
+:::
+
+. . .
+
+**Conditional expectations** are an important measure that relates a [**dependent variable** $y$]{.col1} to an [**explanatory variable** $x$]{.col2}, for example like this:
+
+$$
+\mathrm{E}\left(\textcolor{var(--primary-color)}{y}\mid\textcolor{var(--secondary-color)}{x}\right) = 0.4 + 0.5\textcolor{var(--secondary-color)}{x}
+$$
+
+. . .
+
+In this way, we can divide variation in the [**dependent variable** $y$]{.col1} into two components:
+
+:::{.incremental}
+- Variation that stems from the [**explanatory variable** $x$]{.col2}, and
+- Variation that is random or caused by unobserved factors.
+:::
+
+## Evaluation of Policy Measures
+
+. . .
+
+When we **evaluate certain measures**, we are often interested in understanding **differences** between different groups.
+
+. . .
+
+Two examples:
+
+:::{.incremental}
+- Effects of a drug on patients' health in a randomized double-blind study  
+  $$
+  \mathrm{E}\left(\textcolor{var(--primary-color)}{\mathrm{Health}}\mid\textcolor{var(--secondary-color)}{\mathrm{Drug}=1}\right) - \mathrm{E}\left(\textcolor{var(--primary-color)}{\mathrm{Health}}\mid\textcolor{var(--secondary-color)}{\mathrm{Drug}=0}\right)
+  $$
+- Gender pay gap for a certain education level  
+  $$
+  \mathrm{E}\left(\mathrm{log}(\textcolor{var(--primary-color)}{\mathrm{Wage}})\mid\textcolor{var(--secondary-color)}{\mathrm{Male}=1},\dots\right) - \mathrm{E}\left(\mathrm{log}(\textcolor{var(--primary-color)}{\mathrm{Wage}})\mid\textcolor{var(--secondary-color)}{\mathrm{Male}=0},\dots\right)
+  $$
+:::
+
+. . .
+
+In both cases we are examining the **average treatment effect** (**ATE**): the average effect of a “treatment” relative to no “treatment”.
+
+## Predictions
+
+We might also be interested in **predicting** an **outcome** for a specific initial situation.
+
+. . .
+
+Suppose we know the distribution of [**class size**]{.col2} and [**test scores**]{.col1}. For a new district, we only know the class size. **What is the best prediction for the test scores in the new district?**
+
+:::{.incremental}
+- The conditional mean?
+- The conditional median?
+- The conditional mode?
+- Something else?
+:::
+
+. . .
+
+If we minimize a **quadratic loss function**, our best prediction will be the **conditional mean**.
+
+:::{.aside}
+**Loss function**: A function that “penalizes” deviations from the true value according to a certain rule.
+:::
+
+# The Bivariate Linear Model
+
+## Conditional Expectation Function {#cef auto-animate="true"}
+
+We now want to model the **Conditional Expectation Function** of a given [**random variable** $y$]{.col1} depending on another [**random variable** $x$]{.col2}.
+
+. . .
+
+The simplest way to do that: we assume a **linear function**.
+
+$$
+\mathrm{E}(\textcolor{var(--primary-color)}{y_i}\mid\textcolor{var(--secondary-color)}{x_i}) = \beta_0 + \beta_1 \textcolor{var(--secondary-color)}{x_i},
+$$
+
+where
+
+:::{.incremental}
+- $\beta_0$ and $\beta_1$ are **parameters** of the function
+- $i$ is an index for observations
+- $\textcolor{var(--primary-color)}{y_i}$ is the [**dependent variable**]{.col1}, [**explained variable**]{.col1}, [**outcome variable**]{.col1}, the [**regressand**]{.col1} ...
+- $\textcolor{var(--secondary-color)}{x_i}$ is the [**explanatory variable**]{.col2}, [**independent variable**]{.col2}, the [**regressor**]{.col2}, ...
+:::
+
+:::{.flushright}
+[More](#appdix1){.butn} 
+:::
+
+## Conditional Expectation Function {auto-animate="true"}
+
+$$
+\mathrm{E}(\textcolor{var(--primary-color)}{y_i}\mid\textcolor{var(--secondary-color)}{x_i}) = \beta_0 + \beta_1 \textcolor{var(--secondary-color)}{x_i},
+$$
+
+This function gives us information about the **expected value** of [$y_i$]{.col1} for a given value [$x_i$]{.col2}, [**and only that.**]{.col2 .fragment}
+
+:::{.incremental}
+- We cannot infer the actual **value of** [$y_i$]{.col1} for a specific [$x_i$]{.col2}.
+- We also gain no information about the distribution of [$y_i$]{.col1} and [$x_i$]{.col2} beyond the conditional expectation.
+:::
+
+. . .
+
+Suppose the conditional expectation function for **test scores** given a certain class size is
+
+$$
+\mathrm{E}(\textcolor{var(--primary-color)}{\text{TestScores}_i}\mid\textcolor{var(--secondary-color)}{\text{ClassSize}_i}) = 720 - 0.6 \times \textcolor{var(--secondary-color)}{\text{ClassSize}_i},
+$$
+
+## Conditional Expectation Function {auto-animate="true"}
+
+Suppose the conditional expectation function for **test scores** given a certain class size is
+
+$$
+\mathrm{E}(\textcolor{var(--primary-color)}{\text{TestScores}_i}\mid\textcolor{var(--secondary-color)}{\text{ClassSize}_i}) = 720 - 0.6 \times \textcolor{var(--secondary-color)}{\text{ClassSize}_i},
+$$
+
+what can we then say about test scores in a **new district** with a class size of 20?
+
+:::{.incremental}
+- The expected value for the test scores is 708 points.
+- The actual test scores can be higher or lower:
+- There is some error, or an **unobserved component**.
+- On average, we expect this **error term** to have a value of 0: $u_i := \textcolor{var(--primary-color)}{y_i}-\mathrm{E}(\textcolor{var(--primary-color)}{y_i}\mid\textcolor{var(--secondary-color)}{x_i}) = \textcolor{var(--primary-color)}{y_i}- \beta_0 - \beta_1 \textcolor{var(--secondary-color)}{x_i},\qquad\mathrm{E}(u_i\mid\textcolor{var(--secondary-color)}{x_i})=0.$
+- We also assume that its expected value is independent of [$x_i$]{.col2}: $\mathrm{E}(u_i\mid \textcolor{var(--secondary-color}{x_i})=\mathrm{E}(u_i)=0$ (the **zero conditional mean assumption**).
+:::
+
+## Visualization of the Conditional Expectation Function
+
+```{r}
+#| results: "asis"
+#| output: "asis"
+#| fig-show: "asis"
+#| fig-width: 12
+#| fig-height: 5
+
+library(scales)
+
+plot.norm <- function(x_index, mymodel, mult = 1, sd.mult = 4, mycol = 'black', howmany = 352) {
+  xvar <- mymodel$model[,2]
+  sigma <- summary(mymodel)$sigma
+  pred_val <- predict(mymodel)[x_index]
+  stick.val <- rep(xvar[x_index], howmany) + mult * dnorm(seq(pred_val - sd.mult * sigma, pred_val + sd.mult * sigma, length.out = howmany), mean = pred_val, sd = sigma)
+  steps <- seq(pred_val - sd.mult * sigma, pred_val + sd.mult * sigma, length.out = howmany)
+  for(i in seq_along(steps)) {
+    segments(xvar[x_index], steps[i], stick.val[i], steps[i], lty = 1, col = alpha(mycol, 0.51))
+  }
+  segments(xvar[x_index], pred_val, xvar[x_index] + mult * dnorm(pred_val, mean = pred_val, sd = sigma), pred_val, lty = 1, lwd = 3, col = '#4072c2')
+}
+
+set.seed(10)
+n <- 2000
+x <- sort(runif(n, 18, 22))
+error <- rnorm(n) * 0.9
+y <- -0.6 * x + error + 720
+model1 <- lm(y ~ x)
+
+cuts <- c(0, 0.05, 0.2, 0.999, 1)
+
+#for (cut in cuts) {
+#  
+#  sample_i <- which(x<cut)
+#  cols <- ifelse(1:n %in% sample_i, "#4072c2", "grey80")
+#  alphas <- ifelse(cut == tail(cuts,1),1,0.05)
+#  plot(x,y, ylab = "Prüfungsergebnisse", xlab = "Klassengröße", col = alpha(cols, alphas), pch = 1,xlim=c(18,22),cex=0.51)
+#  #abline(v=cut, lwd = 3, col = "grey60")
+#
+#  if (cut==cuts[1])
+#    plot(x,y, ylab = "Prüfungsergebnisse", xlab = "Klassengröße", col = alpha(cols, alphas), pch = 1,xlim=c(18,22),cex=0.51)
+#  abline(model1, col="#4072c2", lwd = 3)
+#  
+#  abline(model1,lty=2)
+#  pos<-0
+#  while (pos/7<cut) {
+#    plot.norm(round(n*pos/7)+1,model1,0.4, sd.mult=3)
+#    pos<-pos+1
+#  }
+#}
+
+draw_cef_plot <- function(idx) {
+  if (idx < 1 || idx > length(cuts))
+    stop("Index out of bounds")
+  cut_val <- cuts[idx]
+  sample_i <- which(x < cut_val)
+  cols <- ifelse(1:n %in% sample_i, "#4072c2", "#4072c2")
+  alphas <- ifelse(cut_val == tail(cuts, 1), 1, 0.05)
+  plot(x, y, ylab = "Prüfungsergebnisse", xlab = "Klassengröße",
+       col = alpha(cols, alphas), pch = 1, xlim = c(18, 22), cex = 0.51)
+  abline(model1, col = "#4072c2", lwd = 3)
+  abline(model1, lty = 2)
+  pos <- 0
+  while (pos / 7 < cut_val) {
+    plot.norm(round(n * pos / 7) + 1, model1, 0.4, sd.mult = 3)
+    pos <- pos + 1
+  }
+}
+```
+
+:::: {.r-stack}
+::: {.fragment data-fragment-index="1"}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+draw_cef_plot(1)
+```
+:::
+::: {.fragment data-fragment-index="2"}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+draw_cef_plot(2)
+```
+:::
+::: {.fragment data-fragment-index="3"}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+draw_cef_plot(3)
+```
+:::
+::: {.fragment data-fragment-index="4"}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+draw_cef_plot(4)
+```
+:::
+::: {.fragment data-fragment-index="5"}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+draw_cef_plot(5)
+```
+:::
+::::
+
+[In [blue]{.col1} we see our **conditional expectation function**. ]{.fragment data-fragment-index="1"} [For a class size of 18 we expect a certain value. The **actual values** are **distributed** around this value. ]{.fragment data-fragment-index="2"} [This applies to every point along the function.]{.fragment data-fragment-index="4"}
+
+## Regression Model in the Population {auto-animate="true"}
+
+. . .
+
+We can combine our thoughts on the **conditional expectation function** and the **prediction error** to obtain a **linear regression model**:
+
+$$
+\textcolor{var(--primary-color)}{y_i} = \beta_0 + \beta_1 \textcolor{var(--secondary-color)}{x_i} + \textcolor{var(--tertiary-color-semidark)}{u_i},
+$$
+
+where
+
+:::{.incremental}
+- $\beta_0 + \beta_1 \textcolor{var(--secondary-color)}{x_i}$ is the **regression function** of the **population**,
+- $\textcolor{var(--tertiary-color-semidark)}{u_i}$ is the **prediction error** or **error term** of the **population**,
+- $\beta_0$ is the **constant** parameter (intercept), which maps the predicted value when $\textcolor{var(--secondary-color)}{x_i}=0$, and
+- $\beta_1$ is the **slope** parameter, representing the expected difference in predicted values of [$y_i$]{.col1} when [$x_i$]{.col2} changes by one unit.
+:::
+
+## Regression Model in the Population {auto-animate="true"}
+
+$$
+\textcolor{var(--primary-color)}{y_i} = \beta_0 + \beta_1 \textcolor{var(--secondary-color)}{x_i} + \textcolor{var(--tertiary-color-semidark)}{u_i},
+$$
+
+. . .
+
+In our previous example:
+
+$$
+\textcolor{var(--primary-color)}{\text{TestScores}_i} = \beta_0 - \beta_1 \times \textcolor{var(--secondary-color)}{\text{ClassSize}_i}+ \textcolor{var(--tertiary-color-semidark)}{u_i}.
+$$
+
+In this case:
+
+::::{.columns}
+:::{.column .fragment}
+
+$$
+\beta_1 = \frac{\mathrm{d}\:\mathrm{E}(\textcolor{var(--primary-color)}{\text{TestScores}_i}\mid\textcolor{var(--secondary-color)}{\text{ClassSize}_i})}{\mathrm{d}\:\textcolor{var(--secondary-color)}{\text{ClassSize}_i}}
+$$
+
+is the **expected difference** in test scores when we change the average class size by one unit.
+
+:::
+:::{.column .fragment}
+
+$$
+\beta_0 = \mathrm{E}(\textcolor{var(--primary-color)}{\text{TestScores}_i}\mid\textcolor{var(--secondary-color)}{\text{ClassSize}_i}=0)
+$$
+
+is the **expected value** for the test score when there are on average 0 students per class in a district.
+
+:::
+::::
+
+## Scaling Effects {auto-animate="true"}
+
+::::{.columns}
+:::{.column}
+
+$$
+\beta_1 = \frac{\mathrm{d}\:\mathrm{E}(\textcolor{var(--primary-color)}{\text{TestScores}_i}\mid\textcolor{var(--secondary-color)}{\text{ClassSize}_i})}{\mathrm{d}\:\textcolor{var(--secondary-color)}{\text{ClassSize}_i}}
+$$
+
+:::
+:::{.column}
+
+$$
+\beta_0 = \mathrm{E}(\textcolor{var(--primary-color)}{\text{TestScores}_i}\mid\textcolor{var(--secondary-color)}{\text{ClassSize}_i}=0)
+$$
+
+:::
+::::
+
+How do these two parameters change when we change the **scaling** of the variables? [For example, if we measure class size in tens:]{.fragment}
+
+. . .
+
+$$
+\textcolor{var(--primary-color)}{\text{TestScores}_i} = \beta_0^{\bullet} - \beta_1^\bullet \times \frac{\textcolor{var(--secondary-color)}{\text{ClassSize}_i}}{10}+ \textcolor{var(--tertiary-color-semidark)}{u_i}.
+$$
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+We see:
+
+$\beta_0^{\bullet} = \beta_0\qquad$ and $\qquad\beta_1^{\bullet} = \textcolor{var(--secondary-color)}{10\times}\beta_1$.
+
+The regression constant remains unchanged, but the slope parameter gets scaled.
+:::
+:::{.column width="50%" .fragment}
+:::{.callout-tip title="Exercise"}
+What happens if we scale the **dependent variable** (instead of the independent variable)?
+:::
+:::
+::::
+
+## Visualization of Scaling Effects
+
+::::{.r-stack}
+:::{.fragment}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+set.seed(12345)
+
+n<-1000
+x <- runif(n) 
+y <- 2*x+rnorm(n)*0.2+1.3
+factor <- 1
+
+plot(x*factor, y, col = alpha("grey50",0.3), pch = 19, xlim = c(-0.2,2.2), xlab=paste("x * ",round(factor,2)))
+x0<-x*factor
+fit<-lm(y~x0)
+abline(fit, col="#4072c2", lwd = 3)
+text(paste("Intercept:",round(coefficients(fit)[1],1),"\nSlope:",round(coefficients(fit)[2],1)), x = 1.7, y=1.5)
+points(0,round(coefficients(fit)[1],1),col="#4072c2", pch=19, cex=4)
+```
+:::
+:::{.fragment}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+set.seed(12345)
+
+n<-1000
+x <- runif(n) 
+y <- 2*x+rnorm(n)*0.2+1.3
+factor <- 1.2
+
+plot(x*factor, y, col = alpha("grey50",0.3), pch = 19, xlim = c(-0.2,2.2), xlab=paste("x * ",round(factor,2)))
+x0<-x*factor
+fit<-lm(y~x0)
+abline(fit, col="#4072c2", lwd = 3)
+text(paste("Intercept:",round(coefficients(fit)[1],1),"\nSlope:",round(coefficients(fit)[2],1)), x = 1.7, y=1.5)
+points(0,round(coefficients(fit)[1],1),col="#4072c2", pch=19, cex=4)
+```
+:::
+:::{.fragment}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+set.seed(12345)
+
+n<-1000
+x <- runif(n) 
+y <- 2*x+rnorm(n)*0.2+1.3
+factor <- 1.4
+
+plot(x*factor, y, col = alpha("grey50",0.3), pch = 19, xlim = c(-0.2,2.2), xlab=paste("x * ",round(factor,2)))
+x0<-x*factor
+fit<-lm(y~x0)
+abline(fit, col="#4072c2", lwd = 3)
+text(paste("Intercept:",round(coefficients(fit)[1],1),"\nSlope:",round(coefficients(fit)[2],1)), x = 1.7, y=1.5)
+points(0,round(coefficients(fit)[1],1),col="#4072c2", pch=19, cex=4)
+```
+:::
+:::{.fragment}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+set.seed(12345)
+
+n<-1000
+x <- runif(n) 
+y <- 2*x+rnorm(n)*0.2+1.3
+factor <- 1.6
+
+plot(x*factor, y, col = alpha("grey50",0.3), pch = 19, xlim = c(-0.2,2.2), xlab=paste("x * ",round(factor,2)))
+x0<-x*factor
+fit<-lm(y~x0)
+abline(fit, col="#4072c2", lwd = 3)
+text(paste("Intercept:",round(coefficients(fit)[1],1),"\nSlope:",round(coefficients(fit)[2],1)), x = 1.7, y=1.5)
+points(0,round(coefficients(fit)[1],1),col="#4072c2", pch=19, cex=4)
+```
+:::
+:::{.fragment}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+set.seed(12345)
+
+n<-1000
+x <- runif(n) 
+y <- 2*x+rnorm(n)*0.2+1.3
+factor <- 1.8
+
+plot(x*factor, y, col = alpha("grey50",0.3), pch = 19, xlim = c(-0.2,2.2), xlab=paste("x * ",round(factor,2)))
+x0<-x*factor
+fit<-lm(y~x0)
+abline(fit, col="#4072c2", lwd = 3)
+text(paste("Intercept:",round(coefficients(fit)[1],1),"\nSlope:",round(coefficients(fit)[2],1)), x = 1.7, y=1.5)
+points(0,round(coefficients(fit)[1],1),col="#4072c2", pch=19, cex=4)
+```
+:::
+:::{.fragment}
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+
+set.seed(12345)
+
+n<-1000
+x <- runif(n) 
+y <- 2*x+rnorm(n)*0.2+1.3
+factor <- 2
+
+plot(x*factor, y, col = alpha("grey50",0.3), pch = 19, xlim = c(-0.2,2.2), xlab=paste("x * ",round(factor,2)))
+x0<-x*factor
+fit<-lm(y~x0)
+abline(fit, col="#4072c2", lwd = 3)
+text(paste("Intercept:",round(coefficients(fit)[1],1),"\nSlope:",round(coefficients(fit)[2],1)), x = 1.7, y=1.5)
+points(0,round(coefficients(fit)[1],1),col="#4072c2", pch=19, cex=4)
+```
+:::
+::::
+
+On this slide, we **scale** the [$x_i$]{.col2} values in several steps from factor 1 to 2. We observe that the **intercept remains unchanged**, but the **slope** **changes**.
+
+# An Estimator
+
+## Population vs. Sample
+
+. . . 
+
+Nothing we’ve discussed so far had to do with actual **data**.
+
+:::{.incremental}
+- So far, we've discussed relationships in the [**population**]{.col3}.
+- The **regression model** of the [**population**]{.col3} describes a **hypothetical relationship** between several variables. We can imagine that the data are generated by the PRF and the error term.
+- We do not know the parameters $\beta_0$ and $\beta_1$ from the PRF.
+- Therefore, we have to **estimate** the parameters. For this, we need **data**, i.e., a [**sample**]{.col4}.
+- We will now discuss concepts that look very similar to what we discussed before (e.g., a regression function).
+- So remember: There is a [**population**]{.col3} and a relationship between several variables in it. But we can only estimate this relationship based on a [**sample**]{.col4}.
+:::
+
+## Random Sample
+
+. . . 
+
+We previously discussed how class size and test scores are related in the [**population**]{.col3}. However, we **cannot observe** $\beta_0$ and $\beta_1$ in practice. Therefore, we need a [**sample**]{.col4} to estimate them.
+
+. . . 
+
+<br>
+
+So we collect **data**:
+
+$\left.\begin{array}{c}\{y_1, x_1\} \\\{y_2, x_2\} \\\{y_3, x_3\} \\\vdots \\\{y_N, x_N\}\end{array}\right\}\quad\{y_i, x_i\}_{i=1}^{N}\quad$ [**randomly drawn**]{.col4} from a [**population**]{.col3} $\quad F_{y,x}(\cdot,\cdot)$,
+
+<br>
+
+for which we want to approximate $\mathrm{E}(y\mid x)$ using a linear conditional expectation function.
+
+## Random Sample {auto-animate="true"}
+
+What does a [**random sample**]{.col4} look like in our earlier example?
+
+. . .
+
+We first prepare the dataset again.
+
+```{webr}
+# Load packages
+library(AER) # Contains our dataset
+library(dplyr) # Contains mutate()
+
+# Load data
+data("CASchools")
+
+# Compute variables using mutate()
+CASchools <- CASchools |>
+  mutate(student_teacher_ratio = students / teachers,
+         test_score = (read + math)/2)
+
+# Keep only variables we care about
+CASchools <- select(CASchools, student_teacher_ratio, test_score)
+```
+
+## Random Sample {auto-animate="true"}
+
+What does a [**random sample**]{.col4} look like in our earlier example?
+
+```{webr}
+# head() gives us the first 6 observations of a dataset
+
+head(CASchools)
+```
+
+. . .
+
+We see fixed numbers here. However, these numbers are **realizations of random variables**, and every time we draw a new [**random sample**]{.col4}, we will get different values.
+
+## Random Sample
+
+To illustrate, let’s draw a [**sample**]{.col4} from a standard **normal distribution** and compute the mean.
+
+```{webr}
+this_sample <- rnorm(n = 1000, mean = 0, sd = 1)
+
+mean(this_sample)
+```
+
+. . .
+
+If we repeat this calculation multiple times, we will always get a mean close to 0, but we get a **different value** every **time**. The more observations we collect (e.g., `n=10^6`), the closer most of these values will be to 0.
+
+## We're Looking for an Estimator
+
+. . .
+
+We want to **fit** a **regression line** with intercept [$\tilde{\beta}_0$]{.col4} and slope [$\tilde{\beta}_1$]{.col4}:
+
+$$
+y_i = \textcolor{var(--quarternary-color)}{\tilde{\beta}_0} + \textcolor{var(--quarternary-color)}{\tilde{\beta}_1}x_i,
+$$
+
+. . .
+
+that minimizes the following **prediction errors**:
+
+$$
+\textcolor{var(--quarternary-color)}{\hat{u}_i} = y_i - \textcolor{var(--quarternary-color)}{\tilde{\beta}_0} - \textcolor{var(--quarternary-color)}{\tilde{\beta}_1}x_i.
+$$
+
+:::{.incremental}
+- [$\hat{u}_i$]{.col4} is the [**residual**]{.col4}, and it is not the same as the [**error term**]{.col3}.
+  - The [**residual**]{.col4} is the difference between our fitted regression line and the actual observed value $y_i$.
+  - The [**error term**]{.col3} is the random or unobserved component from the data-generating process of the population.
+- [$\tilde{\beta}_0$]{.col4} and [$\tilde{\beta}_1$]{.col4} are our [**estimated coefficients**]{.col4} for intercept and slope, and they are not the same as the [**parameters** $\beta_0$ and $\beta_1$ **from the population**]{.col3}.
+:::
+
+## OLS Estimator {auto-animate="true"}
+
+. . .
+
+How do we find among all [$\tilde{\beta}_0$]{.col4} and [$\tilde{\beta}_1$]{.col4} the parameters [$\hat{\beta}_0$]{.col4} and [$\hat{\beta}_1$]{.col4} that minimize prediction error?
+
+. . .
+
+**Suggestion**: Take the sum of all residuals.
+
+:::{.incremental}
+- Does that make sense?  [**No**.]{.col2 .quitelarge .fragment}
+- Positive and negative residuals would cancel each other out.
+:::
+
+. . .
+
+**Better suggestion**: Take the sum of all **squares** of residuals. [That way, we penalize positive and negative residuals equally.]{.fragment} [So we look for the minimum of:]{.fragment}
+
+. . .
+
+$$
+S(\tilde{\beta}_0,\tilde{\beta}_1)=\sum_{i=1}^N \left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_i\right)^2.
+$$
+
+. . .
+
+We call the resulting estimator the **least squares estimator**, or **ordinary least squares** (**OLS**).
+
+## OLS Estimator (Minimizing Squares) {auto-animate="true"}
+
+$$
+S(\tilde{\beta}_0,\tilde{\beta}_1)=\sum_{i=1}^N \left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_i\right)^2.
+$$
+
+. . .
+
+We begin by taking the derivative with respect to $\tilde{\beta}_0$ and setting it to zero:
+
+$$
+\frac{\partial S}{\partial \tilde{\beta}_0}=-2\sum_{i=1}^N\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_i\right)=0,
+$$
+
+. . .
+
+That gives us
+
+$$
+\colorbox{var(--primary-color-lightened)}{$\sum_{i=1}^N y_i=n\tilde{\beta}_0+\tilde{\beta}_1\sum_{i=1}^N x_i.$}
+$$
+
+## OLS Estimator (Minimizing Squares)
+
+. . .
+
+Next, we differentiate with respect to $\tilde{\beta}_1$:
+
+$$
+\frac{\partial S}{\partial \tilde{\beta}_1}=-2\sum_{i=1}^N x_i\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_i\right)=0,
+$$
+
+. . .
+
+We obtain
+
+$$
+\colorbox{var(--secondary-color-lightened)}{$\sum_{i=1}^N x_i y_i=\tilde{\beta}_0\sum_{i=1}^N x_i+\tilde{\beta}_1\sum_{i=1}^N x_i^2.$}
+$$
+
+## OLS Estimator (Minimizing Squares)
+
+. . .
+
+From now on, let’s write $\bar{x}=\frac{1}{n}\sum_{i=1}^N x_i$ and $\bar{y}=\frac{1}{n}\sum_{i=1}^N y_i$. Then from the [first-order condition 1]{.col1b} we get:
+
+$$
+\tilde{\beta}_0=\bar{y}-\tilde{\beta}_1\bar{x}.
+$$
+
+. . .
+
+If we plug that into the [first-order condition 2]{.col2b}, we obtain:
+
+$$
+\sum^N_{i=1}x_i\left(y_i-\bar{y}\right)=\tilde{\beta}_1\sum^N_{i=1}x_i\left(x_i-\bar{x}\right).
+$$
+
+## OLS Estimator (Minimizing Squares)
+
+. . .
+
+Since $\sum^N_{i=1}x_i\left(x_i-\bar{x}\right)=\sum^N_{i=1}\left(x_i-\bar{x}\right)^2$ and $\sum^N_{i=1}x_i\left(y_i-\bar{y}\right)=\sum^N_{i=1}\left(x_i-\bar{x}\right)\left(y_i-\bar{y}\right)$ (see Appendix A-1 in Wooldridge):
+
+. . .
+
+$$
+\colorbox{#e0e0e0}{$\hat{\beta}_1=\frac{\sum_{i=1}^N (x_i-\bar{x})(y_i-\bar{y})}{\sum_{i=1}^N (x_i-\bar{x})^2},$} = \textcolor{#999999}{\frac{\widehat{\mathrm{Cov}}(x_i,y_i)}{\widehat{\mathrm{Var}}(x_i)}}
+$$
+
+as long as $\sum_{i=1}^N (x_i-\bar{x})^2>0$.
+
+. . .
+
+And from earlier:
+
+$$
+\colorbox{#e0e0e0}{$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}.$}
+$$
+
+. . .
+
+These estimators **minimize** the **sum of squared residuals**.
+
+## OLS Estimator (Method of Moments) {#moments auto-animate="true"}
+
+. . .
+
+Alternatively, we can derive the estimators using the **method of moments**. We can use the following (previously discussed) assumptions as **moment conditions**:
+
+:::{.incremental}
+- $\mathrm{E}(u_i)=0$ [(otherwise the line would just be too high/low)]{.col0}
+- $\mathrm{Cov}(x_i,u_i)=\mathrm{E}(x_iu_i) = 0$ [(otherwise the line would be tilted)]{.col0} [Proof](#appdix2){.butn}
+:::
+
+. . .
+
+As a first step, we replace the [**population moments**]{.col3} with [**sample moments**]{.col4}:
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+$$
+\frac{1}{n} \sum_{i=1}^{n} x_i (y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i) = 0
+$$
+:::
+:::{.column width="50%" .fragment}
+$$
+\frac{1}{n} \sum_{i=1}^{n} y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i = 0
+$$
+:::
+::::
+
+:::{.aside}
+**Moments** are important quantities for describing random variables. The $k$-th moment of a random variable is defined as $m_k(X):=\mathrm{E}(X^k)$ — the first moment is the expected value, the second is the variance, ... Sample moments are analogously defined as $N^{-1}\sum^N_{i=1}x_i^k$.
+:::
+
+## OLS Estimator (Method of Moments) {auto-animate="true"}
+
+::::{.columns}
+:::{.column width="50%"}
+$$
+\frac{1}{n} \sum_{i=1}^{n} x_i (y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i) = 0
+$$
+:::
+:::{.column width="50%"}
+$$
+\frac{1}{n} \sum_{i=1}^{n} y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i = 0
+$$
+:::
+::::
+
+. . .
+
+These expressions are **equivalent** to those we obtained by **differentiating the loss function**. So we can proceed just as before and obtain:
+
+. . .
+
+$$
+\colorbox{#e0e0e0}{$\hat{\beta}_1=\frac{\sum_{i=1}^N (x_i-\bar{x})(y_i-\bar{y})}{\sum_{i=1}^N (x_i-\bar{x})^2}$}\qquad\qquad\colorbox{#e0e0e0}{$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}.$}
+$$
+
+:::{.aside}
+**Moments** are key parameters we use to describe random variables. The $k$-th moment of a random variable is defined as $m_k(X):=\mathrm{E}(X^k)$ — the first moment is the expected value, the second is the variance, ... Sample moments are analogously defined as $N^{-1}\sum^N_{i=1}x_i^k$.
+:::
+
+We’ve obtained the **same estimator** using **two different methods**.
+
+# Properties of the OLS Estimator
+
+## Variation in X
+
+. . .
+
+We can only compute our estimator for the slope if the **variance in** $x_i$ **is not 0** (otherwise we would divide by 0):
+
+$$
+\hat\beta_1=\frac{\widehat{\mathrm{Cov}}(x_i,y_i)}{\widehat{\mathrm{Var}}(x_i)}
+$$
+
+. . .
+
+```{r}
+#| fig-width: 13
+#| fig-height: 4
+#| fig-show: "animate"
+#| fig-align: "center"
+
+library(scales)
+par(mar=c(2,2,1,2))
+
+y <- rnorm(20)
+y <- y-mean(y)
+plot(x=rep(0,20),y=y, pch=19, xlab="x")
+abline(-10,0)
+for (slope in 3*(-2:2)) {
+  plot(x=rep(0,20),y=y, pch=19, xlab="x")
+  abline(0,slope,lw=3,col=alpha("#4072c2",0.6))
+}
+
+plot(x=rep(0,20),y=y, pch=19, xlab="x")
+for (slope in -20:20)
+  abline(0,slope,lw=3,col=alpha("#4072c2",0.6))
+
+```
+
+## The Residuals Have Mean 0
+
+. . .
+
+The residuals are the difference between the **actually observed value** and the **fitted value**:
+
+$$
+\hat{u}_i = y_i - \hat{y}_i
+$$
+
+. . .
+
+When we previously took the derivative with respect to $\tilde{\beta}_0$, we had:
+
+$$
+\frac{\partial S}{\partial \tilde{\beta}_0}=-2\sum_{i=1}^N \left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_i\right)=0,
+$$
+
+which implies that the **sum** (and thus the mean) of the **residuals is 0**.
+
+. . .
+
+**Intuition**: If the residuals had a positive or negative mean, we could shift the line down or up to achieve a better fit.
+
+## The Residuals Are Uncorrelated with $x_i$
+
+. . .
+
+When we previously took the derivative with respect to $\tilde{\beta}_1$, we had:
+
+$$
+\frac{\partial S}{\partial \tilde{\beta}_1}=-2\sum_{i=1}^N x_i\left(y_i-\tilde{\beta}_0-\tilde{\beta}_1x_i\right)=0.
+$$
+
+. . .
+
+This implies:
+
+$$
+\sum^N_{i=1}\left(x_i-\bar{x}\right)\hat{u}_i=0
+$$
+
+Which in turn implies that the correlation between the $x_i$ and the residuals is 0.
+
+. . .
+
+**Intuition**: If the residuals were correlated with the $x_i$, we could achieve a better fit by tilting the line.
+
+## Decomposition of the Variance of $y$ {#decomp}
+
+. . .
+
+We can decompose the [**variation in** $y$]{.col1} into an [[**explained part**]{.col2}, i.e., [**variation due to variation in** $x$]{.col2};]{.fragment} [and an [**unexplained part**]{.col4}, i.e., the part due to [**unobserved factors**]{.col4}]{.fragment}
+
+. . .
+
+$$
+\textcolor{var(--primary-color)}{\sum^N_{i=1}\left(y_i-\bar{y}\right)^2} = \textcolor{var(--secondary-color)}{\sum^N_{i=1}\left(\hat{y}_i-\bar{y}\right)^2} + \textcolor{var(--quarternary-color)}{\sum^N_{i=1}\hat{u}_i^2}
+$$
+
+. . .
+
+or in other words
+
+:::{.centering}
+[**Total Sum of Squares**]{.col1} $=$ [**Explained Sum of Squares**]{.col2} $+$ [**Residual Sum of Squares**]{.col4}
+:::
+
+. . .
+
+$$
+\textcolor{var(--primary-color)}{\mathrm{SST}} = \textcolor{var(--secondary-color)}{\mathrm{SSE}} + \textcolor{var(--quarternary-color)}{\mathrm{SSR}}
+$$
+
+:::{.flushright}
+[Proof](#appdix3){.butn}
+:::
+
+## Goodness of Fit
+
+. . .
+
+The **coefficient of determination** $R^2$ is a measure of **goodness of fit** and indicates what proportion of the variation is explained by our model:
+
+$$
+R^2 = \frac{\textcolor{var(--secondary-color)}{\mathrm{SSE}}}{\textcolor{var(--primary-color)}{\mathrm{SST}}} = 1- \frac{\textcolor{var(--quarternary-color)}{\mathrm{SSR}}}{\textcolor{var(--primary-color)}{\mathrm{SST}}}.
+$$
+
+
+:::{.incremental}
+- $R^2$ is always between 0 and 1.
+- With an $R^2$ of 1, all observations lie on a straight line.
+- $R^2$ is sometimes used to compare models. [**But that's usually a bad idea.**]{.col2 .fragment}
+  - There is no threshold for a “good” $R^2$.
+  - There are “bad” models that fit a dataset well.
+  - There are models with low $R^2$ that reveal important relationships.
+:::
+
+## Goodness of Fit
+
+```{=html}
+<div style="width: 1280px; height: 650px; margin: 20px 32px 0; position: relative;">
+  <div style="width: calc(1280px / 1.4); height: calc(650px / 1.4); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1.4); transform-origin: center;">
+    <iframe data-external="1" src="https://maxmheinze.shinyapps.io/goodness_of_fit/" style="width: 100%; height: 100%;" frameborder="0" allowfullscreen allowtransparency>Loading...</iframe>
+  </div>
+</div>
+```
+
+## Anscombe's Quartet
+
+. . .
+
+In all four examples, $R^2=0.67$.
+
+``` {r}
+#| fig-width: 12
+#| fig-height: 5
+
+library(datasets)
+par(mar=c(2,2,2,2))
+par(mfrow=c(2,2))
+
+plot(anscombe$x1,anscombe$y1, ylim=c(3,13), pch=19)
+abline(lm(y1 ~ x1, data=anscombe), col="#4072c2", lw=2)
+plot(anscombe$x2,anscombe$y2, ylim=c(3,13), pch=19)
+abline(lm(y2 ~ x2, data=anscombe), col="#4072c2", lw=2)
+plot(anscombe$x3,anscombe$y3, ylim=c(3,13), pch=19)
+abline(lm(y3 ~ x3, data=anscombe), col="#4072c2", lw=2)
+plot(anscombe$x4,anscombe$y4, ylim=c(3,13), pch=19)
+abline(lm(y4 ~ x4, data=anscombe), col="#4072c2", lw=2)
+
+```
+
+# Logarithmic Transformations
+
+## Logarithmic Transformation of the Dependent Variable
+
+. . .
+
+Let’s start with an example. Suppose the **wage** a person earns depends on their **education**:
+
+$$
+\mathrm{Wage}_i = f\left(\mathrm{Education}_i\right)
+$$
+
+. . .
+
+Is it more plausible that an additional year of education increases wages by the same **amount**, or by the same **factor**?
+
+<br>
+
+::::{.columns}
+:::{.column width="45%" .centering}
+The [**5th year**]{.col1} of education increases wage by [**1 euro**]{.col1}
+
+and
+
+The [**12th year**]{.col1} of education increases wage by [**1 euro**]{.col1}
+:::
+:::{.column width="10%" .centering}
+
+:::
+:::{.column width="45%" .centering}
+The [**5th year**]{.col1} of education increases wage by [**8 percent**]{.col2}
+
+and
+
+The [**12th year**]{.col1} of education increases wage by [**8 percent**]{.col2}
+:::
+::::
+
+## Logarithmic Transformation of the Dependent Variable
+
+. . .
+
+We can **approximate such a relationship** using logarithms:
+
+$$
+\mathrm{log}\left(\mathrm{Wage}_i\right) = \beta_0 + \beta_1\mathrm{Education}_i+u_i.
+$$
+
+. . .
+
+This is equivalent to:
+
+$$
+\mathrm{Wage}_i = \mathrm{exp}\left(\beta_0 + \beta_1\mathrm{Education}_i+u_i\right).
+$$
+
+The relationship is **non-linear** in [$y$]{.col1} (wage) and $x$ (education), but it is **linear** in [$\mathrm{log}(y)$]{.col2} and $x$.
+
+. . .
+
+We can **estimate** the regression using OLS just as before, by defining $y_i^\ast=\mathrm{log}\left(y_i\right)$ and estimating the following model:
+
+$$
+y_i^\ast=\beta_0+\beta_1x_i+u_i
+$$
+
+## Logarithmic Transformation of the Independent Variable
+
+. . .
+
+Analogously to before, we can also take the **logarithm of the independent variable** ($x$). The **interpretation** in the previous example would be:
+
+. . .
+
+<br>
+
+:::{.centering}
+An increase in education by [**1 percent**]{.col2} (regardless of level) increases wage by a certain number of [**euros**]{.col1}.
+:::
+
+<br>
+
+. . .
+
+We define $x_i^\ast = \mathrm{log}\left(x_i\right)$ and **estimate** the model:
+
+$$
+y_i = \beta_0 + \beta_1x_i^* +u_i.
+$$
+
+## Natural Logarithm
+
+If we use the **natural logarithm** for our transformation, the interpretation of the coefficients is very simple:
+
+::::{.columns}
+:::{.column width="65%"}
+:::{.incremental}
+- **Absolute** changes in log-transformed variables approximately correspond to **relative** changes in the untransformed variable of the same numerical value.
+- An increase in $x$ by 1 percent **approximately corresponds** to an increase in $\mathrm{log}(x)$ by 0.01:
+  $$
+  \begin{aligned}
+  \mathrm{log}(1.01x)&=\mathrm{log}(x)+\mathrm{log}(1.01) \\
+  &= \mathrm{log}(x)+0.00995 \\
+  &\approx\mathrm{log}(x)+0.01
+  \end{aligned}
+  $$
+:::
+:::
+:::{.column width="35%" .fragment}
+```{r}
+#| fig-width: 5
+#| fig-height: 6
+
+par(cex=1.5)
+x <- seq(0.01, 2, length.out = 100)  # Avoid log(0) by starting from 0.01
+y <- log(x)
+plot(x, y, type = "l", col = "#4072C2", lwd=5, xlab = "x", ylab = "ln(x)", ylim = c(-1,1))
+grid(lwd=3)
+```
+:::
+::::
+
+. . .
+
+- The approximation works best for **small** percentage values.
+
+## Overview of Log Transformations
+
+:::{.incremental}
+- **Untransformed** models allow us to make statements about the relationship between **absolute changes** in two variables.
+- Models in which we **log-transform one side** allow us to make statements about **semi-elasticities**.
+- Models in which we **log-transform both sides** allow us to make statements about **elasticities**.
+:::
+
+. . . 
+
+| Model        | Dep. Variable        | Indep. Variable      | Interpretation                                    |
+|-----------------|----------------------|-----------------------|------------------------------------------------|
+| Level-Level | $y$                  | $x$                   | $+1$ in $x$ $\Leftrightarrow$ $+\beta_1$ in $y$              |
+| Level-Log   | $y$                  | $\log(x)$             | $+1\%$ in $x$ $\Leftrightarrow$ $+\beta_1 / 100$ in $y$      |
+| Log-Level   | $\log(y)$            | $x$                   | $+1$ in $x$ $\Leftrightarrow$ $+\beta_1 \times 100\%$ in $y$ |
+| Log-Log     | $\log(y)$            | $\log(x)$             | $+1\%$ in $x$ $\Leftrightarrow$ $+\beta_1\%$ in $y$          |
+
+# The Gauss-Markov Theorem
+
+## BLUE
+
+. . .
+
+If we assume that our linear model is correct, we can make some statements about the **expected value** and **variance** of the OLS estimator.
+
+. . .
+
+The **Gauss-Markov Theorem** states that the OLS estimator is the 
+
+:::{.centering .quitelarge}
+[**B**est]{.col1} **L**inear [**U**nbiased]{.col2} **E**stimator
+
+([**BLUE**]{.col1b})
+:::
+
+:::{.incremental}
+- We already know that the OLS estimator is a **linear estimator**.
+- [**Unbiased**]{.col2} means that the **expected value** of the estimator equals the true parameter.
+- The [**best**]{.col1} estimator is the one that has the smallest variance among all linear unbiased estimators. We’ll discuss this in the next section.
+:::
+
+## Model Assumptions
+
+. . .
+
+To prove using the **Gauss-Markov Theorem** that the OLS estimator is [**BLUE**]{.col1b}, we need to make **four assumptions** about our model:
+
+. . .
+
+:::{.callout-note title="Gauss-Markov Theorem: Assumptions for Simple Linear Regression (SLR)"}
+:::{.incremental}
+(1) Linearity in parameters  
+(2) Random sampling  
+(3) Variation in $x$  
+(4) Exogenous error term  
+:::
+:::
+
+## (SLR.1) Linearity in Parameters
+
+. . .
+
+:::{.nicebox1l}
+The population regression function (PRF) must be **linear** in its **parameters**:
+
+$$
+y_i = \beta_0 + \beta_1 x_i + u_i
+$$
+:::
+
+:::{.incremental}
+- Transformations (e.g. logarithmic) are not a problem, since the PRF remains a linear combination **of the parameters**.
+- When we talk about a “linear model,” it’s unclear whether we mean linear in parameters or in $x$.
+- An example of a model that is not linear in its parameters: $y_i = 1^{\beta_0}x_i^{\beta_1}+u_i$.
+- This assumption only defines the class of models/estimators (linear).
+:::
+
+## (SLR.2) Random Sample
+
+. . .
+
+:::{.nicebox1l}
+Our **sample** of $N$ observations, $\left\{\left(y_i,x_i\right), i = 1, 2, \dots, N\right\}$ must be a **random sample** from the population. The probability of including an observation must be equal for all, and must not depend on who we sampled first.
+:::
+
+:::{.incremental}
+- It’s fairly easy to violate this assumption:
+  - We sample only from a certain part of the population, e.g. by surveying students only in the cafeteria.
+  - We select part of the sample based on another part, e.g. randomly selecting $N/2$ students and then filling the rest of the sample with their best friends.
+- This assumption allows us to describe the population model using individual observations: $\mathrm{E}(y_i\mid x_1,\dots,x_N)=\mathrm{E}(y_i\mid x_i)=\mathrm{E}(y\mid x)$
+- There are econometric techniques to handle non-random samples. We’ll cover those in later courses.
+:::
+
+## (SLR.3) Variation in $x$
+
+. . .
+
+:::{.nicebox1l}
+To estimate our model, we need **variation in** $x$. The $x$ values must not all be exactly the same.
+:::
+
+:::{.incremental}
+- We need this assumption because otherwise we cannot identify a parameter.
+- When sampling from a population, this assumption is usually met—unless the sample is very small and variation in the population is minimal.
+- Example of violation: trying to estimate the effect of class size on test scores, but all observations in the sample have a class size of 20.
+:::
+
+. . .
+
+By the way: If we have no variation in $y$, our results won’t be very interesting (the regression line is flat), but we can still compute them without issue.
+
+## (SLR.4) Exogenous Errors {#slr4}
+
+. . .
+
+:::{.nicebox1l}
+The expected value of the error term $u$ must be 0 for every value of $x$:
+
+$$
+\mathrm{E}\left(u_i\mid x_i\right) = 0
+$$
+
+This assumption also implies the two **moment conditions** $\mathrm{E}\left(u_i\right) = 0$ and $\mathrm{E}\left(u_i x_i\right) = 0$. [Proof](#appdix4){.butn} 
+:::
+
+:::{.incremental}
+- In many derivations, we work with expectations like $\mathrm{E}\left(\cdot\mid x_i\right)$. 
+- In other words: We fix the $x$ values and imagine drawing many random samples with those same $x_i$ (but different $u_i$ and therefore $y_i$) (known as $x$ **fixed in repeated samples**).
+- This is not very realistic, especially with observational data.
+- The assumption allows us to **apply the same derivations** even when $x_i$ is **not fixed**.
+:::
+
+## When Are Errors Not Exogenous?
+
+. . .
+
+$\mathrm{E}\left(u_i\right)=0$ is not a very restrictive assumption (we can always shift the line if needed). But $\mathrm{E}\left(u_i\mid x_i\right)=0$ is far less trivial.
+
+::::{.columns}
+:::{.column width="50%" .col1 .bitsmall .fragment}
+#### Experiment
+
+We randomly select a number of fields. Then, we randomly choose half of them to apply fertilizer. We then record the crop yields.
+:::
+:::{.column width="50%" .col2 .bitsmall .fragment}
+#### Observational Study
+
+We randomly select a number of fields. Then, we ask farmers whether they applied fertilizer. We record fertilizer use and yields.
+:::
+::::
+
+. . .
+
+In the [**experiment**]{.col1}, the intervention (fertilizer use, $x_i$) is guaranteed to be independent of unobserved factors. The assumption that $\mathrm{E}\left(u_i\mid x_i\right)=0$ is thus plausible.
+
+. . .
+
+In the [**observational study**]{.col2}, the intervention may not be independent of unobserved factors. Maybe fertilizer is used on less fertile fields to compensate? Or on better fields to boost yield even more? If we believe $\mathrm{E}\left(u_i\mid x_i\right)=0$ is plausible, we must **justify** it.
+
+# Expected Value of the OLS Estimator
+
+## OLS Is Unbiased
+
+. . .
+
+If assumptions SLR.1 through SLR.4 hold, we can **prove** that the OLS estimator is **unbiased**.
+
+. . .
+
+An estimator is unbiased if **its expected value** equals the **true value of the parameter in the population model**. So we want to prove:
+
+$$
+\mathrm{E}\left(\hat{\beta}_j\right) = \beta_j\qquad j = 0,1
+$$
+
+## Proof: OLS Is Unbiased {auto-animate="true"}
+
+. . .
+
+We start with the expression for the OLS estimator:
+
+$$
+\hat{\beta}_1 = \frac{\sum_{i=1}^{n} (x_i - \bar{x}) (y_i-\bar{y})}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i} = \frac{\sum_{i=1}^{n} (x_i - \bar{x}) y_i}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}
+$$
+
+. . .
+
+As a first step, we write $y_i$ as the sum of its components:
+
+$$
+\hat{\beta}_1 = \frac{\sum_{i=1}^{n} (x_i - \bar{x}) (\textcolor{var(--primary-color)}{\beta_0} + \textcolor{var(--secondary-color)}{\beta_1 x_i} + \textcolor{var(--quarternary-color)}{u_i})}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}
+$$
+
+. . .
+
+We split this up:
+
+$$
+\hat{\beta}_1 = \frac{\textcolor{var(--primary-color)}{\beta_0 \sum_{i=1}^{n} (x_i - \bar{x})} + \textcolor{var(--secondary-color)}{\beta_1 \sum_{i=1}^{n} (x_i - \bar{x}) x_i} + \textcolor{var(--quarternary-color)}{\sum_{i=1}^{n} (x_i - \bar{x}) u_i}}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}
+$$
+
+## Proof: OLS Is Unbiased {auto-animate="true"}
+
+$$
+\hat{\beta}_1 = \frac{\textcolor{var(--primary-color)}{\beta_0 \sum_{i=1}^{n} (x_i - \bar{x})} + \textcolor{var(--secondary-color)}{\beta_1 \sum_{i=1}^{n} (x_i - \bar{x}) x_i} + \textcolor{var(--quarternary-color)}{\sum_{i=1}^{n} (x_i - \bar{x}) u_i}}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}
+$$
+
+. . .
+
+Because $\textcolor{var(--primary-color)}{\sum_{i=1}^{n} (x_i - \bar{x})} = 0$ and $\frac{\textcolor{var(--secondary-color)}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}}{\textcolor{var(--secondary-color)}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}} = 1$:
+
+$$
+\hat{\beta}_1 = \beta_1 + \textcolor{var(--quarternary-color)}{\frac{\sum_{i=1}^{n} (x_i - \bar{x}) u_i}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}}
+$$
+
+. . .
+
+We call $\textcolor{var(--quarternary-color)}{\frac{\sum_{i=1}^{n} (x_i - \bar{x}) u_i}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}}$ the [**sampling error**]{.col4}. The equation shows us that $\hat{\beta}_1$ in a finite sample equals the sum of the true parameter $\beta_1$ and a certain linear combination of the error terms—the sampling error.
+
+. . .
+
+If we can show that this sampling error has an **expected value of 0**, we have proven that the OLS estimator is unbiased.
+
+## Proof: OLS Is Unbiased {auto-animate="true"}
+
+. . .
+
+So what is the expected value of $\hat{\beta}_1$?
+
+$$
+\mathrm{E}(\hat{\beta}_1 | x_1, \dots, x_N) = \mathrm{E} \left( \beta_1 + \frac{\sum_{i=1}^{n} (x_i - \bar{x}) u_i}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i} \Bigg| x_1, \dots, x_N \right)
+$$
+
+. . .
+
+Since the true parameter $\beta_1$ is not a random variable, we can take it outside:
+
+$$
+\mathrm{E}(\hat{\beta}_1 | x_1, \dots, x_N) = \beta_1 + \mathrm{E} \left( \frac{\sum_{i=1}^{n} (x_i - \bar{x}) u_i}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i} \Bigg| x_1, \dots, x_N \right)
+$$
+
+. . .
+
+Because $\mathrm{E}(x_i\mid x_i)=x_i$:
+
+$$
+\mathrm{E}(\hat{\beta}_1 | x_1, \dots, x_N) = \beta_1 + \frac{\sum_{i=1}^{n} (x_i - \bar{x}) \mathrm{E} \left( u_i | x_1, \dots, x_N \right)}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}
+$$
+
+## Proof: OLS Is Unbiased {auto-animate="true"}
+
+
+$$
+\mathrm{E}(\hat{\beta}_1 | x_1, \dots, x_N) = \beta_1 + \frac{\sum_{i=1}^{n} (x_i - \bar{x}) \mathrm{E} \left( u_i | x_1, \dots, x_N \right)}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}
+$$
+
+. . .
+
+Assumption SLR.2 allows us to simplify:
+
+$$
+\mathrm{E}(\hat{\beta}_1 | x_1, \dots, x_N) = \beta_1 + \frac{\sum_{i=1}^{n} (x_i - \bar{x}) \mathrm{E} \left( u_i | x_i \right)}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}
+$$
+
+. . .
+
+Assumption SLR.4 says that $\mathrm{E} \left( u_i | x_i \right)=0$, so:
+
+$$
+\mathrm{E}(\hat{\beta}_1 | x_1, \dots, x_N) = \beta_1
+$$
+
+## Proof: OLS Is Unbiased {auto-animate="true"}
+
+$$
+\mathrm{E}(\hat{\beta}_1 | x_1, \dots, x_N) = \beta_1
+$$
+
+. . .
+
+By the law of iterated expectations, $\mathrm{E}(\hat{\beta}_1)=\mathrm{E}(\mathrm{E}(\hat{\beta}_1\mid x_1,\dots,x_N))$ and thus:
+
+$$
+\mathrm{E}(\hat{\beta}_1) = \beta_1,
+$$
+
+The expected value of the estimator equals the true parameter from the population model, so it is unbiased.
+
+:::{.flushright}
+$\square$
+:::
+
+## Proof: OLS Is Unbiased
+
+. . .
+
+The proof that $\hat{\beta}_0$ is also unbiased is very simple. First, write $\hat{\beta}_0$ as
+
+$$
+\hat{\beta}_0 = \bar{y}-\hat{\beta}_1\bar{x}.
+$$
+
+. . .
+
+Because $\mathrm{E}(\hat{\beta}_1\mid x_1,\dots,x_N)=\beta_1$:
+
+$$
+\begin{aligned}
+\mathrm{E}(\hat{\beta}_0\mid x_1,\dots,x_N) &= \mathrm{E}(\bar{y}\mid x_1,\dots,x_N)-\mathrm{E}(\hat{\beta}_1\bar{x}\mid x_1,\dots,x_N) \\
+&= \mathrm{E}(\bar{y}\mid x_1,\dots,x_N)-\mathrm{E}(\hat{\beta}_1\mid x_1,\dots,x_N)\bar{x} \\
+&= \beta_0+\beta_1\bar{x}-\beta_1\bar{x} \\
+&= \beta_0.
+\end{aligned}
+$$
+
+. . . 
+
+So the estimator $\hat{\beta}_0$ is also unbiased.
+
+:::{.flushright}
+$\square$
+:::
+
+# Variance of the OLS Estimator
+
+## (SLR.5) Homoskedasticity
+
+:::{.nicebox1l}
+The variance of the error term $u_i$ is the same for all values of $x_i$:
+
+$$
+\mathrm{Var}(u_i\mid x_i) = \mathrm{Var}(u_i) =  \sigma^2
+$$
+:::
+
+:::{.incremental}
+- The variance of the error term is a measure of the variation caused by unobserved factors.
+- Under this assumption, this variance is equal to $\sigma^2$ for all values of $x_i$.
+- We do **not** need this assumption to show that the OLS estimator is unbiased. But we **do** need it to show that it has the lowest possible variance.
+- In real cross-sectional data, this assumption is often violated.
+  - People with more education might have greater variation in their wages.
+  - We will later discuss methods to deal with violations of this assumption.
+:::
+
+## Efficiency of the OLS Estimator
+
+. . .
+
+If assumptions SLR.1 through SLR.5 are fulfilled, we can **prove** that the OLS estimator has the **lowest possible variance** among all linear unbiased estimators.
+
+. . .
+
+We then say that it is the **best** linear unbiased estimator (BLUE). This property is also called **efficiency**.
+
+. . .
+
+We can **prove** this by first showing that the variance of the OLS estimator is
+
+$$
+\colorbox{var(--primary-color-lightened)}{$\mathrm{Var}(\hat{\beta}_1\mid x_i) = \frac{\sigma^2}{\sum^N_{i=1}(x_i-\bar{x})^2}, \qquad \mathrm{Var}(\hat{\beta}_0\mid x_i) = \frac{\sigma^2 N^{-1}\sum^N_{i=1}x_i^2}{\sum^N_{i=1}(x_i-\bar{x})^2}$}
+$$
+
+and then showing that there cannot be any other linear unbiased estimator with a smaller variance.
+
+## Proof: Efficiency of the OLS Estimator {auto-animate="true"}
+
+. . .
+
+We prove this for $\beta_1$. We begin with the **decomposition** of the estimator from earlier:
+
+$$
+\mathrm{Var}(\hat{\beta}_1\mid x_i) = \mathrm{Var}\left(\beta_1+\frac{\sum_{i=1}^{n} (x_i - \bar{x}) u_i}{\sum_{i=1}^{n} (x_i - \bar{x}) x_i}\middle| x_i\right)
+$$
+
+. . .
+
+To simplify notation, we now define $w_i:=\frac{x_i - \bar{x}}{\sum_{i=1}^{n} (x_i - \bar{x})x_i}$:
+
+$$
+\textstyle\mathrm{Var}(\hat{\beta}_1\mid x_i) = \mathrm{Var}\left(\beta_1+\sum_{i=1}^{n}w_iu_i \middle| x_i\right)
+$$
+
+. . .
+
+Now we can apply SLR.5. Also, the weights $w_i$ depend only on $x_i$ and are thus fixed:
+
+$$
+\mathrm{Var}(\hat{\beta}_1\mid x_i) = \sigma^2\sum_{i=1}^{n}w_i^2
+$$
+
+## Proof: Efficiency of the OLS Estimator {auto-animate="true"}
+
+$$
+\mathrm{Var}(\hat{\beta}_1\mid x_i) = \sigma^2\sum_{i=1}^{n}w_i^2
+$$
+
+. . .
+
+Now we expand $w_i$: Since $w_i=\frac{x_i - \bar{x}}{\sum_{i=1}^{n} (x_i - \bar{x})x_i}$, we also have: $\sum_{i=1}^{n}w_i^2=\frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{\left(\sum_{i=1}^{n} (x_i - \bar{x})x_i\right)^2}=\frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{\left(\sum_{i=1}^{n} (x_i - \bar{x})^2\right)^2}=\frac{1}{\sum_{i=1}^{n} (x_i - \bar{x})^2}$. Thus:
+
+$$
+\colorbox{var(--secondary-color-lightened)}{$\mathrm{Var}(\hat{\beta}_1\mid x_i) = \frac{\sigma^2}{\sum^N_{i=1}(x_i-\bar{x})^2}$}
+$$
+
+. . . 
+
+:::{.callout-tip title="Exercise"}
+How can we derive $\mathrm{Var}(\hat{\beta}_0\mid x_i) = \frac{\sigma^2 N^{-1}\sum^N_{i=1}x_i^2}{\sum^N_{i=1}(x_i-\bar{x})^2}$?
+:::
+
+## Proof: Efficiency of the OLS Estimator {auto-animate="true"}
+
+. . .
+
+Now we address the second part: Is this variance the smallest possible for a linear unbiased estimator? Let $\tilde{\beta}_1$ be any other linear estimator with arbitrary weights $a_i$ (instead of the OLS weights $w_i$):
+
+$$
+\tilde{\beta}_1 = \sum^N_{i=1}a_iy_i = \sum^N_{i=1} a_i\left(\beta_0+\beta_1x_i+u_i\right)
+$$
+
+. . .
+
+Since these weights $a_i$ are based on the $x$ values, we can apply SLR.4 to write the expectation as:
+
+$$
+\mathrm{E}\left(\tilde{\beta}_1\middle| x_i\right) = \beta_0\sum^N_{i=1}a_i+\beta_1\sum^N_{i=1}a_ix_i
+$$
+
+. . .
+
+Because we assume this estimator is also unbiased, we get two conditions: $\sum^N_{i=1}a_i = 0$ and $\sum^N_{i=1}a_ix_i = 1$.
+
+## Proof: Efficiency of the OLS Estimator {auto-animate="true"}
+
+. . .
+
+We can express the weights of $\tilde{\beta}_1$ as the OLS weights plus a difference:
+
+$$
+a_i = w_i + d_i
+$$
+
+. . .
+
+That allows us to rewrite the estimator (using the same decomposition as earlier for the OLS estimator):
+
+$$
+\tilde{\beta}_1 = \beta_1 + \sum^N_{i=1}(w_i+d_i)u_i.
+$$
+
+. . .
+
+The variance of $\tilde{\beta}_1$ is thus:
+
+$$
+\mathrm{Var}\left(\tilde{\beta}_1\middle|x_i\right) \quad = \quad   \sigma^2\sum^N_{i=1}\left(w_i+d_i\right)^2 \quad = \quad \sigma^2\sum^N_{i=1}\left(w_i^2+2w_id_i+d_i^2\right) 
+$$
+
+## Proof: Efficiency of the OLS Estimator {auto-animate="true"}
+
+$$
+\textstyle\mathrm{Var}\left(\tilde{\beta}_1\middle|x_i\right) \quad = \quad   \sigma^2\sum^N_{i=1}\left(w_i+d_i\right)^2 \quad = \quad \sigma^2\sum^N_{i=1}w_i^2+2w_id_i+d_i^2 
+$$
+
+. . .
+
+Because $\sum^N_{i=1}a_i  = \sum^N_{i=1}(w_i+d_i)=0$ and $\sum^N_{i=1}w_i=0$, we also have:
+
+$$
+\sum^N_{i=1}d_i=0
+$$
+
+. . .
+
+Also:
+
+$$
+\sum^N_{i=1}(w_i+d_i)x_i=\sum^N_{i=1}w_ix_i+\sum^N_{i=1}d_ix_i=1\quad\Rightarrow\quad \sum^N_{i=1}d_ix_i=0
+$$
+
+## Proof: Efficiency of the OLS Estimator {auto-animate="true"}
+
+$$
+\textstyle\mathrm{Var}\left(\tilde{\beta}_1\middle|x_i\right) \quad = \quad   \sigma^2\sum^N_{i=1}\left(w_i+d_i\right)^2 \quad = \quad \sigma^2\sum^N_{i=1}w_i^2+2w_id_i+d_i^2 
+$$
+
+. . .
+
+Because $\sum^N_{i=1}d_i=0$ and $\sum^N_{i=1}d_ix_i=0$, the middle term becomes:
+
+$$
+\textstyle\sum^N_{i=1}w_id_i = \frac{\sum^N_{i=1}\left(x_i-\bar{x}\right)}{\sum^N_{i=1}(x_i-\bar{x})^2}d_i=\frac{1}{\sum^N_{i=1}(x_i-\bar{x})^2}\sum^N_{i=1}x_id_i-\frac{\bar{x}}{\sum^N_{i=1}(x_i-\bar{x})^2}\sum^N_{i=1}d_i=0
+$$
+
+. . .
+
+So the expression for the variance simplifies to:
+
+$$
+\mathrm{Var}\left(\tilde{\beta}_1\middle|x_i\right) \quad = \quad \sigma^2\sum^N_{i=1}w_i^2+\textcolor{var(--secondary-color)}{\sigma^2\sum^N_{i=1}d_i^2}
+$$
+
+The difference from the variance of the OLS estimator is the [**right-hand term**]{.col2}. Since this term can never be negative, the variance of $\tilde{\beta}_1$ must always be greater than or equal to that of $\hat{\beta}_1$.
+
+:::{.flushright}
+$\square$
+:::
+
+## Estimator for $\sigma^2$
+
+. . .
+
+Back to the variance of the OLS estimator:
+
+$$
+\mathrm{Var}(\hat{\beta}_1\mid x_i) = \frac{\sigma^2}{\sum^N_{i=1}(x_i-\bar{x})^2}
+$$
+
+. . .
+
+If we want to compute this variance from data, we have a problem: [**We don’t know $\sigma^2$.**]{.fragment .col2}
+
+. . .
+
+Under assumptions SLR.1 through SLR.5, we can find an unbiased estimator for the variance:
+
+$$
+\colorbox{var(--secondary-color-lightened)}{$\hat{\sigma}^2=\frac{\sum^N_{i=1}\hat{u}_i^2}{n-2}$},
+$$
+
+i.e., the **residual sum of squares divided by** $n-2$.
+
+## Standard Error of the Regression
+
+. . .
+
+If we take the **square root** of the estimator for the variance of the error term, we get:
+
+$$
+\hat{\sigma}=\sqrt{\hat{\sigma}^2}.
+$$
+
+. . .
+
+We call this value the **standard error of the regression**. While not unbiased, it is a **consistent** estimator for $\sigma$. With it, we can compute the standard error of $\hat{\beta}_1$, an estimator for the standard deviation of $\hat{\beta}_1$:
+
+$$
+\textstyle\mathrm{se}\left(\hat{\beta}_1\right)=\frac{\hat{\sigma}}{\sqrt{\sum^N_{i=1}\left(x_i-\bar{x}\right)^2}}
+$$
+
+. . .
+
+Similarly, we can compute the standard error of $\beta_0$. This allows us to measure how “precisely” the coefficients are estimated.
+
+:::{.aside}
+**Unbiasedness** means that the expected value of an estimator equals the true parameter. **Consistency** means the estimator converges to the true parameter as the sample size increases.
+:::
+
+## Visualization
+
+. . .
+
+We simulate 4000 samples from a population and estimate the $\beta_1$ coefficient 4000 times.
+
+. . .
+
+::::{.columns}
+:::{.column width="50%"}
+``` {r}
+#| fig-align: center
+#| fig-width: 7
+
+library(scales)
+set.seed(12346)
+pop<-5000               #population
+x <- runif(pop) * 2     #some variable between 0 and 2
+y <- 0+x+0.5*rnorm(pop) #beta0 = 0, beta1=1, sigma=0.5
+samples <- c(rep(0.006,4000)) #draw 4k samples of size 0.6% of the pop
+#estimate 4k regression lines on 4k samples
+beta1 <- c() #prepare an empty list
+plot(x, y, col = alpha("grey", 0.1), pch = 19,        #prepare plot
+     xlim = 1 + c(-1.05, 1.05),ylim=1 + c(-1.4, 1.4))
+for (i in seq_along(samples)) {
+  sample_i <- sample(1:pop,pop * samples[i])
+  ols <- lm(y[sample_i] ~ x[sample_i])
+  abline(reg=ols, col=alpha("#4072C2",1/sqrt(sqrt(i))), lwd = 1.5)
+  beta1 <- c(beta1, coefficients(ols)[2])  #add beta to the list
+}
+abline(b=1, col = "black")
+```
+:::
+:::{.column width="50%"}
+``` {r}
+#| fig-align: center
+#| fig-width: 7
+hist(beta1, main = "")
+```
+:::
+::::
+
+In this example, the standard deviation of the $\beta_1$ coefficients is `{r} print(round(sd(beta1),3))`. The standard error is `{r} print(summary(ols)$coefficients[2,2])`.
+
+# Regressions with Only One Parameter
+
+## Regressions without an Intercept
+
+. . . 
+
+What happens if, instead of estimating the model $y = \beta_0 + \beta_1x + u$, we estimate the following model?
+
+$$
+y = \beta_1x + u
+$$
+
+. . . 
+
+This simply means that we impose the restriction $\beta_0=0$, so the regression line goes through the origin.
+
+The OLS estimator in this case is
+
+$$
+\hat{\beta_1}=\frac{\sum^N_{i=1}x_iy_i}{\sum^N_{i=1}x_i^2}.
+$$
+
+. . .
+
+:::{.callout-tip title="Exercise"}
+How can we derive this estimator?
+:::
+
+## Bias in Regressions without an Intercept
+
+. . .
+
+If the **true model** of the population has **no intercept**, then this estimator is **unbiased**:
+
+. . .
+
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+#| fig-align: "center"
+
+set.seed(124) 
+par(mfrow=c(1,2))
+par(mar=c(1,1,4,0))
+library(scales) 
+n<-50
+foci <- 1
+intercepts <- c(0,2/3)
+
+for (focus in foci) {
+    intercept<-0
+    x <- runif(n)-0.6+focus
+    y <- intercept+0.5*x+rnorm(n)*0.2
+  
+    xlim<-c(-2.5,2.5)
+    ylim<-c(-2,2)
+    xlab<-"x"
+    ylab<-"y"
+    
+    plot(x,y,col=alpha("black",0.3),pch=19,xlim=xlim,axes = F, xlab = "", ylab = "",ylim=ylim,main="OLS with Intercept",cex=0.6)
+    abline(intercept,0.5)
+    fit_SLR<-lm(formula = y ~ x)
+    abline(fit_SLR, col="#4072C2",lw=3)
+    axis(1, pos = 0)
+    axis(2, pos = 0, las = 2)
+    
+    plot(x,y,col=alpha("black",0.3),pch=19,xlim=xlim,axes = F, xlab = "", ylab = "",ylim=ylim,main="OLS without Intercept",cex=0.6)
+    abline(intercept,0.5)
+    fit_RttO<-lm(formula = y ~ x-1)
+    abline(fit_RttO, col="#4072C2",lw=3)
+    axis(1, pos = 0)
+    axis(2, pos = 0, las = 2)
+}
+```
+
+## Bias in Regressions without an Intercept
+
+. . .
+
+If the **true model** of the population **has an intercept**, then this estimator is **biased**:
+
+. . .
+
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+#| fig-align: "center"
+set.seed(124)
+par(mfrow=c(1,2))
+par(mar=c(1,1,4,1))
+library(scales)
+n<-50
+foci <- 0.5
+intercepts <- c(0,2/3)
+
+for (focus in foci) {
+  intercept <- 2/3
+
+    x <- runif(n)-0.6+focus
+    y <- intercept+0.5*x+rnorm(n)*0.2
+  
+    xlim<-c(-2.5,2.5)
+    ylim<-c(-2,2)
+    xlab<-"x"
+    ylab<-"y"
+    
+    plot(x,y,col=alpha("black",0.3),pch=19,xlim=xlim,axes = F, xlab = "", ylab = "",ylim=ylim,main="OLS with Intercept",cex=0.6)
+    abline(intercept,0.5)
+    fit_SLR<-lm(formula = y ~ x)
+    abline(fit_SLR, col="#4072C2",lw=3)
+    axis(1, pos = 0)
+    axis(2, pos = 0, las = 2)
+    
+    plot(x,y,col=alpha("black",0.3),pch=19,xlim=xlim,axes = F, xlab = "", ylab = "",ylim=ylim,main="OLS without Intercept",cex=0.6)
+    abline(intercept,0.5)
+    fit_RttO<-lm(formula = y ~ x-1)
+    abline(fit_RttO, col="#4072C2",lw=3)
+    axis(1, pos = 0)
+    axis(2, pos = 0, las = 2)
+}
+```
+
+## Bias in Regressions without an Intercept
+
+. . .
+
+The OLS estimator in a regression without an intercept is only unbiased if the intercept in the true model is actually 0.
+
+:::{.incremental}
+- If that is the case, it’s actually preferable to estimate a model without an intercept (since we would otherwise be imposing unnecessary structure).
+- But that is almost never the case.
+  - And we never truly know if it is the case.
+  - So we should **never** run a regression without an intercept unless we have overwhelming theoretical justification (which, again, we rarely do).
+:::
+
+. . .
+
+:::{.callout-tip title="Exercise"}
+How can we prove that the estimator is biased in the case mentioned above?
+:::
+
+## Regressions without Explanatory Variables
+
+. . . 
+
+What happens if, instead of estimating the model $y = \beta_0 + \beta_1x + u$, we estimate the following model?
+
+$$
+y = \beta_0 + u
+$$
+
+. . . 
+
+This simply means we impose the restriction $\beta_1=0$, and the regression line is horizontal.
+
+. . .
+
+The OLS estimator in this case is
+
+$$
+\hat{\beta_0} = \bar{y},
+$$
+
+the **mean** of the $y$ values.
+
+. . .
+
+:::{.callout-tip title="Exercise"}
+How can we derive this estimator?
+:::
+
+
+# Binary Explanatory Variables
+
+## Qualitative and Quantitative Information
+
+. . .
+
+So far, we have only used **explanatory variables** with a **quantitative interpretation** (years of education, class size, ...). How can we include **qualitative information** in the model?
+
+. . .
+
+Suppose we want to analyze the **gender pay gap** and are therefore interested in whether an individual is a woman or not. We can define a variable as follows:
+
+$$
+\mathrm{Woman}_i = 
+\begin{cases}
+1&\text{if }i\text{ is a woman},\\
+0&\text{otherwise}
+\end{cases}
+$$
+
+. . .
+
+We call such a variable a [**binary variable**]{.col1} or [**dummy variable**]{.col1}.
+
+. . .
+
+Another example would be a **job training program**. The variable $\text{Programmteilnahme}_i$ is then 1 for all people who participated in the program and 0 for all others.
+
+## Interpretation
+
+. . .
+
+So we have a model of the form
+
+$$
+y = \beta_0 + \beta_1x + u,
+$$
+
+where $x$ is a dummy variable. Our assumptions SLR.1 to SLR.5 still hold. This means:
+
+. . .
+
+$$
+\begin{align}
+\mathrm{E}(y\mid x=1) &= \beta_0+ \beta_1, \\
+\mathrm{E}(y\mid x=0) &= \beta_0.
+\end{align}
+$$
+
+. . .
+
+We can thus interpret $\beta_1$ as the **expected difference in $y$ between the two groups**, and $\beta_0$ as the **mean value in the group $x=0$**. It follows that the mean value in group $x=1$ is then $\beta_0 + \beta_1$.
+
+. . .
+
+We can also encode more complex qualitative information than just “yes/no” with dummy variables. But for that, we need the techniques of multiple linear regression from the next module.
+
+# Causal Inference
+
+## Counterfactual Outcome
+
+. . .
+
+We have talked several times about wanting to evaluate **treatments** or **interventions**.
+
+:::{.incremental}
+- Now that we know dummy variables, we know how to model treatment participation.
+- We can divide our sample into a **treatment group** and a **control group**.
+- Essentially, for each individual, there are two possible **outcome states**:
+  - $y_i(1)$ is the outcome if $i$ received the treatment.
+  - $y_i(0)$ is the outcome if $i$ did not receive the treatment.
+- However, we can only ever observe **one state**, as we cannot access an alternative reality.
+- The unobserved state is called the **counterfactual outcome**.
+:::
+
+## Causal Effects
+
+. . .
+
+So for each individual, there are two possible **states**, of which we can observe only one.
+
+:::{.incremental}
+- If we could observe both states, we could easily isolate a **causal effect** by simply computing
+  $$
+  \text{Causal Effect}_i=y_i(1)-y_i(0)
+  $$
+- This effect has a subscript $i$, so it may vary across individuals.
+- We will **never** be able to observe this effect directly, since we can observe only one reality. This is referred to as the [**fundamental problem of causal inference**]{.col1}.
+- Therefore, we need **alternative strategies** to approximate this effect.
+:::
+
+## Average Treatment Effect (ATE)
+
+. . .
+
+An effect we can estimate is the **average treatment effect** (ATE):
+
+$$
+\mathrm{ATE}=\mathrm{E}\left(\text{Causal Effect}_i\right) = \mathrm{E}\left(y_i(1)-y_i(0)\right) =  \mathrm{E}\left(y_i(1)\right)-\mathrm{E}\left(y_i(0)\right).
+$$
+
+. . .
+
+If assumptions SLR.1 through SLR.4 hold, the OLS estimator $\beta_1$ is an **unbiased estimator** of the **average treatment effect**.
+
+. . .
+
+This brings us back to something we’ve discussed before: Assumption SLR.4 (in this context: the errors are independent of treatment group assignment $x$) only holds guaranteed if the **assignment to the treatment group is** [**random**]{.col1}, for example in a **randomized controlled trial**.
+
+. . .
+
+In contexts where random assignment to treatment groups is not possible, the methods we have learned so far cannot yield valid statements about treatment effects. In Module 3, we will discuss how to address this problem using methods of **multiple linear regression**.
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+# Appendix
+
+## Best Linear Prediction Function {#appdix1}
+
+:::{.bitsmall}
+Why do we use the **linear conditional expectation function** for prediction? 
+
+With a **quadratic loss function**:
+
+- If $y_i=\beta_0+\beta_1x_i+u_i$ is the true model, and
+- if $\mathrm{E}(y_i^2)<\infty$, $\mathrm{E}(x_i^2)<\infty$, and $\mathrm{Var}(x_i)>0$,
+- we can show that the linear conditional expectation function $\mathrm{E}(y_i|x_i)=\beta_0+\beta_1x_i$ is the **best linear prediction function** of $y_i$,
+- i.e., the unique solution of
+  $$
+  (\beta_0,\beta_1)=\underset{b_0\in\mathbb{R},b_1\in\mathbb{R}}{\mathrm{arg\:min}}\:\:\mathrm{E}\left((y_i-b_0-b_1x_i)^2\right).
+  $$
+
+So, if we know the joint distribution of $x$ and $y$, want to predict $y$ with a linear model, and minimize the expected squared errors, the linear conditional expectation function is the best function to use. 
+:::
+
+## Best Linear Prediction Function
+
+**Two Remarks**:
+
+:::{.quitesmall}
+1.  **Explicit solutions** for slope and intercept based on the (unobserved) moments of the population are: 
+$$\beta_1=\frac{\mathrm{Cov}(x,y)}{\mathrm{Var}(x)}
+\quad\quad\text{and}
+\quad\quad\beta_0=\mathrm{E}(y)-\beta_1\mathrm{E}(x).$$ 
+
+2. A similar result as in the previous slide holds in more general form: When using a quadratic loss function, the best prediction function for unknown $y$ is always a conditional expectation function—even when working with nonlinear functions.
+
+**Why a quadratic loss function?**
+
+- Mainly because the analytical properties of quadratic loss functions are well known and convenient.
+- One can also use other loss functions.
+  - e.g., an **absolute loss function** of the form $|\cdot|$ leads to the **conditional median** as a solution.
+:::
+
+:::{.flushright}
+[Back](#cef){.butn} 
+:::
+
+## Proof: $\mathrm{Cov}(u,x)=\mathrm{E}(ux)$ {#appdix2}
+
+$$
+\mathrm{Cov}(u_i,x_i) = \mathrm{E}(u_ix_i)-\mathrm{E}(u_i)\mathrm{E}(x_i)
+$$
+
+Since we assume that $\mathrm{E}(u_i)=0$,
+
+$$
+\mathrm{Cov}(u_i,x_i)=\mathrm{E}(x_iu_i)
+$$
+
+:::{.flushright}
+$\square$
+:::
+
+:::{.flushright}
+[Back](#moments){.butn}
+:::
+
+## Proof: $\mathrm{SST} = \mathrm{SSE} + \mathrm{SSR}$ {#appdix3}
+
+::::{.columns}
+:::{.column width="50%" .bitsmall}
+$$
+\begin{aligned}
+\text{SST} 
+&= \sum (y_i - \bar{y})^2\\
+&= \sum \bigl(y_i - \bar{y} + \underbrace{\hat{y}_i - \hat{y}_i}_{=0}\bigr)^2\\
+&= \sum \Bigl((y_i - \hat{y}_i) + (\hat{y}_i - \bar{y})\Bigr)^2\\
+&= \sum \Bigl(\hat{u}_i + (\hat{y}_i - \bar{y})\Bigr)^2\\
+&= \sum \Bigl(\hat{u}_i^2 + 2\,\hat{u}_i(\hat{y}_i - \bar{y}) + (\hat{y}_i - \bar{y})^2\Bigr)\\
+&= \sum \hat{u}_i^2 + 2 \sum \hat{u}_i(\hat{y}_i - \bar{y}) + \sum (\hat{y}_i - \bar{y})^2\\
+&= \text{SSR} + 2 \underbrace{\sum \hat{u}_i(\hat{y}_i - \bar{y})}_{=0\text{, see right}} + \text{SSE}\\
+&= \text{SSR} + \text{SSE}\qquad\qquad\qquad\qquad\qquad\qquad\square
+\end{aligned}
+$$
+:::
+:::{.column width="50%" .bitsmall}
+$$
+\begin{aligned}
+\sum \hat{u}_i(\hat{y}_i - \bar{y})
+&= \sum \hat{u}_i \,\hat{y}_i -\bar{y}\,\sum \hat{u}_i\\
+&= \sum \hat{u}_i \bigl(\hat{\beta}_0 + \hat{\beta}_1 x_i\bigr)-\bar{y}\,\sum \hat{u}_i\\
+&= \hat{\beta}_0\underbrace{\sum \hat{u}_i}_{=0} +\hat{\beta}_1 \underbrace{\sum \hat{u}_i x_i}_{=0} -\bar{y}\underbrace{\sum \hat{u}_i}_{=0}\\
+&= 0
+\end{aligned}
+$$
+:::
+::::
+
+:::{.flushright}
+[Back](#decomp){.butn}
+:::
+
+## Proof: $\mathrm{E}\left(u_i\mid x_i\right) = 0 \Rightarrow \mathrm{E}\left(u_i x_i\right) = 0$ and $\mathrm{E}\left(u_i\right) = 0$ {#appdix4}
+
+#### Part 1: $\mathrm{E}\left(u_i\mid x_i\right) = 0 \Rightarrow \mathrm{E}\left(u_i\right) = 0$
+
+First, apply the law of iterated expectations: $\mathrm{E}\left(u_i\right) = \mathrm{E}\left(\mathrm{E}\left(u_i\mid x_i\right)\right)$. Then use the assumption that $\mathrm{E}\left(u_i\mid x_i\right)=0$: $\mathrm{E}\left(\mathrm{E}\left(u_i\mid x_i\right)\right) = \mathrm{E}(0) = 0$. $\square$
+
+#### Part 2: $\mathrm{E}\left(u_i\mid x_i\right) = 0 \Rightarrow \mathrm{E}\left(u_i x_i\right) = 0$
+
+Again, apply the law of iterated expectations: $\mathrm{E}\left(u_ix_i\right) = \mathrm{E}\left(\mathrm{E}\left(u_ix_i\mid x_i\right)\right)$ Since $\mathrm{E}(x_i\mid x_i) = x_i$, we have $\mathrm{E}\left(\mathrm{E}\left(u_ix_i\mid x_i\right)\right) = \mathrm{E}\left(\mathrm{E}\left(u_i\mid x_i\right)x_i\right)$ Then, using the assumption that $\mathrm{E}\left(u_i\mid x_i\right)=0$: $\mathrm{E}\left(\mathrm{E}\left(u_i\mid x_i\right)x_i\right) = \mathrm{E}(0x_i) = 0$. $\square$
+
+:::{.flushright}
+[Back](#slr4){.butn} 
+:::
+

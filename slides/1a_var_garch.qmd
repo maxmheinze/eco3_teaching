@@ -1,0 +1,331 @@
+---
+title: "Module 1: Time Series and Autocorrelation"
+subtitle: "Econometrics II"
+author:
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+      - appxslideno.lua
+      - pdf-to-svg.lua
+      - space.lua
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @cunningham2021
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+```{r}
+#| label: setup
+#| include: false
+library(plotly)
+font_family <- "Inter" 
+```
+
+# Vector Autoregressions
+
+## Forecasting Multiple Variables
+
+. . .
+
+One way in which everything so far **differed** from what we used to do in Econometrics was that we were only analyzing [**one variable**]{.col2} at a time. Now, we are going to talk about how we can analyze [**two or more time series**]{.col1}.
+
+. . .
+
+As you can imagine, there are endless **applications** for time series methods for multiple variables. For one thing, it is rare to find a variable that is not influenced by past or present realizations of another. We may be interested in describing or forecasting them properly, and thus we need methods to do so.
+
+. . .
+
+We are going to go about this the following way:
+
+:::{.incremental}
+- First, we are going to introduce a **model to forecast multiple variables** at the same time.
+- Then, we are going to discuss **cointegration**, which means multiple variables share a common trend.
+- Finally, we are going to talk about situations where **volatility** changes over time.
+:::
+
+## One Model per Variable or One Model for All? {auto-animate="true"}
+
+. . .
+
+Let us start by considering **two variables** and writing down AR(1) processes for both of them:
+
+$$
+y_t = a_0 + a_1 y_{t-1} + \varepsilon_t
+$$
+
+$$
+x_t = b_0 + b_1 x_{t-1} + \varepsilon_t
+$$
+
+. . .
+
+This way, we model both of them on **past realizations of themselves**. It is very easy to extend this to also include **past realizations of the opposite variable**:
+
+$$
+y_t = a_{10} + a_{11} y_{t-1} + a_{12} x_{t-1} + \varepsilon_{1t}
+$$
+
+$$
+x_t = a_{20} + a_{21} y_{t-1} + a_{22} x_{t-1} + \varepsilon_{2t}
+$$
+
+Maybe you already suspect where we are going to end up.
+
+## Why Do We Call It a “Vector” Autoregression? {auto-animate="true"}
+
+$$
+y_t = a_{10} + a_{11} y_{t-1} + a_{12} x_{t-1} + \varepsilon_{1t}
+$$
+
+$$
+x_t = a_{20} + a_{21} y_{t-1} + a_{22} x_{t-1} + \varepsilon_{2t}
+$$
+
+. . .
+
+Of course, we know a way to consolidate this into one line by **stacking** the equations:
+
+$$
+\begin{pmatrix}
+y_t \\
+x_t 
+\end{pmatrix}
+=
+\begin{pmatrix}
+a_{11} & a_{12} \\
+a_{21} & a_{22} 
+\end{pmatrix}
+\begin{pmatrix}
+y_{t-1} \\
+x_{t-1} 
+\end{pmatrix}
++
+\begin{pmatrix}
+\varepsilon_{1t} \\
+\varepsilon_{2t} 
+\end{pmatrix}
+$$
+
+. . .
+
+This is what we call a [**Vector Autoregression**]{.col1} ([**VAR**]{.col1}). More specifically, this is a **VAR(1)** system of equations.
+
+:::{.incremental}
+- A VAR is an extension of univariate autoregressive processes to vectors of multiple variables.
+- When the number of lags with respect to each variable is $p$, we call the system of equations a VAR($p$).
+:::
+
+## Three Time Series
+
+. . .
+
+Let us now consider three variables we know well: **real GDP growth** $\nabla y_t$, **inflation** $\pi_t$, and the **interest rate** $r_t$. In the spirit of what we did before, we can construct the following VAR(1):
+
+. . .
+
+$$
+\begin{pmatrix}
+\nabla y_t \\
+\pi_t \\
+r_t
+\end{pmatrix}
+=
+\begin{pmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+a_{31} & a_{32} & a_{33}
+\end{pmatrix}
+\begin{pmatrix}
+\nabla y_{t-1} \\
+\pi_{t-1} \\
+r_{t-1}
+\end{pmatrix}
++
+\begin{pmatrix}
+\varepsilon_{\nabla y_t} \\
+\varepsilon_{\pi_t} \\
+\varepsilon_{r_{t}}
+\end{pmatrix}
+$$
+
+. . .
+
+Written more compactly, this becomes
+
+$$
+\boldsymbol{y}_t = \boldsymbol{A}\boldsymbol{y}_{t-1}+\boldsymbol{\varepsilon}_{t}.
+$$
+
+:::{.callout-tip title="Practice"}
+Write this down as three separate equations for $\nabla y_t$, $\pi_t$, and $r_t$. 
+:::
+
+## General Reduced-Form VAR(p) {auto-animate="true"}
+
+. . .
+
+We have discussed a bunch of examples, but what we lack so far is a [**general representation of a VAR($p$) model**]{.col1}. So let us write one down:
+
+$$
+\begin{aligned}
+\boldsymbol{y}_t &= \boldsymbol{a}_0 + \boldsymbol{A}_1\boldsymbol{y}_{t-1} + \dots + \boldsymbol{A}_p\boldsymbol{y}_{t-p} + \boldsymbol{\varepsilon}_t, \\
+\boldsymbol{\varepsilon}_t &\sim \mathcal{N}_M(\boldsymbol{0},\boldsymbol{\Sigma}),
+\end{aligned}
+$$
+
+where 
+
+:::{.incremental}
+- $\boldsymbol{y}_t$ is an $M$-dimensional vector of endogenous variables, 
+- $\boldsymbol{a}_0$ is an $M$-dimensional constant vector, 
+- $\boldsymbol{A}_j$ are $M\times M$-dimensional coefficient matrices, 
+- $\mathcal{N}_M(\cdot,\cdot)$ denotes a multivariate normal distribution of $M$ variables, and 
+- $\boldsymbol{\Sigma}$ denotes an $M\times M$-dimensional variance-covariance matrix.
+:::
+
+## Estimation and Hypothesis Tests {auto-animate="true"}
+
+$$
+\begin{aligned}
+\boldsymbol{y}_t &= \boldsymbol{a}_0 + \boldsymbol{A}_1\boldsymbol{y}_{t-1} + \dots + \boldsymbol{A}_p\boldsymbol{y}_{t-p} + \boldsymbol{\varepsilon}_t, \\
+\boldsymbol{\varepsilon}_t &\sim \mathcal{N}_M(\boldsymbol{0},\boldsymbol{\Sigma}),
+\end{aligned}
+$$
+
+This can be estimated using multiple techniques. 
+
+. . .
+
+As long as errors are assumed normal, [**OLS**]{.col1} is [**consistent**]{.col1} and estimates asymptotically follow a multivariate normal distribution in large samples. This means that 
+
+:::{.incremental}
+- we can easily conduct [**hypothesis tests**]{.col1} the way we know. 
+- We can use the straightforward **critical values** that we know from Econometrics I.
+- Using an $F$-test, we can even test **restrictions across multiple equations**. 
+:::
+
+. . .
+
+Of course, we can also estimate the VAR using **ML** or **Bayesian estimation techniques**, if we want.
+
+## Causal Analysis
+
+. . .
+
+So far, we have treated VARs -- and other time series methods -- as tools to [**forecast**]{.col1} variables. But what if we are interested in [**causal inference**]{.col2}?
+
+There is a certain “causality” concept that exists in the realm of time series econometrics: [**Granger Causality**]{.col2}, named after @granger1969. In short, we speak of **Granger Causality** when a realization of one variable, let us call it $x_t$, can be used to predict a future realization of another variable, $y_{t+1}$.In this case, we say that $x$ [**Granger Causes**]{.col2} $y$.
+
+:::{.incremental}
+- More precisely, $x$ provides statistically significant information about future values of $y$.
+- This is an instance of **predictive causality**, which naturally falls short of “real” **causality**, which we know from non-time-series contexts.
+:::
+
+. . .
+
+But what about real causality? It turns out that VARs were originally introduced into Economics as a tool for analyzing causal relationships between multiple time series [@sims1980]. But using them for this purpose requires going one step further to [**Structural VARs**]{.col2}. Most of how this works is out of scope for this class, but the next slide should serve as a brief introduction.
+
+## Structural VARs
+
+. . .
+
+What we plainly called a VAR before is actually a [**Reduced Form VAR**]{.col1}:
+
+$$
+\boldsymbol{y}_t = \boldsymbol{a}_0 + \boldsymbol{A}_1\boldsymbol{y}_{t-1} + \dots + \boldsymbol{A}_p\boldsymbol{y}_{t-p} + \boldsymbol{\varepsilon}_t
+$$
+
+. . .
+
+The problem with this is that the **errors are not uncorrelated**, and this renders us unable to draw causal conclusions. For [**Structural VARs**]{.col2}, we assume that there exists an invertible matrix $\boldsymbol{B}_0$ such that
+
+$$
+\boldsymbol{\varepsilon}_t=\boldsymbol{B}_0^{-1}\boldsymbol{e}_t,
+$$
+
+giving us the **uncorrelated**, [**structural shocks** $\boldsymbol{e}_t$]{.col2}. Using this decomposition, we can transform the reduced form VAR into a structural VAR. $\boldsymbol{B}_0$ governs the contemporaneous relations between the variables, and thus we need to know about it if we want to investigate causal relationships.
+
+. . .
+
+The real challenge is [**finding** $\boldsymbol{B}_0$]{.col2}. This requires imposing certain **restrictions** based on economic theory and the researcher's assumptions.
+
+
+# Cointegration
+
+## Cointegration
+
+## Error Correction
+
+## An Example
+
+## Vector Error Correction Model
+
+## Testing for Cointegration
+
+# Volatility Clustering, ARCH and GARCH
+
+## Variance over Time
+
+## Volatility Clustering
+
+## Autoregressive Conditional Heteroskedasticity (ARCH)
+
+## Generalized ARCH (GARCH)
+
+## Estimation of ARCH and GARCH
+
+## An Example
+
+# Spatial Autocorrelation
+
+## Time and Space
+
+## Tobler's First Law of Geography
+
+## Spatial Weights 
+
+## Contiguity
+
+## Distance
+
+## Spatial Weights Matrices
+
+## Spatial Autocorrelation
+
+## Positive vs. Negative Spatial Autocorrelation
+
+## Outlook
+
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+
