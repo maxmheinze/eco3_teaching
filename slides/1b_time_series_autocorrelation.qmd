@@ -32,7 +32,7 @@ format:
 bibliography: references.bib
 csl: apa.csl
 nocite: |
-  @cunningham2021
+  @stock2019
 ---
 
 {{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
@@ -44,6 +44,12 @@ nocite: |
 library(plotly)
 font_family <- "Inter" 
 ```
+
+# Insert Sannah's Part Here
+
+## Insert Sannah's Slides Here
+
+Insert Sannah's Text Here
 
 # Vector Autoregressions
 
@@ -278,48 +284,828 @@ The real challenge is [**finding** $\boldsymbol{B}_0$]{.col2}. This requires imp
 
 ## Cointegration
 
+::::{.columns}
+:::{.column width="65%" .fragment}
+```{r}
+#| fig-width: 8
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+library(plotly)
+library(fredr)
+library(dplyr)
+
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+# Fetch data from FRED
+t10y <- fredr(series_id = "GS10", 
+              observation_start = as.Date("1960-01-01"),
+              observation_end = as.Date("2021-12-31"))
+t3m <- fredr(series_id = "GS3M", 
+             observation_start = as.Date("1690-01-01"),
+             observation_end = as.Date("2021-12-31"))
+
+# Prepare data
+rate_10y <- t10y |> select(date, value) |> rename(rate_10y = value)
+rate_3m <- t3m |> select(date, value) |> rename(rate_3m = value)
+df <- inner_join(rate_10y, rate_3m, by = "date")
+
+# Set ranges
+xr <- c(min(df$date) - 30, max(df$date) + 30)
+yr <- c(min(c(df$rate_10y, df$rate_3m), na.rm = TRUE) - 0.3, 
+        max(c(df$rate_10y, df$rate_3m), na.rm = TRUE) + 0.3)
+
+p <- plot_ly() |>
+  # 10-Year rate line
+  add_lines(x = df$date, y = df$rate_10y,
+            line = list(color = "#4072c2", width = 5),
+            hoverinfo = "x+y", name = "10-Year") |>
+  # 3-Month rate line
+  add_lines(x = df$date, y = df$rate_3m,
+            line = list(color = "#74b83d", width = 5),
+            hoverinfo = "x+y", name = "3-Month") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = xr, zeroline = FALSE,
+                 showgrid = FALSE, title = ""),
+    yaxis = list(range = yr, zeroline = FALSE,
+                 showgrid = FALSE, title = "Percent",
+                 linecolor = "darkgray", linewidth = 1),
+    annotations = list(
+      list(x = as.Date("1990-01-01"), y = 10, 
+           xref = "x", yref = "y",
+           text = "<b>10-Year Treasury</b>", showarrow = FALSE,
+           xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#4072c2")),
+      list(x = as.Date("2000-01-01"), y = 7, 
+           xref = "x", yref = "y",
+           text = "<b>3-Month Treasury</b>", showarrow = FALSE,
+           xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#74b83d"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 8*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+p
+```
+:::
+:::{.column width="35%" .fragment}
+
+:vspace1
+
+Look at the two time series in the chart of a [**long-term interest rate**]{.col2} and a [**short-term interest rate**]{.col1}. What do you notice?
+
+:vspace1
+
+[The two time series seem to move together; that is, they share a **common trend**, but not perfectly so.]{.fragment}
+
+:vspace1
+
+[We call this phenomenon **cointegration**.]{.fragment}
+:::
+::::
+
+## Defining Cointegration
+
+. . .
+
+Let us now more formally define what  [**cointegration**]{.col1} means.
+
+:::{.nicebox1l .fragment}
+Assume that we have **two time series**, $y_t$ and $x_t$, and they are both **integrated of order 1** (i.e., two $I(1)$ processes). Then, the two are called **cointegrated** if a $\beta$ exists such that
+
+$$
+u_t = y_t - \beta x_t
+$$
+
+is a **stationary** $I(0)$ **process**.
+
+In this case, we call $\beta$ the **cointegrating coefficient**.
+
+More generally, two series are cointegrated if they are $I(d)$ and some linear combination of them is integrated of order less than $d$.
+:::
+
+. . .
+
+:vspace0.5
+
+Let us plot on the next slide how the process $u_t$ would look like for our previous example.
+
+## Cointegration
+
+::::{.columns}
+:::{.column width="65%" .fragment}
+```{r}
+#| fig-width: 8
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+library(plotly)
+library(fredr)
+library(dplyr)
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+# Fetch data from FRED
+t10y <- fredr(series_id = "GS10", 
+              observation_start = as.Date("1960-01-01"),
+              observation_end = as.Date("2021-12-31"))
+t3m <- fredr(series_id = "GS3M", 
+             observation_start = as.Date("1690-01-01"),
+             observation_end = as.Date("2021-12-31"))
+# Prepare data
+rate_10y <- t10y |> select(date, value) |> rename(rate_10y = value)
+rate_3m <- t3m |> select(date, value) |> rename(rate_3m = value)
+df <- inner_join(rate_10y, rate_3m, by = "date") |>
+  mutate(spread = rate_10y - 1.2 * rate_3m)
+# Set ranges
+xr <- c(min(df$date) - 30, max(df$date) + 30)
+yr <- c(min(c(df$rate_10y, df$rate_3m, df$spread), na.rm = TRUE) - 0.3, 
+        max(c(df$rate_10y, df$rate_3m, df$spread), na.rm = TRUE) + 0.3)
+p <- plot_ly() |>
+  # 10-Year rate line
+  add_lines(x = df$date, y = df$rate_10y,
+            line = list(color = "#4072c2", width = 5),
+            hoverinfo = "x+y", name = "10-Year") |>
+  # 3-Month rate line
+  add_lines(x = df$date, y = df$rate_3m,
+            line = list(color = "#74b83d", width = 5),
+            hoverinfo = "x+y", name = "3-Month") |>
+  # Spread line
+  add_lines(x = df$date, y = df$spread,
+            line = list(color = "#ED017D", width = 5),
+            hoverinfo = "x+y", name = "Spread") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = xr, zeroline = FALSE,
+                 showgrid = FALSE, title = ""),
+    yaxis = list(range = yr, zeroline = FALSE,
+                 showgrid = FALSE, title = "Percent",
+                 linecolor = "darkgray", linewidth = 1),
+    annotations = list(
+      list(x = as.Date("1990-01-01"), y = 10, 
+           xref = "x", yref = "y",
+           text = "<b>10-Year Treasury</b>", showarrow = FALSE,
+           xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#4072c2")),
+      list(x = as.Date("2000-01-01"), y = 7, 
+           xref = "x", yref = "y",
+           text = "<b>3-Month Treasury</b>", showarrow = FALSE,
+           xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#74b83d")),
+      list(x = as.Date("2010-01-01"), y = -1.5, 
+           xref = "x", yref = "y",
+           text = "<b>(10Y − 1.2 · 3M)</b>", showarrow = FALSE,
+           xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#ED017D"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 8*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+p
+```
+:::
+:::{.column width="35%" .fragment}
+
+:vspace1
+
+Choosing 1.2 as cointegrating coefficient gives us the pink process in the graph on the left, which looks reasonably stationary.
+
+:vspace1
+
+Of course, we would normally estimate $\beta$. **OLS** is consistent in this case, but not normally distributed, but there are extensions which enable inference on $t$-statistics.
+:::
+::::
+
 ## Error Correction
 
-## An Example
+. . .
 
-## Vector Error Correction Model
+If we have two cointegrated series, we can model their **short-run dynamics** (more specifically, their **first differences**) using an [**error correction model**]{.col1}. Consider the following **vector error correction model** (**VECM**):
+
+$$
+\begin{pmatrix}
+\Delta y_t\\
+\Delta x_t
+\end{pmatrix}
+=
+\begin{pmatrix}
+\alpha_1\\
+\alpha_2
+\end{pmatrix}
++
+\begin{pmatrix}
+\delta_1\\
+\delta_2
+\end{pmatrix}
+\hat u_{t-1}
++
+\sum_{i=1}^{p-1}
+\begin{pmatrix}
+\gamma_{11,i} & \gamma_{12,i}\\
+\gamma_{21,i} & \gamma_{22,i}
+\end{pmatrix}
+\begin{pmatrix}
+\Delta y_{t-i}\\
+\Delta x_{t-i}
+\end{pmatrix}
++
+\begin{pmatrix}
+\varepsilon_{1t}\\
+\varepsilon_{2t}
+\end{pmatrix}
+,
+$$
+
+where $\hat{u}_t = y_{t-1} - \beta x_{t-1}$ is the **error correction term**.
+
+:vspace1
+
+. . . 
+
+The parameter $\boldsymbol{\delta}$ governs the **adjustment to equilibrium**:
+
+:::{.incremental}
+- $\delta = 0$: no cointegration
+- $-1 < \delta < 0$: stable error correction
+- $\delta \leq -1$: oscillatory / unstable adjustment
+:::
 
 ## Testing for Cointegration
+
+. . . 
+
+In addition to considering economic theory and inspecting time series graphs, we can **test for cointegration**. We can divide the available testing procedures into two scenarios: Testing for cointegration when $\beta$ is **known**, and testing for cointegration when $\beta$ is **not known**.
+
+. . .
+
+When $\beta$ is known (e.g. because theory suggests a value), we can use a [**Dickey-Fuller Test**]{.col1} to test for cointegration. 
+
+
+:::{.incremental}
+- First, we construct the series $\hat{u}_t = y_t - \beta x_t$, and
+- then, we use the DF test to test for a unit autoregressive root.
+:::
+
+. . .
+
+In practice, $\beta$ is often unknown. In these cases, one option is to follow the [**Engle-Granger Procedure**]{.col1}.
+
+:::{.incremental}
+- We start by obtaining an estimate for $\beta$ from regressing $y_t = \alpha + \beta x_t + u_t$.
+- We can then run a special Dickey-Fuller test (EG-AGF test), which has different critical values than a regular one.
+:::
 
 # Volatility Clustering, ARCH and GARCH
 
 ## Variance over Time
 
+::::{.columns}
+:::{.column width="65%" .fragment}
+```{r}
+#| fig-width: 8
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+library(plotly)
+library(fredr)
+library(dplyr)
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+# Fetch data from FRED
+sp500 <- fredr(series_id = "SP500", 
+               observation_start = as.Date("2010-01-01"))
+# Prepare data - compute log differences
+df <- sp500 |> 
+  select(date, value) |> 
+  filter(!is.na(value)) |>
+  mutate(log_return = c(NA, diff(log(value)))) |>
+  filter(!is.na(log_return))
+# Set ranges
+xr <- c(min(df$date) - 30, max(df$date) + 30)
+yr <- c(min(df$log_return, na.rm = TRUE) - 0.01, 
+        max(df$log_return, na.rm = TRUE) + 0.01)
+p <- plot_ly() |>
+  add_lines(x = df$date, y = df$log_return,
+            line = list(color = "#74b83d", width = 1.5),
+            hoverinfo = "x+y", name = "Log Return") |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(range = xr, zeroline = FALSE,
+                 showgrid = FALSE, title = ""),
+    yaxis = list(range = yr, zeroline = FALSE,
+                 showgrid = FALSE, title = "Log Return",
+                 linecolor = "darkgray", linewidth = 1),
+    shapes = list(
+      list(type = "line", x0 = min(df$date), x1 = max(df$date), 
+           y0 = 0, y1 = 0,
+           line = list(color = "darkgray", width = 1, dash = "dash"))
+    ),
+    annotations = list(
+      list(x = as.Date("2012-01-01"), y = max(df$log_return) * 0.85, 
+           xref = "x", yref = "y",
+           text = "<b>S&P 500 Daily Returns</b>", showarrow = FALSE,
+           xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#74b83d"))
+    ),
+    plot_bgcolor = "white", paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 8*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+p
+```
+:::
+:::{.column width="35%"}
+
+:vspace1
+
+[Look at this chart of daily **log differences of the S&P 500** index from 2016 to now.]{.fragment}
+
+:vspace1
+
+[We can clearly see that volatility changes over time.]{.fragment}
+
+:vspace1
+
+[This is not unusual; in fact, **higher moments** of time series are rarely constant over time.]{.fragment}
+:::
+::::
+
 ## Volatility Clustering
+
+. . .
+
+When we observe some **periods of lower volatility** and some **periods of higher volatility**, we say that there is [**volatility clustering**]{.col1}.
+
+:::{.incremental}
+- Volatility appears in **clusters**.
+- So even though tomorrow's **price change** is difficult to forecast, 
+- we **can** say something about the **variance of the price change**.
+:::
+
+. . .
+
+This is interesting (not only) in financial contexts, because volatility is a measure of how risky an asset is, and the value of some derivatives depends directly on that volatility. Also, it helps us determine confidence intervals of forecasts.
+
+. . .
+
+The simplest **volatility measure** we have just makes use of the sample variance. This is useful when we have very frequent data. The $h$-period [**realized volatility**]{.col1} of a time series $x_t$ is given by
+
+$$
+\textstyle RV_t^h=\sqrt{\frac{1}{h}\sum^t_{s=t-h+1}x_s^2}.
+$$
 
 ## Autoregressive Conditional Heteroskedasticity (ARCH)
 
+. . .
+
+With **lower-frequency** data, we have to resort to different methods to estimate how volatility changes over time. First, let us consider the [**Autoregressive Conditional Heteroskedasticity**]{.col1} ([**ARCH**]{.col1}) model. 
+
+:::{.nicebox1l .fragment}
+Consider some model for $x_t$,
+
+$$
+x_t = \mu + \dots + u_t,
+$$
+
+where $u_t$ is normally distributed with mean zero and variance $\sigma^2_t$. The **variance** $\sigma^2_t$ is then modeled on past squared values of $u_t$. This gives us an **ARCH model of order** $p$:
+
+$$
+\sigma^2_t = \alpha_0 + \alpha_1u_{t-1}^2 + \alpha_2u_{t-2}^2+\dots+\alpha_pu_{t-p}^2.
+$$
+
+If $\alpha_0, \dots, \alpha_p$ are large, large recent squared errors predict a high variance. 
+:::
+
 ## Generalized ARCH (GARCH)
 
-## Estimation of ARCH and GARCH
+. . .
 
-## An Example
+The [**Generalized Autoregressive Conditional Heteroskedasticity**]{.col2} ([**GARCH**]{.col2}) model is an **extension** of the ARCH model. The difference to the ARCH model is that $\sigma^2$ can now additionally depend on its own lags, in addition to lags of the squared error.
 
+:::{.nicebox2l .fragment}
+Consider some model for $x_t$,
+
+$$
+x_t = \mu + \dots + u_t,
+$$
+
+where $u_t$ is normally distributed with mean zero and variance $\sigma^2_t$. The **variance** $\sigma^2_t$ is then modeled on past squared values of $u_t$. This gives us an **ARCH model of order** $p$:
+
+$$
+\sigma^2_t = \alpha_0 + \alpha_1u_{t-1}^2 +\dots+\alpha_pu_{t-p}^2 + \phi_1\sigma^2_{t-1} + \dots + \phi_q\sigma^2_{t-q}.
+$$
+
+If $\alpha_0, \dots, \alpha_p$ are large, large recent squared errors predict a high variance. 
+:::
 # Spatial Autocorrelation
 
 ## Time and Space
 
+::::{.columns}
+:::{.column width="50%" .fragment}
+Part of our **motivation to treat time series differently** was that we could no longer credibly assume errors to be uncorrelated with themselves.
+
+:::{.centering}
+![](drawio_charts/1_timevsspace1.svg){.noinvert width=80%}
+:::
+
+If the value of one time series is high in a given period, it has a higher probability to also be high in a subsequent period.
+
+:::
+:::{.column width="50%" .fragment}
+
+But doesn't **the same** that applies to time **also apply to** [**space**]{.col1}? If GDP is high in one place, it is more likely to also be high in places close to it.
+
+:::{.centering}
+![](drawio_charts/1_timevsspace2.svg){.noinvert width=45%}
+:::
+
+This is the idea behind the concept of [**Spatial Autocorrelation**]{.col1}.
+
+:::
+::::
+
 ## Tobler's First Law of Geography
+
+::::{.columns .fragment}
+:::{.column width="30%"}
+
+:vspace4
+
+![](figures/tobler.jpg)
+:::
+:::{.column width="70%"}
+
+:vspace1
+
+The photograph on the left depicts **Waldo Tobler** (1930–2018), a famous Swiss-American geographer. He is known for a lot of things, among them [**Tobler's First Law of Geography**]{.col1}:
+
+:vspace0.5
+
+:::{.centering .bitlarge}
+[**Everything is related to everything else,**]{.fragment} [**but near things are more related than distant things.**]{.fragment}
+:::
+
+:vspace0.5
+
+[This quote, published in @tobler1970, fundamentally describes **spatial autocorrelation**: The value of a given variable in a given place depends, among other things, on realizations of the same variable in places close by.]{.fragment}
+
+[We are going to use this as a starting point to venture very quickly into the field of **Spiatial Econometrics**.]{.fragment}
+
+:::
+::::
+
+## Which Ways Can Things be Related?
+
+::::{.columns .fragment}
+:::{.column width="75%"}
+
+One tricky thing about space is that it has **multiple dimensions**. 
+
+:::{.incremental}
+- Let us consider a **two-dimensional world**.
+- Let us also consider a **pixelated world**, as if everything existed on an infinite board of chess.
+:::
+
+
+[The simplest distinction we can make is that between [**positive and negative spatial autocorrelation**]{.col1}.]{.fragment}
+
+:::{.incremental}
+- **Positive** spatial autocorrelation means that if we shock one square (the center square in the upper figure) positively, that nearby fields are also going to be affected positively, and this shock then propagates.
+- **Negative** spatial autocorrelation gives rise to a more complicated pattern. In the lower figure, if we shock the center square, adjacent squares will be affected negatively, but squares adjacent to those will again be affected positively.
+:::
+:::
+:::{.column width="25%"}
+
+:vspace2
+
+![](drawio_charts/1_chesspos.svg){.noinvert width="100%"}
+
+![](drawio_charts/1_chessneg.svg){.noinvert width="100%"}
+:::
+::::
 
 ## Spatial Weights 
 
+::::{.columns}
+:::{.column width="45%" .centering .fragment}
+
+:vspace2
+
+![](figures/europe.svg)
+:::
+:::{.column width="55%" .fragment}
+
+:vspace1
+
+But **how do we quantify “near”**? Consider the following [**Spatial Weights Matrix**]{.col1}:
+
+:::{.quitesmall}
+$$
+\boldsymbol{W}=
+\left(
+\begin{array}{c|cccccccc}
+ & \text{AT} & \text{CH} & \text{CZ} & \text{DE} & \text{HU} & \text{IT} & \text{LI} & \text{SI} & \text{SK} \\
+\hline
+\text{AT} & 0 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+\text{CH} & 1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 & 0 \\
+\text{CZ} & 1 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 1 \\
+\text{DE} & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+\text{HU} & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 \\
+\text{IT} & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+\text{LI} & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+\text{SI} & 1 & 0 & 0 & 0 & 1 & 1 & 0 & 0 & 0 \\
+\text{SK} & 1 & 0 & 1 & 0 & 1 & 0 & 0 & 0 & 0 \\
+\end{array}
+\right)
+$$
+:::
+
+This simple matrix is binary. It uses **contiguity** as measure of distance: If two countries share a border, they are “near” (1), if not, they are “distant” (0).
+
+:::
+::::
+
+
+
+
 ## Contiguity
+
+. . .
+
+There are **different types** of **contiguity**. These are relevant when we use pixel-based data, which can be the case when we use remotely sensed data or other data that is aggregated for square areal units.
+
+
+::::{.columns}
+:::{.column width="33%" .centering .fragment}
+![](drawio_charts/1_queen.svg){.noinvert width="100%"}
+
+[**Queen Contiguity**]{.col1}
+:::
+:::{.column width="33%" .centering .fragment}
+![](drawio_charts/1_rook.svg){.noinvert width="100%"}
+[**Rook Contiguity**]{.col1}
+:::
+:::{.column width="33%" .centering .fragment}
+![](drawio_charts/1_bishop.svg){.noinvert width="100%"}
+[**Bishop Contiguity**]{.col1}
+:::
+::::
+
 
 ## Distance
 
-## Spatial Weights Matrices
+. . .
 
-## Spatial Autocorrelation
+We do not need to restrict ourselves to contiguity. Look at this [**Spatial Weights Matrix**]{.col1}:
 
-## Positive vs. Negative Spatial Autocorrelation
+:::{.quitesmall}
+$$
+\boldsymbol{W}=
+\left(
+\begin{array}{c|ccccccccc}
+ & \text{AT} & \text{CH} & \text{CZ} & \text{DE} & \text{HU} & \text{IT} & \text{LI} & \text{SI} & \text{SK} \\
+\hline
+\text{AT} & 0 & 683 & 253 & 524 & 214 & 765 & 480 & 278 & 55 \\
+\text{CH} & 683 & 0 & 530 & 753 & 846 & 691 & 118 & 547 & 738 \\
+\text{CZ} & 253 & 530 & 0 & 280 & 444 & 923 & 434 & 449 & 290 \\
+\text{DE} & 524 & 753 & 280 & 0 & 689 & 1181 & 658 & 769 & 518 \\
+\text{HU} & 214 & 846 & 444 & 689 & 0 & 810 & 677 & 381 & 162 \\
+\text{IT} & 765 & 691 & 923 & 1181 & 810 & 0 & 612 & 489 & 820 \\
+\text{LI} & 480 & 118 & 434 & 658 & 677 & 612 & 0 & 400 & 535 \\
+\text{SI} & 278 & 547 & 449 & 769 & 381 & 489 & 400 & 0 & 333 \\
+\text{SK} & 55 & 738 & 290 & 518 & 162 & 820 & 535 & 333 & 0 \\
+\end{array}
+\right)
+$$
+:::
+
+. . .
+
+Here, we are using **distances between capital cities** as our distance measure. 
+
+:::{.incremental}
+- This allows for different-strength links, and 
+- we have a lot of information where we previously only had zeroes.
+- Usually, we will transform distances in such a way that more means closer.
+:::
+
+## Back to Spatial Autocorrelation
+
+. . .
+
+All of this is interesting, but how does it relate to our earlier concept of **spatial autocorrelation**? Remember,
+
+:::{.incremental}
+- Everything is related to everything else, but near things are more related to distant things.
+- In reality, of course, this is not purely a feature of geography. Agents of nearby places interact more with each other.
+:::
+
+. . .
+
+The reason we asked more explicitly how to quantify “near” is that we can use **spatial weights matrices** to calculate **measures** of [**spatial autocorrelation**]{.col1}. These can broadly be grouped into two categories:
+
+:::{.incremental}
+- Measures of **global spatial autocorrelation** give us one value that describes the spatial pattern present in an entire dataset.
+- Measures of **local spatial autocorrelation** give us an idea of how interconnected a given observation is.
+:::
+
+
+## Moran's I
+
+. . .
+
+One measurement for both global and local autocorrelation is [**Moran's $I$**]{.col1}.
+
+. . .
+
+**Global Moran's $I$** is a measure for how similar near observations are on average.
+
+$$
+I = \frac{N\sum^N_{i=1}\sum^N_{j=1}w_{ij}(y_i-\bar{y})(y_j-\bar{y})}{\left(\sum^N_{i=1}\sum^N_{j=1}w_{ij}\right)\sum^N_{i=1}(y_i-\bar{y})^2}
+$$
+
+This is simply a measure of $y$'s **autocovariance**, weighted by the spatial weights $w_{ij}$.
+
+:vspace1
+
+. . .
+
+**Local Moran's $I$** is a version of the measure that is specific to a given observation. It is useful for findinf **spatial outliers** and **local clusters**.
+
+:vspace1
+
+. . .
+
+For Moran's $I$, as well as for most questions of spatial econometric analysis, the **choice of the spatial weights matrix** is therefore very important. ed to think about the spatial pattern we assume to be present and justify our assumption. This simplifies our analysis.
+
+
+## Space Is Everywhere
+
+. . . 
+
+In Econometrics, we always make (implicit) [**assumptions about the relation between observations**]{.col1}. Often times, we assume that observations are independent and come from the same data-generating process.
+
+:vspace1
+
+:::{.callout-tip title="Think" .fragment}
+When data has a spatial dimension, how often can we credibly assume that there is zero spatial (auto)correlation?
+
+<br>
+
+How much of the data we encounter in economic analysis has a spatial dimension?
+:::
+
+:vspace1
+
+. . .
+
+If we **ignore space** when it **plays an important role**, we run the risk of getting invalid results. 
+
+## Spillovers
+
+. . . 
+
+A lot of times, the spatial dimension of a sample relates to **spillover effects**. 
+
+::::{.columns}
+:::{.column width="30%" .fragment}
+<br>
+```{r}
+#| fig-width: 6
+#| fig-height: 6
+
+set.seed(123)
+grid_size <- 10
+total_cells <- grid_size * grid_size
+red_indices <- sample(1:total_cells, 50)
+color_matrix <- matrix("#6b522d", nrow = grid_size, ncol = grid_size)
+color_matrix[red_indices] <- "#74b83d"
+
+par(mar = c(0, 0, 0, 0))
+plot(NULL, xlim = c(0, grid_size), ylim = c(0, grid_size), xaxt = 'n', yaxt = 'n',
+     xlab = "", ylab = "", asp = 1, bty = "n")
+
+for (i in 1:grid_size) {
+  for (j in 1:grid_size) {
+    rect(i - 1, j - 1, i, j, col = color_matrix[i, j], border = "black", lwd = 1)
+  }
+}
+```
+:::
+:::{.column width="70%" .incremental}
+- You may know this figure from Econometrics I.
+- The setting we consider here is an **experiment**. 
+- We have a square field, which we divide into 100 **plots**.
+- Then, we **randomize fertilizer use**.
+- Finally, we measure yields and compare whether the fields where fertilizer was applied perform better.
+- One way this design can be invalidated if **untreated plots that are near treated plots** are affected by fertilizer from treated plots, e.g. from groundwater.
+- If we **explicitly allow for spatial spillovers** in our analysis, we can still get **meaningful results**.
+:::
+::::
+
+## A Vicious Cycle
+
+::::{.columns .fragment}
+:::{.column width="55%"}
+
+Analysis of [**spatial autocorrelation**]{.col1} is very similar to discussing temporal autocorrelation, as long as we only consider one period.
+
+:vspace1
+
+[However, spatial autocorrelation as a pattern can persist **through time**. If we observe a spatial correlation pattern over multiple rounds, this can imply that an entity that was **affected** in one round can affect the entity it was originally affected by. (Note that this is a bit simplified.)]{.fragment}
+
+:vspace1
+
+[In situations with patterns like these, the **question of who is affecting whom** becomes difficult to answer.]{.fragment}
+
+:::
+:::{.column width="45%"}
+![](drawio_charts/1_peers.svg){.noinvert width="100%"}
+:::
+::::
 
 ## Outlook
 
+. . .
+
+We are now aware of a **phenomenon**, [**spatial autocorrelation**]{.col1}, we
+
+:::{.incremental}
+- can quantify and describe it, and we
+- know when it can lead to problems.
+:::
+
+:vspace1
+
+. . . 
+
+If time permits, we are going to talk about **related issues** at the end of the course.
+
+:::{.incremental}
+- [**Networks**]{.col2} are a very stylized form of space, and allow us to study [**peer effects**]{.col2}. This relates to the idea we had before about spatial autocorrelation going both ways: I affect my neighbor, but my neighbor also affects me.
+- [**Spatial Econometric Models**]{.col3} are a way to explicitly consider space in econometric settings where ignoring it would invalidate results. There are a number of spatial models that can be used in different settings, and they are modular and relate clearly to the cross-sectional models we know and the panel models we will learn about.#
+:::
 
 ## References
 
