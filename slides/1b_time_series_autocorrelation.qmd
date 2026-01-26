@@ -238,6 +238,40 @@ As long as errors are assumed normal, [**OLS**]{.col1} is [**consistent**]{.col1
 
 Of course, we can also estimate the VAR using **ML** or **Bayesian estimation techniques**, if we want.
 
+. . . 
+
+We have to be careful when interpreting VAR results: Coefficients are **only interpretable** as **predictive relationhips** between certain lags.
+
+## Estimating a VAR: Data
+
+. . . 
+
+```{webr}
+library(vars)
+data("Canada", package = "vars")
+```
+
+## Estimating a VAR: Plotting
+
+. . . 
+
+```{webr}
+# Production, employment, real wage
+ts.plot(Canada[, c("prod", "e", "rw")], col = 1:3, lwd = 2) 
+legend("topleft", c("prod", "e", "rw"), col = 1:3, lwd = 2)
+```
+
+## Estimating a VAR: Results
+
+. . .
+
+```{webr}
+var_model <- VAR(Canada[, c("prod", "e", "rw")], p = 2)
+summary(var_model)
+```
+
+
+
 ## Causal Analysis
 
 . . .
@@ -254,6 +288,16 @@ There is a certain “causality” concept that exists in the realm of time seri
 . . .
 
 But what about real causality? It turns out that VARs were originally introduced into Economics as a tool for analyzing causal relationships between multiple time series [@sims1980]. But using them for this purpose requires going one step further to [**Structural VARs**]{.col2}. Most of how this works is out of scope for this class, but the next slide should serve as a brief introduction.
+
+## Granger Causality
+
+. . .
+
+We can ask R whether one variable Granger causes the others.
+
+```{webr}
+causality(var_model, cause = "rw")$Granger
+```
 
 ## Structural VARs
 
@@ -595,6 +639,35 @@ In practice, $\beta$ is often unknown. In these cases, one option is to follow t
 - We start by obtaining an estimate for $\beta$ from regressing $y_t = \alpha + \beta x_t + u_t$.
 - We can then run a special Dickey-Fuller test (EG-AGF test), which has different critical values than a regular one.
 :::
+
+## Testing for Cointegration with a Known Coefficient
+
+. . .
+
+```{webr}
+library(vars)
+library(urca)
+data(Canada)
+beta <- 1
+u_hat <- Canada[, "e"] - beta * Canada[, "prod"]
+df_test <- ur.df(u_hat, type = "none", selectlags = "AIC")
+summary(df_test)
+```
+
+## Testing for Cointegration with an Unknown Coefficient
+
+. . .
+
+```{webr}
+# Cointegration test: unknown beta (Engle-Granger)
+library(vars)
+library(urca)
+data(Canada)
+coint_reg <- lm(e ~ prod, data = as.data.frame(Canada))
+u_hat <- residuals(coint_reg)
+eg_test <- ur.df(u_hat, type = "none", selectlags = "AIC")
+summary(eg_test)
+```
 
 # Volatility Clustering, ARCH and GARCH
 
