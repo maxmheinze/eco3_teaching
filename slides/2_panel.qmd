@@ -1,0 +1,1208 @@
+---
+title: "Module 2: Panel Data and Further Issues"
+subtitle: "Econometrics II"
+author:
+- "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
+- "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
+institute: 
+- "Department of Economics, WU Vienna"
+- "Department of Economics, WU Vienna"
+lang: en
+format: 
+  live-revealjs:
+    theme: [default, mhslides.css]
+    width: 1280
+    height: 720
+    margin: 0
+    progress: false
+    overview: false
+    highlight-style: github
+    slideNumber: true
+    html-math-method: mathjax
+    embed-resources: true
+    pdfMaxPagesPerSlide: 1
+    pdfSeparateFragments: false
+    template-partials:
+      - title-slide.html
+    filters:
+      - section-header.lua
+      - appxslideno.lua
+      - pdf-to-svg.lua
+      - space.lua
+bibliography: references.bib
+csl: apa.csl
+nocite: |
+  @stock2019
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+```{r}
+#| label: setup
+#| include: false
+library(plotly)
+font_family <- "Inter" 
+```
+
+# Panel Data
+
+# Before and After Comparisons
+
+# Fixed Effects
+
+# Two-Way Fixed Effects
+
+# Assumptions and Inference for FE Regression
+
+<!-- Maybe split here between Sannah and Max? For basics I would follow Stock and Watson (and Cunningham), for DiD/ES I would follow Cunningham -->
+
+# Diff-in-Diff
+
+## Event Studies
+
+## Differential Timing
+
+# Networks and Peers
+
+## Networks
+
+::::{.columns}
+:::{.column width="63%" .centering .fragment}
+![](figures/socialnetwork.png){width="100%"}
+
+[Image by @grandjean2013]{.col0}
+:::
+:::{.column width="37%"}
+
+:vspace1
+
+[Many real-world relationships can be thought of as being organized in [**networks**]{.col1}.]{.fragment}
+
+:::{.incremental}
+- Think of every **node** being one of your friends, and the **connections** being whether they know each other.
+- Alternatively, think of countries and their trade relationships.
+- Or cities and road connections, or ...
+:::
+:::
+::::
+
+## Revisiting Graph Theory Basics {auto-animate="true"}
+
+::::{.columns .fragment}
+:::{.column width="70%"}
+What you see on the right is what we call a **graph**. Depending on which Econometrics II class you took, you may remember this from the section on DAGs.
+
+This graph has three [**nodes**]{.col1}. They are labeled $i$, $j$, and $k$. [Sometimes, we call the [**nodes**]{.col1} “[vertices]{.col1},” “[agents]{.col1},” “[points]{.col1},” etc.]{.fragment}
+:::
+:::{.column width="30%"}
+![](figures/2_graph1.svg){width="100%"}
+:::
+::::
+
+<!--
+\documentclass[tikz]{standalone}
+\definecolor{main}{HTML}{74B83D}
+\definecolor{secondary}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=left:{$i$}] (A) at (0, 0) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$j$}] (B) at (1.5, 0) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=left:{$k$}] (C) at (0.75, 1) {};
+  \draw[line width=2pt] (A) edge node[below] {$\{i,j\}$} (B);
+  \draw[line width=2pt] (A) edge node[left] {$\{i,k\}$} (C);
+\end{tikzpicture}
+\end{document}
+-->
+
+::::{.columns .fragment}
+:::{.column width="70%"}
+Some of the [**nodes**]{.col1} in a graph are usually connected to each other, while others are not. We call those connections [**edges**]{.col2}. [Alternatively, they can be called “[links]{.col2},” “[connections]{.col2},” “[lines]{.col2},” etc.]{.fragment}
+
+[[**Edges**]{.col2} are pairs of two [**nodes**]{.col1}. In the second graph, there is one [**edge**]{.col2} from $i$ to $j$. We call this [**edge**]{.col2} $\{i,j\}$.]{.fragment}
+:::
+:::{.column width="30%"}
+
+:vspace4
+
+![](figures/2_graph2.svg){width="100%"}
+:::
+::::
+
+## Revisiting Graph Theory Basics {auto-animate="true"}
+
+::::{.columns}
+:::{.column width="70%"} 
+This [**edge**]{.col2} does not have a direction.
+:::
+:::{.column width="30%"}
+
+<!--
+\documentclass[tikz]{standalone}
+\definecolor{main}{HTML}{74B83D}
+\definecolor{secondary}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=left:{$i$}] (A) at (0, 0) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$j$}] (B) at (1.5, 0) {};
+  \draw[line width=2pt, color=secondary] (A) edge node[above] {$\{i,j\}$} (B);
+\end{tikzpicture}
+\end{document}
+-->
+
+![](figures/2_graph2.svg){width="100%"}
+:::
+::::
+
+::::{.columns .fragment}
+:::{.column width="70%"} 
+However, we can easily give [**edges**]{.col2} a direction. We call an [**edge**]{.col2} like this a [**directed edge**]{.col2}. [When an [**edge**]{.col2} is **directed**, the corresponding pair of [**nodes**]{.col1} is no longer an **unordered pair**, but an **ordered pair**: $\{j,i\}\neq\{i,j\}$.]{.fragment} 
+:::
+:::{.column width="30%"}
+
+<!--
+\documentclass[tikz]{standalone}
+\definecolor{main}{HTML}{74B83D}
+\definecolor{secondary}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=left:{$i$}] (A) at (0, 0) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$j$}] (B) at (1.5, 0) {};
+  \draw[<-, line width=2pt, color=secondary] (A) edge node[above] {$\{j,i\}$} (B);
+\end{tikzpicture}
+\end{document}
+-->
+
+![](figures/2_graph3.svg){width="100%"}
+:::
+::::
+
+:vspace1
+
+::::{.columns .fragment}
+:::{.column width="60%"} 
+A **walk** is a sequence of [**edges**]{.col2} that joins a sequence of [**nodes**]{.col1}. A **cycle** is a special case of a **walk** where all [**edges**]{.col2} are **distinct** and the initial and final [**node**]{.col1} are **equal**. In this graph, $\left\{\{a,b\},\{b,c\},\{c,a\}\right\}$ is a **cycle**.
+:::
+:::{.column width="40%"}
+
+<!--
+\documentclass[tikz]{standalone}
+\definecolor{main}{HTML}{74B83D}
+\definecolor{secondary}{HTML}{4072C2}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=below:{$a$}] (A) at (0, 0) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=left:{$b$}] (B) at (.5, .75) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=above:{$c$}] (C) at (1.5, .25) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$x$}] (X) at (2, .5) {};
+  \node[circle, fill=main, inner sep=0, minimum size=3.5mm, label=right:{$y$}] (Y) at (2, -.1) {};
+
+  \draw[line width=2pt, color=secondary] (A) -- (B);
+  \draw[line width=2pt, color=secondary] (B) -- (C);
+  \draw[line width=2pt, color=secondary] (C) -- (A);
+  \draw[line width=.5pt, color=secondary] (C) -- (Y);
+  \draw[line width=.5pt, color=secondary] (Y) -- (X);
+\end{tikzpicture}
+\end{document}
+-->
+
+![](figures/2_graph4.svg){width="100%"}
+:::
+::::
+
+## Social Networks
+
+::::{.columns .fragment}
+:::{.column width="50%"}
+[For the image on this slide, someone (not me) collected data on their **Instagram followers**, and the connections between them.]{.fragment}
+
+[Coincidentally, this [**social network**]{.col1} is related to a **social media site**, which we colloquially often refer to as “social networks.” But in the context of network analysis, a **social network** is any network that connects people.]{.fragment} 
+
+:::{.callout-tip title="Think" .fragment}
+Colors were manually assigned, but positions were not. Why do similar people cluster together?
+:::
+:::
+:::{.column width="50%" .centering}
+![](figures/instagram.webp)
+
+[Image by @giraffael2024]{.col0}
+:::
+::::
+
+## Trade Networks
+
+::::{.columns}
+:::{.column width="70%" .fragment}
+```{r}
+#| fig-width: 9
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+library(dplyr)
+library(igraph)
+library(plotly)
+library(scales)
+library(countrycode)
+
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+# Load data
+raw <- readRDS("trade.RDS")
+
+# Parameters
+col_rep <- "reporter_iso"
+col_par <- "partner_iso"
+col_val <- "primary_value"
+
+# Build edge list
+top_edges <- 300
+edges <- raw |>
+  transmute(
+    from  = .data[[col_rep]],
+    to    = .data[[col_par]],
+    value = as.numeric(.data[[col_val]])
+  ) |>
+  filter(!is.na(from), !is.na(to), from != to, is.finite(value), value > 0) |>
+  filter(from != "S19", to != "S19") |>
+  group_by(from, to) |>
+  summarise(value = sum(value), .groups = "drop") |>
+  arrange(desc(value)) |>
+  slice_head(n = top_edges)
+
+# Graph + layout
+g <- graph_from_data_frame(edges, directed = TRUE)
+set.seed(1)
+lay <- layout_with_fr(g)
+nodes <- data.frame(
+  name = V(g)$name,
+  x = lay[,1],
+  y = lay[,2],
+  stringsAsFactors = FALSE
+)
+
+# Node size = total trade
+out_val <- edges |> group_by(node = from) |> summarise(out_value = sum(value), .groups = "drop")
+in_val  <- edges |> group_by(node = to)   |> summarise(in_value  = sum(value), .groups = "drop")
+nodes <- nodes |>
+  left_join(out_val, by = c("name" = "node")) |>
+  left_join(in_val,  by = c("name" = "node")) |>
+  mutate(
+    out_value = ifelse(is.na(out_value), 0, out_value),
+    in_value  = ifelse(is.na(in_value),  0, in_value),
+    total_value = out_value + in_value,
+    size = rescale(log1p(total_value), to = c(12, 40))
+  )
+
+# Node color = continent + country name
+nodes <- nodes |>
+  mutate(
+    continent = countrycode::countrycode(name, origin = "iso3c", destination = "continent"),
+    continent = ifelse(is.na(continent), "Other/Unknown", continent),
+    country_name = countrycode::countrycode(name, origin = "iso3c", destination = "country.name"),
+    country_name = ifelse(is.na(country_name), name, country_name)
+  )
+
+# Add country names to edges for hover
+edges <- edges |>
+  mutate(
+    from_name = countrycode::countrycode(from, origin = "iso3c", destination = "country.name"),
+    from_name = ifelse(is.na(from_name), from, from_name),
+    to_name = countrycode::countrycode(to, origin = "iso3c", destination = "country.name"),
+    to_name = ifelse(is.na(to_name), to, to_name)
+  )
+
+# Prepare edge coordinates
+edges_plot <- edges |>
+  mutate(
+    x    = nodes$x[match(from, nodes$name)],
+    y    = nodes$y[match(from, nodes$name)],
+    xend = nodes$x[match(to,   nodes$name)],
+    yend = nodes$y[match(to,   nodes$name)]
+  )
+
+# Edge thickness bins
+nbins <- 6
+edges_plot <- edges_plot |>
+  mutate(
+    w_bin = cut(
+      log1p(value),
+      breaks = quantile(log1p(value), probs = seq(0, 1, length.out = nbins + 1), na.rm = TRUE),
+      include.lowest = TRUE,
+      labels = paste0("bin", seq_len(nbins))
+    )
+  )
+bin_levels <- levels(edges_plot$w_bin)
+bin_widths <- setNames(seq(0.5, 4.5, length.out = length(bin_levels)), bin_levels)
+
+# Saturated colors for continents
+continent_colors <- c(
+  "Africa" = "#74b83d",
+  "Americas" = "#4072c2",
+  "Asia" = "#ED017D",
+  "Europe" = "#d18b2a",
+  "Oceania" = "#666666"
+)
+
+# Build plot
+p <- plot_ly()
+
+for (b in rev(bin_levels)) {
+  dfb <- edges_plot |> filter(w_bin == b)
+  p <- p |>
+    add_segments(
+      data = dfb,
+      x = ~x, y = ~y, xend = ~xend, yend = ~yend,
+      opacity = 0.25,
+      line = list(width = unname(bin_widths[b]), color = "gray50"),
+      hoverinfo = "text",
+      text = ~paste0(from_name, " \u2192 ", to_name, "<br>USD ", scales::comma(value)),
+      showlegend = FALSE
+    )
+}
+
+# Add markers for each continent separately to control size directly
+for (cont in names(continent_colors)) {
+  df_cont <- nodes |> filter(continent == cont)
+  if (nrow(df_cont) > 0) {
+    p <- p |>
+      add_markers(
+        data = df_cont,
+        x = ~x, y = ~y,
+        hoverinfo = "text",
+        text = ~paste0(
+          country_name,
+          "<br>", continent,
+          "<br>Total: USD ", scales::comma(total_value),
+          "<br>Out: USD ", scales::comma(out_value),
+          "<br>In: USD ", scales::comma(in_value)
+        ),
+        marker = list(
+          size = df_cont$size,
+          color = continent_colors[cont],
+          opacity = 0.9,
+          line = list(width = 1.5, color = "black")
+        ),
+        name = cont,
+        showlegend = TRUE
+      )
+  }
+}
+
+p <- p |>
+  layout(
+    showlegend = TRUE,
+    xaxis = list(visible = FALSE, zeroline = FALSE, showgrid = FALSE),
+    yaxis = list(visible = FALSE, zeroline = FALSE, showgrid = FALSE),
+    plot_bgcolor = "white",
+    paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 9*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+p
+```
+:::
+:::{.column width="30%"}
+:vspace2
+
+[This **network graph** shows **refined copper** trade flows in the year 2023 between a number of countries, colored by continent.]{.fragment}
+
+:vspace1
+
+[We can see that European countries cluster together since they trade a lot among each other.]{.fragment}
+
+:::
+::::
+
+
+## Drawing a Network
+
+::::{.columns}
+:::{.column width="40%"}
+
+:vspace1
+
+[We can investigate this a little further. Say we want to [**draw a network graph**]{.col1} of all subway stations in Vienna.]{.fragment}
+
+:::{.incremental}
+- Stations are **nodes**, and
+- stations that are connected by a subway line get an **edge**.
+:::
+
+:vspace1
+
+[We end up with a symmetric **adjacency matrix** that has 99 rows/columns.]{.fragment}
+
+
+:::
+:::{.column width="60%" .fragment}
+
+:vspace3
+
+$$
+\boldsymbol{W}=
+\left(
+\begin{array}{c|ccccc c}
+ & \text{AD} & \text{AE} & \text{AK} & \text{AL} & \text{AN} & \\
+\hline
+\text{AD} & 0 & 0 & 0 & 0 & 0 & \cdots \\
+\text{AE} & 0 & 0 & 0 & 0 & 0 & \cdots \\
+\text{AK} & 0 & 0 & 0 & 0 & 0 & \cdots \\
+\text{AL} & 0 & 0 & 0 & 0 & 0 & \cdots \\
+\text{AN} & 0 & 0 & 0 & 0 & 0 & \cdots \\
+ & \vdots & \vdots & \vdots & \vdots & \vdots & \ddots
+\end{array}
+\right)
+$$
+:::
+::::
+
+
+
+## Mapping Subway Stations
+
+::::{.columns}
+:::{.column width="62%" .fragment}
+```{r}
+#| fig-width: 8
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+library(igraph)
+library(plotly)
+library(graphlayouts)
+
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+# Station name lookup
+station_names <- c(
+  "AD" = "Alte Donau",
+  "AE" = "Alterlaa",
+  "AK" = "Aderklaaer Straße",
+  "AL" = "Alaudagasse",
+  "AN" = "Aspern Nord",
+  "AP" = "Aspernstraße",
+  "AR" = "Hardeggasse",
+  "AS" = "Alser Straße",
+  "AT" = "Altes Landgut",
+  "AU" = "Spittelau",
+  "AW" = "Gasometer",
+  "AZ" = "Lina-Loos-Platz",
+  "BA" = "Museumsquartier",
+  "BR" = "Braunschweiggasse",
+  "BU" = "Burggasse – Stadthalle",
+  "DI" = "Donauinsel",
+  "DM" = "Donaumarina",
+  "DP" = "Donauspital",
+  "DS" = "Dresdner Straße",
+  "DT" = "Donaustadtbrücke",
+  "ED" = "Erdberg",
+  "EE" = "Seestadt",
+  "EK" = "Enkplatz",
+  "ES" = "Erlaaer Straße",
+  "FB" = "Friedensbrücke",
+  "FL" = "Floridsdorf",
+  "GF" = "Großfeldsiedlung",
+  "GU" = "Gumpendorfer Straße",
+  "GZ" = "Zieglergasse",
+  "HF" = "Hütteldorf",
+  "HH" = "Hütteldorfer Straße",
+  "HI" = "Hietzing",
+  "HK" = "Handelskai",
+  "HS" = "Heiligenstadt",
+  "HT" = "Siebenhirten",
+  "HU" = "Hausfeldstraße",
+  "HZ" = "Herrengasse",
+  "JG" = "Jägerstraße",
+  "JO" = "Johnstraße",
+  "JS" = "Josefstädter Straße",
+  "KE" = "Keplerplatz",
+  "KG" = "Kettenbrückengasse",
+  "KM" = "Kaisermühlen – VIC",
+  "KN" = "Kardinal-Nagl-Platz",
+  "KP" = "Karlsplatz",
+  "KR" = "Kendlerstraße",
+  "KT" = "Kagraner Platz",
+  "LA" = "Landstraße",
+  "LE" = "Längenfeldgasse",
+  "LN" = "Neulaa",
+  "LO" = "Oberlaa",
+  "LU" = "Leopoldau",
+  "MA" = "Neubaugasse",
+  "MB" = "Michelbeuern – AKH",
+  "MG" = "Margaretengürtel",
+  "MH" = "Meidling Hauptstraße",
+  "MS" = "Messe – Prater",
+  "ND" = "Neue Donau",
+  "NH" = "Niederhofstraße",
+  "NP" = "Nestroyplatz",
+  "NS" = "Nußdorfer Straße",
+  "OK" = "Ottakring",
+  "OV" = "Ober St. Veit",
+  "PF" = "Perfektastraße",
+  "PG" = "Pilgramgasse",
+  "PH" = "Bahnhof Meidling",
+  "PP" = "Zippererstraße",
+  "PR" = "Praterstern",
+  "PW" = "Am Schöpfwerk",
+  "RB" = "Rennbahnweg",
+  "RG" = "Rochusgasse",
+  "RH" = "Rathaus",
+  "RL" = "Roßauer Lände",
+  "RP" = "Reumannplatz",
+  "SA" = "Simmering",
+  "SB" = "Schönbrunn",
+  "SD" = "Stadlau",
+  "SE" = "Stubentor",
+  "SG" = "Schlachthausgasse",
+  "SH" = "Schweglerstraße",
+  "SL" = "Südtiroler Platz",
+  "SO" = "Schottentor",
+  "SP" = "Schwedenplatz",
+  "SR" = "Schottenring",
+  "ST" = "Stadtpark",
+  "SW" = "Stadion",
+  "SZ" = "Stephansplatz",
+  "TA" = "Taubstummengasse",
+  "TB" = "Taborstraße",
+  "TE" = "Tscherttegasse",
+  "TO" = "Troststraße",
+  "TR" = "Krieau",
+  "TS" = "Thaliastraße",
+  "UV" = "Unter St. Veit",
+  "VS" = "Vorgartenstraße",
+  "VT" = "Volkstheater",
+  "WA" = "Währinger Straße",
+  "WS" = "Westbahnhof",
+  "ZK" = "Kagran"
+)
+
+# Create the adjacency matrix
+adj_matrix <- as.matrix(read.csv("adjmatrix.csv", header = FALSE))
+
+# Define node names
+node_names <- c("AD", "AE", "AK", "AL", "AN", "AP", "AR", "AS", "AT", "AU", "AW", "AZ", "BA", "BR", "BU", "DI", "DM", "DP", "DS", "DT", "ED", "EE", "EK", "ES", "FB", "FL", "GF", "GU", "GZ", "HF", "HH", "HI", "HK", "HS", "HT", "HU", "HZ", "JG", "JO", "JS", "KE", "KG", "KM", "KN", "KP", "KR", "KT", "LA", "LE", "LN", "LO", "LU", "MA", "MB", "MG", "MH", "MS", "ND", "NH", "NP", "NS", "OK", "OV", "PF", "PG", "PH", "PP", "PR", "PW", "RB", "RG", "RH", "RL", "RP", "SA", "SB", "SD", "SE", "SG", "SH", "SL", "SO", "SP", "SR", "ST", "SW", "SZ", "TA", "TB", "TE", "TO", "TR", "TS", "UV", "VS", "VT", "WA", "WS", "ZK")
+dimnames(adj_matrix) <- list(node_names, node_names)
+
+# Create graph
+g <- graph_from_adjacency_matrix(adj_matrix, mode = "undirected")
+
+# Layout
+set.seed(1)
+lay <- layout_with_kk(g)
+
+# Node data
+nodes <- data.frame(
+  name = V(g)$name,
+  x = lay[, 1],
+  y = lay[, 2],
+  stringsAsFactors = FALSE
+)
+nodes$full_name <- station_names[nodes$name]
+
+# Edge list from graph
+edge_list <- as_edgelist(g)
+edges_plot <- data.frame(
+  from = edge_list[, 1],
+  to = edge_list[, 2],
+  stringsAsFactors = FALSE
+)
+
+# Add coordinates
+edges_plot$x <- nodes$x[match(edges_plot$from, nodes$name)]
+edges_plot$y <- nodes$y[match(edges_plot$from, nodes$name)]
+edges_plot$xend <- nodes$x[match(edges_plot$to, nodes$name)]
+edges_plot$yend <- nodes$y[match(edges_plot$to, nodes$name)]
+edges_plot$from_name <- station_names[edges_plot$from]
+edges_plot$to_name <- station_names[edges_plot$to]
+
+# Build plot
+p <- plot_ly()
+
+# Add edges
+p <- p |>
+  add_segments(
+    data = edges_plot,
+    x = ~x, y = ~y, xend = ~xend, yend = ~yend,
+    opacity = 1,
+    line = list(width = 2, color = "black"),
+    hoverinfo = "text",
+    text = ~paste0(from_name, " — ", to_name),
+    showlegend = FALSE
+  )
+
+# Add nodes
+p <- p |>
+  add_markers(
+    data = nodes,
+    x = ~x, y = ~y,
+    hoverinfo = "text",
+    text = ~full_name,
+    marker = list(
+      size = 25,
+      color = "#74b83d",
+      opacity = 0.9,
+      line = list(width = 1.5, color = "black")
+    ),
+    showlegend = FALSE
+  )
+
+# Add node labels
+p <- p |>
+  add_text(
+    data = nodes,
+    x = ~x, y = ~y,
+    text = ~name,
+    textfont = list(size = 10, color = "black", family = "Inter, sans-serif"),
+    hoverinfo = "none",
+    showlegend = FALSE
+  )
+
+# Layout
+p <- p |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(visible = FALSE, zeroline = FALSE, showgrid = FALSE),
+    yaxis = list(visible = FALSE, zeroline = FALSE, showgrid = FALSE),
+    plot_bgcolor = "white",
+    paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 8 * 96, height = 6.5 * 96) |>
+  config(responsive = FALSE)
+
+p
+```
+:::
+:::{.column width="38%"}
+
+:vspace1
+
+[This graph is constructed from the **adjacency matrix** from before, with no geographic information.]{.fragment}
+
+:vspace0.5
+
+[The resulting graph **resembles the actual subway map** closely. Using a standard plotting algorithm, we can recover the [**latent space**]{.col1} encoded in the network.]{.fragment}
+
+:vspace0.5
+
+[**Networks** contain interesting information beyond plain links.]{.fragment}
+:::
+::::
+
+
+## Centrality 
+
+::::{.columns}
+:::{.column width="62%"}
+```{r}
+#| fig-width: 8
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+library(igraph)
+library(plotly)
+library(graphlayouts)
+
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font = list(family = family, size = sz$base),
+      title = list(font = list(family = family, size = sz$title)),
+      xaxis = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis = list(tickfont = list(family = family, size = sz$tick)),
+      legend = list(font = list(family = family, size = sz$legend)),
+      hoverlabel = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+# Station name lookup
+station_names <- c(
+  "AD" = "Alte Donau",
+  "AE" = "Alterlaa",
+  "AK" = "Aderklaaer Straße",
+  "AL" = "Alaudagasse",
+  "AN" = "Aspern Nord",
+  "AP" = "Aspernstraße",
+  "AR" = "Hardeggasse",
+  "AS" = "Alser Straße",
+  "AT" = "Altes Landgut",
+  "AU" = "Spittelau",
+  "AW" = "Gasometer",
+  "AZ" = "Lina-Loos-Platz",
+  "BA" = "Museumsquartier",
+  "BR" = "Braunschweiggasse",
+  "BU" = "Burggasse – Stadthalle",
+  "DI" = "Donauinsel",
+  "DM" = "Donaumarina",
+  "DP" = "Donauspital",
+  "DS" = "Dresdner Straße",
+  "DT" = "Donaustadtbrücke",
+  "ED" = "Erdberg",
+  "EE" = "Seestadt",
+  "EK" = "Enkplatz",
+  "ES" = "Erlaaer Straße",
+  "FB" = "Friedensbrücke",
+  "FL" = "Floridsdorf",
+  "GF" = "Großfeldsiedlung",
+  "GU" = "Gumpendorfer Straße",
+  "GZ" = "Zieglergasse",
+  "HF" = "Hütteldorf",
+  "HH" = "Hütteldorfer Straße",
+  "HI" = "Hietzing",
+  "HK" = "Handelskai",
+  "HS" = "Heiligenstadt",
+  "HT" = "Siebenhirten",
+  "HU" = "Hausfeldstraße",
+  "HZ" = "Herrengasse",
+  "JG" = "Jägerstraße",
+  "JO" = "Johnstraße",
+  "JS" = "Josefstädter Straße",
+  "KE" = "Keplerplatz",
+  "KG" = "Kettenbrückengasse",
+  "KM" = "Kaisermühlen – VIC",
+  "KN" = "Kardinal-Nagl-Platz",
+  "KP" = "Karlsplatz",
+  "KR" = "Kendlerstraße",
+  "KT" = "Kagraner Platz",
+  "LA" = "Landstraße",
+  "LE" = "Längenfeldgasse",
+  "LN" = "Neulaa",
+  "LO" = "Oberlaa",
+  "LU" = "Leopoldau",
+  "MA" = "Neubaugasse",
+  "MB" = "Michelbeuern – AKH",
+  "MG" = "Margaretengürtel",
+  "MH" = "Meidling Hauptstraße",
+  "MS" = "Messe – Prater",
+  "ND" = "Neue Donau",
+  "NH" = "Niederhofstraße",
+  "NP" = "Nestroyplatz",
+  "NS" = "Nußdorfer Straße",
+  "OK" = "Ottakring",
+  "OV" = "Ober St. Veit",
+  "PF" = "Perfektastraße",
+  "PG" = "Pilgramgasse",
+  "PH" = "Bahnhof Meidling",
+  "PP" = "Zippererstraße",
+  "PR" = "Praterstern",
+  "PW" = "Am Schöpfwerk",
+  "RB" = "Rennbahnweg",
+  "RG" = "Rochusgasse",
+  "RH" = "Rathaus",
+  "RL" = "Roßauer Lände",
+  "RP" = "Reumannplatz",
+  "SA" = "Simmering",
+  "SB" = "Schönbrunn",
+  "SD" = "Stadlau",
+  "SE" = "Stubentor",
+  "SG" = "Schlachthausgasse",
+  "SH" = "Schweglerstraße",
+  "SL" = "Südtiroler Platz",
+  "SO" = "Schottentor",
+  "SP" = "Schwedenplatz",
+  "SR" = "Schottenring",
+  "ST" = "Stadtpark",
+  "SW" = "Stadion",
+  "SZ" = "Stephansplatz",
+  "TA" = "Taubstummengasse",
+  "TB" = "Taborstraße",
+  "TE" = "Tscherttegasse",
+  "TO" = "Troststraße",
+  "TR" = "Krieau",
+  "TS" = "Thaliastraße",
+  "UV" = "Unter St. Veit",
+  "VS" = "Vorgartenstraße",
+  "VT" = "Volkstheater",
+  "WA" = "Währinger Straße",
+  "WS" = "Westbahnhof",
+  "ZK" = "Kagran"
+)
+
+# Create the adjacency matrix
+adj_matrix <- as.matrix(read.csv("adjmatrix.csv", header = FALSE))
+
+# Define node names
+node_names <- c("AD", "AE", "AK", "AL", "AN", "AP", "AR", "AS", "AT", "AU", "AW", "AZ", "BA", "BR", "BU", "DI", "DM", "DP", "DS", "DT", "ED", "EE", "EK", "ES", "FB", "FL", "GF", "GU", "GZ", "HF", "HH", "HI", "HK", "HS", "HT", "HU", "HZ", "JG", "JO", "JS", "KE", "KG", "KM", "KN", "KP", "KR", "KT", "LA", "LE", "LN", "LO", "LU", "MA", "MB", "MG", "MH", "MS", "ND", "NH", "NP", "NS", "OK", "OV", "PF", "PG", "PH", "PP", "PR", "PW", "RB", "RG", "RH", "RL", "RP", "SA", "SB", "SD", "SE", "SG", "SH", "SL", "SO", "SP", "SR", "ST", "SW", "SZ", "TA", "TB", "TE", "TO", "TR", "TS", "UV", "VS", "VT", "WA", "WS", "ZK")
+dimnames(adj_matrix) <- list(node_names, node_names)
+
+# Create graph
+g <- graph_from_adjacency_matrix(adj_matrix, mode = "undirected")
+
+# Layout
+set.seed(1)
+lay <- layout_with_kk(g)
+
+# Node data
+nodes <- data.frame(
+  name = V(g)$name,
+  x = lay[, 1],
+  y = lay[, 2],
+  stringsAsFactors = FALSE
+)
+nodes$full_name <- station_names[nodes$name]
+
+# Edge list from graph
+edge_list <- as_edgelist(g)
+edges_plot <- data.frame(
+  from = edge_list[, 1],
+  to = edge_list[, 2],
+  stringsAsFactors = FALSE
+)
+
+# Add coordinates
+edges_plot$x <- nodes$x[match(edges_plot$from, nodes$name)]
+edges_plot$y <- nodes$y[match(edges_plot$from, nodes$name)]
+edges_plot$xend <- nodes$x[match(edges_plot$to, nodes$name)]
+edges_plot$yend <- nodes$y[match(edges_plot$to, nodes$name)]
+edges_plot$from_name <- station_names[edges_plot$from]
+edges_plot$to_name <- station_names[edges_plot$to]
+
+# Build plot
+p <- plot_ly()
+
+# Add edges
+p <- p |>
+  add_segments(
+    data = edges_plot,
+    x = ~x, y = ~y, xend = ~xend, yend = ~yend,
+    opacity = 1,
+    line = list(width = 2, color = "black"),
+    hoverinfo = "text",
+    text = ~paste0(from_name, " — ", to_name),
+    showlegend = FALSE
+  )
+
+# Add nodes
+p <- p |>
+  add_markers(
+    data = nodes,
+    x = ~x, y = ~y,
+    hoverinfo = "text",
+    text = ~full_name,
+    marker = list(
+      size = 25,
+      color = "#74b83d",
+      opacity = 0.9,
+      line = list(width = 1.5, color = "black")
+    ),
+    showlegend = FALSE
+  )
+
+# Add node labels
+p <- p |>
+  add_text(
+    data = nodes,
+    x = ~x, y = ~y,
+    text = ~name,
+    textfont = list(size = 10, color = "black", family = "Inter, sans-serif"),
+    hoverinfo = "none",
+    showlegend = FALSE
+  )
+
+# Layout
+p <- p |>
+  layout(
+    showlegend = FALSE,
+    xaxis = list(visible = FALSE, zeroline = FALSE, showgrid = FALSE),
+    yaxis = list(visible = FALSE, zeroline = FALSE, showgrid = FALSE),
+    plot_bgcolor = "white",
+    paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 8 * 96, height = 6.5 * 96) |>
+  config(responsive = FALSE)
+
+p
+```
+:::
+:::{.column width="38%"}
+
+[Some stations are depicted in the **center**, and when you are there, you can reach other places easily.]{.fragment}
+
+[This relates to an important concept: the [**centrality**]{.col1} of nodes in a network.]{.fragment}
+
+[The simplest centrality measure is a node's **degree**, the sum of its connections.]{.fragment}
+
+[More elaborate measures include **eigenvector centrality**, a derivative of which is used to rank pages in Google searches.]{.fragment}
+:::
+::::
+
+
+## Peers
+
+. . . 
+
+Your immediate connections in a network are your [**peers**]{.col1} or [**neighbors**]{.col1}. In economics, we are interested in the **role of peers** for multiple reasons.
+
+:::{.incremental}
+- They may influence your beliefs and behaviors.
+- They can affect your human capital and are in turn relevant for questions of inequality.
+- Policies that rely on propagation through a society may work differently depending on initial seeding.
+:::
+
+. . .
+
+Most of what we discuss next is a simplified account of @manski1993, who codified the literature on peer effects and laid the foundation for much subsequent research.
+
+. . .
+
+@manski1993 models an **agent's response** as a combination of the following:
+
+:::{.incremental}
+- The [**expected response**]{.col2} of the agent's [**peers**]{.col1}.
+- The [**characteristics**]{.col4} of the agent's [**peers**]{.col1}.
+- The [**characteristics**]{.col4} of the agent [**themselves**]{.col3}.
+:::
+
+## The Reflection Problem
+
+. . .
+
+There are **two ways** in which an agent's peers can influence the agent.
+
+:::{.incremental}
+- The agent's response can be influenced by the [**expected response**]{.col2} of the agent's [**peers**]{.col1}. We call this an **endogenous peer effect**.
+- But the [**characteristics**]{.col4} of the agent's [**peers**]{.col1} can also influence the agent's response. We call this an **exogenous peer effect**, or alternatively a **contextual effect**.
+:::
+
+. . .
+
+Assume an agent's **utility** depends on their response, as well as their peers' responses. Since both the agent's response and their utility depend on the others' actions, their **best responses** form a **system of simultaneous equations**. This is what @manski1993 calls the **Reflection Problem**.
+
+:::{.incremental}
+- This means that there is **endogeneity** and we cannot use least squares to estimate peer effects.
+- In this course, this becomes relevant when we discuss **spatial econometric models** next.
+:::
+
+# Spatial Econometrics
+
+## Space
+
+::::{.columns}
+:::{.column width="60%" .fragment}
+
+:vspace1
+
+![](figures/nightlights.jpg)
+:::
+:::{.column width="40%" .fragment}
+
+:vspace2
+
+The image on this slide depicts the **European continent** by **night**. We can see that densely populated areas are brighter than sparsely populated areas.
+
+:vspace0.5
+
+:::{.callout-tip title="Think" .fragment}
+Why did people settle in exactly this pattern? If you were to found a settlement, where would you do that?
+:::
+
+:::
+::::
+
+
+## Autocorrelation, Networks, Peers, and Space
+
+. . . 
+
+We have finally acquired enough building blocks to be able to discuss [**econometrics in space**]{.col1}.
+
+:::{.incremental}
+- We have learned that **spatial autocorrelation** is a thing, and that it works similarly to temporal autocorrelation.
+- We have discussed how **networks** shape how a variable autocorrelates (or how multiple variables correlate) across space.
+- We are also aware of the **reflection problem** and that estimation of peer effects is not straightforward.
+:::
+
+. . .
+
+Let us approach this chapter by picturing a situation we know well.
+
+:::{.nicebox1l .fragment}
+We are researchers that want to investigate how **education** affects **average income** in a given areal unit. As observations, we choose **NUTS-3** regions, standardized small-scale regions across Europe. Assume we have all data we need and we have dealt with all endogeneity other than that arising from spatial factors.
+:::
+
+## The Linear Model
+
+. . .
+
+We start by modeling our situation using a regular [**linear model**]{.col1}:
+
+$$
+\boldsymbol{y} = \boldsymbol{X\beta}+\boldsymbol{u}, \qquad \boldsymbol{u}\sim\boldsymbol{N}(\boldsymbol{0},\sigma^2\boldsymbol{I})
+$$
+
+. . .
+
+In what way does **space** affect the outcome of a given observation?
+
+:::{.incremental}
+- Their neighbor's outcomes may influence $i$'s outcome.
+- Their **neighbor's characteristics** may also influence them.
+- Additionally, there may be **unobserved variables** that are spatially correlated.
+:::
+
+. . .
+
+What does that mean in our **example**?
+
+- The GDP of a region may be influenced by the GDP in nearby regions, by the educational level of people there, and may depend on other spatially correlated variables.
+- If we ignore that, our estimates will be biased and inefficient (and we forego the chance to learn about spatial spillover patterns).
+
+
+## The Spatial Autoregressive (SAR) Model
+
+. . .
+
+The most straightforward extension is the [**spatial autoregressive model**]{.col2}:
+
+$$
+\boldsymbol{y} = \lambda\boldsymbol{Wy}+\boldsymbol{X\beta}+\boldsymbol{u}.
+$$
+
+:vspace1
+
+. . .
+
+Here, $\lambda$ is a spatial autoregressive parameter, and $\boldsymbol{Wy}$ is a spatially lagged version of the outcome. 
+
+. . .
+
+The model looks simple, but poses challenges that are not at all trivial.
+
+:::{.incremental}
+- $\boldsymbol{Wy}$ is by construction **endogenous**. This is the regression equivalent of the reflection problem. 
+- We can thus not use least squares for **estimation** (it will be biased and inconsistent). But even using ML is not straightforward in this case.
+- What we get in the end depends on what **spatial weights matrix** we choose.
+:::
+
+## The Spatial Lag of X (SLX) Model
+
+. . .
+
+What happens when we do not lag the outcome, but only the characteristics? Then, we get a [**spatial lag of** $\boldsymbol{X}$]{.col3} model:
+
+$$
+\boldsymbol{y} = \boldsymbol{X\beta}+ \boldsymbol{WX\theta}+\boldsymbol{u}.
+$$
+
+:vspace1
+
+. . .
+
+$\boldsymbol{WX}$ is a matrix of **spatially lagged covariates**, and $\boldsymbol{\theta}$ is the associated coefficient.
+
+:::{.incremental}
+- $\boldsymbol{\theta}$ reflects the effect of neighbors' characteristics.
+- We still have to **choose** $\boldsymbol{W}$, the spatial weights matrix. But conditional on $\boldsymbol{W}$, whis is just a linear model.
+- This means that we can **estimate** it using **OLS**.
+:::
+
+. . .
+
+This model does not capture spatial autoregressive properties of the outcome, but is much easier to deal with.
+
+## The Spatial Durbin Model (SDM)
+
+:vspace2
+
+. . .
+
+The [**Spatial Durbin Model**]{.col4} combines the [**SAR**]{.col2} and the [**SLX**]{.col3} models:
+
+$$
+\boldsymbol{y} = \lambda\boldsymbol{Wy}+\boldsymbol{X\beta}+ \boldsymbol{WX\theta}+\boldsymbol{u}.
+$$
+
+:vspace2
+
+. . . 
+
+As before,
+
+- $\lambda\boldsymbol{Wy}$ reflects effects of the spatially lagged outcome,
+- $\boldsymbol{WX\theta}$ captures effects of spatially lagged covariates, and
+- $\boldsymbol{X\beta}$ captures effects of the own characteristics of each observation.
+ 
+## Spatial Errors
+
+::::{.columns}
+:::{.column width="50%" .fragment}
+Instead of explicitly including spatially lagged regressors, we can also allow for spatial structure in the error term:
+
+$$
+\boldsymbol{y} = \boldsymbol{X\beta}+\boldsymbol{e}, \qquad \boldsymbol{e}=\varrho\boldsymbol{We}+\boldsymbol{u}
+$$
+
+[This gives us a linear model with **spatially autoregressive errors**. As everything else that relied on a **spatial weights matrix**, this only yields meaningful results conditional on us specifying the correct $\boldsymbol{W}$. Like with the SAR model, estimation is not straightforward and requires additional assumptions.]{.fragment}
+:::
+:::{.column witdh="50%" .fragment}
+What is often done in practice when one suspects there to be a spatial pattern in the errors is to estimate a regular linear model using OLS, and use **errors that are robust to spatial autocorrelation**.
+
+:::{.incremental}
+- A frequently used variance-covariance estimator is provided by @conley1999.
+- These kinds of corrections do not mean that OLS is suddenly efficient in the presence of spatial autocorrelation in the error.
+- But they at least prevent incorrect inference.
+:::
+:::
+::::
+
+## References
+
+<br>
+
+::: {#refs}
+:::
+
+
