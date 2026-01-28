@@ -1,6 +1,6 @@
 ---
 title: "Module 1: Time Series and Autocorrelation"
-subtitle: "Econometrics II"
+subtitle: "Applied Econometrics · Econometrics III"
 author:
 - "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
 - "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"

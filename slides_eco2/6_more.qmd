@@ -226,7 +226,7 @@ There are [**two things**]{.col1} that these estimators [**cannot do**]{.col1}:
 If we have panel data, we can use a [**difference-in-differences**]{.col1} ([**DiD**]{.col1}) approach. We divide our data in four and estimate:
 
 $$
-y_{i t} = \alpha + x_{\text{after}} \phi + x_{\text{treated}} \theta + x_{\text{interacted}} \delta + \ldots
+y_{i t} = \alpha + \text{after}\: \phi + \text{treated} \: \theta + \text{after}\times\text{treated}\: \delta + u_{it}
 $$
 
 
