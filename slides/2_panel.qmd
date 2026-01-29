@@ -250,7 +250,6 @@ We also added [**differences**]{.col1} to the table. Let us look at the **differ
 The **difference between them**, $\delta$, **represents the average treatment effect** (as long as group allocation is as good as random). We can obtain its estimate $\hat{\delta}$ in an extremely easy way just by comparing the averages in this way.
 
 
-
 ## Diff-in-Diff Illustration
 
 ::::{.columns}
@@ -315,6 +314,29 @@ node[midway, right=6pt] {};
 
 \end{document}
 -->
+
+
+
+## Estimating a DiD
+
+::::{.columns}
+:::{.column width="40%" .fragment .incremental}
+Let us **estimate** an average treatment effect using the **DiD estimator**. This is very simple also in terms of implementation.
+
+- `loedata::Fastfood` is a simple example dataset for DiD estimation that contains data on fast food restaurants.
+- It contains data on restuaurant-level employment (`fte`) for two U.S. states (`nj` and `pa`) before and after a minimum wage increase in New Jersey in 1992.
+:::
+:::{.column width="60%" .fragment}
+```{webr}
+library(loedata)
+data(Fastfood)
+
+lm(fte ~ nj * after, data = Fastfood)
+```
+:::
+::::
+
+
 
 ## The DiD Estimator With Additional Regressors
 
@@ -426,6 +448,42 @@ The following is an example of an **event study graph** taken from @miller2021.
 [**After the treatment**, the difference between the differences becomes negative: Enrolled individuals' mortality is lower.]{.fragment}
 :::
 ::::
+
+## Event Study Estimation
+
+::::{.columns}
+:::{.column width="40%" .fragment .incremental}
+Let us look at the following dataset from the `bacondecomp` package. 
+
+- It contains U.S. state-level data on **homicide rates** and adoption of **stand-your-ground laws** (the “Castle Doctrine”).
+- We can use the dataset to estimate an event study, with the adoption of a stand-your-ground law in a certain state being the treatment.
+:::
+:::{.column width="60%" .fragment}
+```{webr}
+library(fixest)
+library(bacondecomp)
+
+data(castle)
+castle$time_to_treat <- ifelse(
+  is.na(castle$effyear),
+  -1000, 
+  castle$year - castle$effyear
+  )
+
+es <- feols(l_homicide ~ 
+              i(time_to_treat, 
+                ref = c(-1, -1000)) | 
+              state + year, 
+            data = castle)
+```
+:::
+::::
+
+## Event Study Plot
+
+```{webr}
+iplot(es, xlab = "Years to treatment", main = "Effect of Castle Doctrine on Log Homicides")
+```
 
 ## Staggered Treatment
 
@@ -728,7 +786,62 @@ p
 :::
 ::::
 
+## Estimating a Sharp RDD
 
+::::{.columns}
+:::{.column width="40%" .fragment .incremental}
+To try estimating an RDD, we can use a classic example:
+
+- The `rdrobust_RDsenate` dataset from the `rdrobust` package contains **U.S. Senate election results**.
+- There are two variables in the dataset, `margin` is the Democratic candidate's winning margin in $t$, and `vote` is the Democratic vote share in $t+1$.
+- We can try to estimate the **incumbency advantage**.
+:::
+:::{.column width="60%" .bitsmall .fragment}
+```{webr}
+library(rdrobust)
+
+data(rdrobust_RDsenate)
+x <- rdrobust_RDsenate$margin
+y <- rdrobust_RDsenate$vote
+
+# Estimate sharp RDD with local linear regression
+rd <- rdrobust(y, x, c = 0, p = 1)
+```
+:::
+::::
+
+## Estimating a Sharp RDD
+
+:::{.bitsmall .fragment}
+```{webr}
+summary(rd)
+```
+:::
+
+## Plotting a Sharp RDD
+
+:::{.bitsmall .fragment}
+```{webr}
+#| fig-height: 4
+rdplot(y, x, c = 0, p = 1,
+       title = "Incumbency Advantage in US Senate Elections",
+       x.label = "Margin of Victory (Election t)",
+       y.label = "Vote Share (Election t+1)")
+```
+:::
+
+## Non-Linear Sharp RDD
+
+:::{.bitsmall .fragment}
+```{webr}
+#| fig-height: 4
+rd <- rdrobust(y, x, c = 0, p = 1) # p = degree of polynomial, we can also leave it blank
+rdplot(y, x, c = 0, p = 1,
+       title = "Incumbency Advantage in US Senate Elections",
+       x.label = "Margin of Victory (Election t)",
+       y.label = "Vote Share (Election t+1)")
+```
+:::
 
 
 # Networks and Peers
