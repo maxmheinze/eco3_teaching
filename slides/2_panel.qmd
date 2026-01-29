@@ -441,7 +441,7 @@ The following is an example of an **event study graph** taken from @miller2021.
 ![](figures/miller.jpg){width="100%"}
 :::
 :::{.column width="40%"}
-[Their study is about the relationship between enrollment in **Medicare**, a U.S. health program for senior citizens, and **mortality**.]{.fragment}
+[Their study is about the relationship between an expansion of **Medicare**, a U.S. health program for senior citizens, and **mortality**.]{.fragment}
 
 [Pre-treatment coefficients are close to zero – this can be seen as an **indication of parallel trends**.]{.fragment}
 
