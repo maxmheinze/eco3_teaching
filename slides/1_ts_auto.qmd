@@ -47,9 +47,128 @@ font_family <- "Inter"
 
 # Insert Sannah's Part Here
 
-## Insert Sannah's Slides Here
+## First Names
 
-Insert Sannah's Text Here
+```{r}
+#| fig-width: 13
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+
+library(plotly)
+library(dplyr)
+
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font        = list(family = family, size = sz$base),
+      title       = list(font = list(family = family, size = sz$title)),
+      xaxis       = list(tickfont = list(family = family, size = sz$tick)),
+      xaxis2      = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis       = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis2      = list(tickfont = list(family = family, size = sz$tick)),
+      legend      = list(font = list(family = family, size = sz$legend)),
+      hoverlabel  = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+# Parse the data
+df <- data.frame(
+  Year = 1984:2024,
+  Maximilian = c(100,118,113,138,189,205,357,376,510,575,624,684,688,687,711,638,624,588,652,605,682,666,703,673,737,748,860,904,817,813,884,860,829,908,783,841,786,771,735,620,599),
+  Sannah = c(0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,2,1,0,0,0,0,0,0)
+)
+
+# Set ranges
+xr <- c(min(df$Year) - 1, max(df$Year) + 1)
+yr_max <- c(0, max(df$Maximilian) + 50)
+yr_san <- c(-0.3, max(df$Sannah) + 0.5)
+
+p <- plot_ly() |>
+  # Top panel: Maximilian
+  add_lines(x = df$Year, y = df$Maximilian,
+            line = list(color = "#4072c2", width = 5),
+            hoverinfo = "x+y", name = "Maximilian",
+            xaxis = "x", yaxis = "y") |>
+  # Bottom panel: Sannah
+  add_lines(x = df$Year, y = df$Sannah,
+            line = list(color = "#74b83d", width = 5),
+            hoverinfo = "x+y", name = "Sannah",
+            xaxis = "x2", yaxis = "y2") |>
+  layout(
+    showlegend = FALSE,
+    # Top panel x-axis (hidden tick labels)
+    xaxis = list(
+      domain = c(0, 1),
+      anchor = "y",
+      range = xr,
+      zeroline = FALSE,
+      showgrid = FALSE,
+      showticklabels = FALSE,
+      title = ""
+    ),
+    # Top panel y-axis
+    yaxis = list(
+      domain = c(0.55, 1),
+      anchor = "x",
+      range = yr_max,
+      zeroline = TRUE,
+      zerolinecolor = "darkgray",
+      zerolinewidth = 1,
+      showgrid = FALSE,
+      title = "Newborns",
+      linecolor = "darkgray",
+      linewidth = 1
+    ),
+    # Bottom panel x-axis
+    xaxis2 = list(
+      domain = c(0, 1),
+      anchor = "y2",
+      range = xr,
+      zeroline = FALSE,
+      showgrid = FALSE,
+      title = ""
+    ),
+    # Bottom panel y-axis
+    yaxis2 = list(
+      domain = c(0, 0.45),
+      anchor = "x2",
+      range = yr_san,
+      zeroline = TRUE,
+      zerolinecolor = "darkgray",
+      zerolinewidth = 1,
+      showgrid = FALSE,
+      title = "Newborns",
+      linecolor = "darkgray",
+      linewidth = 1
+    ),
+    annotations = list(
+      list(x = 2005, y = 850, xref = "x", yref = "y",
+           text = "<b>Maximilian</b>", showarrow = FALSE, xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#4072c2")),
+      list(x = 2005, y = 1.8, xref = "x2", yref = "y2",
+           text = "<b>Sannah</b>", showarrow = FALSE, xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#74b83d"))
+    ),
+    plot_bgcolor = "white",
+    paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 13*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+
+p
+```
+
 
 # Vector Autoregressions
 
