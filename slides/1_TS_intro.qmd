@@ -51,14 +51,126 @@ nocite: |
 
 ## Examples: Baby's Name 
 
-:::{.centering}
-![](figures/TS_max.png)
-:::
+```{r}
+#| fig-width: 13
+#| fig-height: 6.5
+#| warning: false
+#| message: false
 
+library(plotly)
+library(dplyr)
 
-:::{.centering}
-![](figures/TS_sannah.png)
-:::
+style_plotly_scale <- function(p, scale = 1.5, family = "Inter, sans-serif") {
+  sz <- list(
+    base   = 14 * scale,
+    title  = 16 * scale,
+    tick   = 12 * scale,
+    annot  = 16 * scale,
+    legend = 12 * scale,
+    hover  = 12 * scale
+  )
+  p |>
+    layout(
+      font        = list(family = family, size = sz$base),
+      title       = list(font = list(family = family, size = sz$title)),
+      xaxis       = list(tickfont = list(family = family, size = sz$tick)),
+      xaxis2      = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis       = list(tickfont = list(family = family, size = sz$tick)),
+      yaxis2      = list(tickfont = list(family = family, size = sz$tick)),
+      legend      = list(font = list(family = family, size = sz$legend)),
+      hoverlabel  = list(font = list(family = family, size = sz$hover)),
+      uniformtext = list(minsize = sz$base, mode = "show")
+    )
+}
+
+# Parse the data
+df <- data.frame(
+  Year = 1984:2024,
+  Maximilian = c(100,118,113,138,189,205,357,376,510,575,624,684,688,687,711,638,624,588,652,605,682,666,703,673,737,748,860,904,817,813,884,860,829,908,783,841,786,771,735,620,599),
+  Sannah = c(0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,2,1,0,0,0,0,0,0)
+)
+
+# Set ranges
+xr <- c(min(df$Year) - 1, max(df$Year) + 1)
+yr_max <- c(0, max(df$Maximilian) + 50)
+yr_san <- c(-0.3, max(df$Sannah) + 0.5)
+
+p <- plot_ly() |>
+  # Top panel: Maximilian
+  add_lines(x = df$Year, y = df$Maximilian,
+            line = list(color = "#4072c2", width = 5),
+            hoverinfo = "x+y", name = "Maximilian",
+            xaxis = "x", yaxis = "y") |>
+  # Bottom panel: Sannah
+  add_lines(x = df$Year, y = df$Sannah,
+            line = list(color = "#74b83d", width = 5),
+            hoverinfo = "x+y", name = "Sannah",
+            xaxis = "x2", yaxis = "y2") |>
+  layout(
+    showlegend = FALSE,
+    # Top panel x-axis (hidden tick labels)
+    xaxis = list(
+      domain = c(0, 1),
+      anchor = "y",
+      range = xr,
+      zeroline = FALSE,
+      showgrid = FALSE,
+      showticklabels = FALSE,
+      title = ""
+    ),
+    # Top panel y-axis
+    yaxis = list(
+      domain = c(0.55, 1),
+      anchor = "x",
+      range = yr_max,
+      zeroline = TRUE,
+      zerolinecolor = "darkgray",
+      zerolinewidth = 1,
+      showgrid = FALSE,
+      title = "Newborns",
+      linecolor = "darkgray",
+      linewidth = 1
+    ),
+    # Bottom panel x-axis
+    xaxis2 = list(
+      domain = c(0, 1),
+      anchor = "y2",
+      range = xr,
+      zeroline = FALSE,
+      showgrid = FALSE,
+      title = ""
+    ),
+    # Bottom panel y-axis
+    yaxis2 = list(
+      domain = c(0, 0.45),
+      anchor = "x2",
+      range = yr_san,
+      zeroline = TRUE,
+      zerolinecolor = "darkgray",
+      zerolinewidth = 1,
+      showgrid = FALSE,
+      title = "Newborns",
+      linecolor = "darkgray",
+      linewidth = 1
+    ),
+    annotations = list(
+      list(x = 2005, y = 850, xref = "x", yref = "y",
+           text = "<b>Maximilian</b>", showarrow = FALSE, xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#4072c2")),
+      list(x = 2005, y = 1.8, xref = "x2", yref = "y2",
+           text = "<b>Sannah</b>", showarrow = FALSE, xanchor = "left",
+           font = list(size = 22, family = "Inter, sans-serif", color = "#74b83d"))
+    ),
+    plot_bgcolor = "white",
+    paper_bgcolor = "white"
+  ) |>
+  style_plotly_scale(scale = 1.6, family = "Inter, sans-serif") |>
+  layout(autosize = FALSE, width = 13*96, height = 6.5*96) |>
+  config(responsive = FALSE)
+
+p
+```
+
 
 
 
@@ -209,12 +321,377 @@ $$
 * Stationarity can fail to hold for multiple reasons, in which case the time series is said to be [**nonstationary**]{.col1}
 
 
+# Autoregressions
 
-# References
+## The First-Order Autoregressive Model
+* An [**autoregression**]{.col2} expresses the conditional mean of a time series variable Yt as a linear function of its own lagged values.
+* A [**first-order autoregression**]{.col2} uses only one lag of Y in this conditional expectation.
 
-## References
+
+$$
+\mathbb{E}\!\left(Y_t \mid Y_{t-1}, Y_{t-2}, \ldots \right) = \beta_0 + \beta_1 Y_{t-1}.
+$$
+
+* The [**first-order autoregression (AR(1))**]{.col2} model can be written in the familiar form of a regression model as
+
+$$
+Y_t = \beta_0 + \beta_1 Y_{t-1} + u_t,
+$$
+
+## The First-Order Autoregressive Model (2)
+
+* The unknown population coefficients $\beta_0$ and $\beta_1$ can be estimated by [**ordinary least square (OLS)**]{.col1}. 
+* How to estimate $\beta_0$ and $\beta_1$ might initially seem puzzling: Unlike a cross-sectional regression with $X$ on the right-hand side,we have $Y$ on both sides.
+* The solution to this puzzle is to realize that the variable Yt−1 on the right-hand side differs 
+from the dependent variable Yt because the regressor is the [**first lag**]{.col2} of Y. 
+* That is, X is the [**first lag**]{.col2} of Y. 
+
+## Forecasts and forecast errors
+* If the population coefficients were known, then the one-step-ahead forecast of $Y_{T+1}$, made using data through date $T$, would be:
+$$
+\beta_0 + \beta_1 Y_T
+$$
+* Although $\beta_0$ and $\beta_1$ are unknown, we can use their [**OLS estimates**]{.col1} instead.
+The forecast based on the [**AR(1) model**]{.col2} is:
+$$
+\widehat{Y}_{T+1\mid T} = \widehat{\beta}_0 + \widehat{\beta}_1 Y_T,
+$$
+* $\widehat{\beta}_0$ and $\widehat{\beta}_1$ are estimated using historical data through time $T$.
+* The forecast error is: $Y_{T+1} - \widehat{Y}_{T+1\mid T}$
+
+## The $p$th-Order Autoregressive Model
+* The AR(1) model uses $Y_{t-1}$ to forecast $Y_t$, but doing so ignores potentially useful information in the more distant past. 
+* One way to incorporate this information is to include additional lags in the AR(1) model; this yields the [**$p$th-order autoregressive model**]{.col2}.
+* [**The model**]{.col2} represents $Y_t$ as a linear function of $p$ of its lagged values. 
+* [**In the AR($p$) model**]{.col2}, the regressors are $Y_{t-1}, Y_{t-2}, \ldots, Y_{t-p}$, and intercept.
+* The number of lags, $p$, included in an [**In the AR($p$) model**]{.col2} is called the [**order**]{.col1} (or [**lag length**]{.col1}) of the autoregression.
+
+## The $p$th-Order Autoregressive Model (2)
+The [**$p$th-order autoregressive (AR($p$))**]{.col2} model represents the conditional expectation of $Y_t$ as a linear function of $p$ of its lagged values:
+
+$$
+Y_t = \beta_0 + \beta_1 Y_{t-1} + \beta_2 Y_{t-2} + \cdots + \beta_p Y_{t-p} + u_t.
+$$
+
+If $Y_t$ follows an [**AR($p$)**]{.col2}, then the oracle one-step-ahead forecast of $Y_{T+1}$ based on $Y_T, Y_{T-1}, \ldots$ is
+
+$$
+Y_{T+1\mid T}
+= \beta_0 + \beta_1 Y_T + \beta_2 Y_{T-1} + \cdots + \beta_p Y_{T-p+1}.
+$$
+
+## The Autoregressive Distributed Lag (ADL) Model
+
+An [**autoregressive distributed lag (ADL)**]{.col2} model is:
+
+- [**Autoregressive**]{.col2} because lagged values of the dependent variable $Y_t$ are included as regressors.
+- [**Distributed lag**]{.col2} because the regression also includes multiple lags of an additional predictor $X_t$.
+
+An [**ADL model**]{.col2} with $p$ lags of $Y_t$ and $q$ lags of $X_t$, denoted [**ADL($p,q$)**]{.col2}, is
+
+$$
+Y_t
+= \beta_0 + \beta_1 Y_{t-1} + \beta_2 Y_{t-2} + \cdots + \beta_p Y_{t-p}
++ \delta_1 X_{t-1} + \delta_2 X_{t-2} + \cdots + \delta_q X_{t-q}
++ u_t.
+$$
+
+Here, $\beta_0,\beta_1,\ldots,\beta_p,\delta_1,\ldots,\delta_q$ are unknown coefficients and $u_t$ is the error term, with
+
+$$
+\mathbb{E}\!\left(u_t \mid Y_{t-1},Y_{t-2},\ldots,X_{t-1},X_{t-2},\ldots \right)=0.
+$$
+
+## General time series regression with additional predictors
+
+The [**general time series regression model**]{.col1} allows for $k$ additional predictors, where $q_1$ lags of the first predictor are included, $q_2$ lags of the second predictor are included, and so forth:
+
+$$
+\begin{aligned}
+Y_t
+&= \beta_0 + \beta_1 Y_{t-1} + \beta_2 Y_{t-2} + \cdots + \beta_p Y_{t-p} \\
+&\quad + \delta_{11} X_{1,t-1} + \delta_{12} X_{1,t-2} + \cdots + \delta_{1q_1} X_{1,t-q_1} \\
+&\quad + \cdots \\
+&\quad + \delta_{k1} X_{k,t-1} + \delta_{k2} X_{k,t-2} + \cdots + \delta_{kq_k} X_{k,t-q_k}
++ u_t .
+\end{aligned}
+$$
+
+## Assumptions
+
+1. $\mathbb{E}\!\left(u_t \mid Y_{t-1},Y_{t-2},\ldots, X_{1,t-1},X_{1,t-2},\ldots, X_{k,t-1},X_{k,t-2},\ldots\right)=0$;
+2. (a) The random variables $(Y_t, X_{1t}, \ldots, X_{kt})$ have a stationary distribution, and  
+   (b) $(Y_t, X_{1t}, \ldots, X_{kt})$ and $(Y_{t-j}, X_{1,t-j}, \ldots, X_{k,t-j})$ become independent as $j$ gets large;
+3. Large outliers are unlikely: $Y_t, X_{1t}, \ldots, X_{kt}$ have nonzero, finite fourth moments; and
+4. There is no perfect multicollinearity.
+
+## Assumption 1, 3, 4 & Inference
+
+The first assumption is that $u_t$ has [**conditional mean zero**]{.col2} given the history of all the regressors:
+
+$$
+\mathbb{E}\!\left(u_t \mid Y_{t-1},Y_{t-2},\ldots, X_{1,t-1},X_{1,t-2},\ldots, X_{k,t-1},X_{k,t-2},\ldots\right)=0.
+$$
+
+This assumption extends the assumption used in the AR and ADL models and implies that the forecast of $Y_t$, using all past values of $Y$ and the $X$’s, is given by the regression.
+
+The third assumption [**no outliers**]{.col2} and fourth assumption [**no perfect multicollinearity**]{.col2} are the same as for cross-sectional data.
+
+Under the assumptions 1-4, [**inference on the regression coefficients**]{.col1} using OLS proceeds in the same way as it usually does for cross-sectional data.
+
+## Assumption 2
+
+For time series regression, the i.i.d. assumption is replaced by a more appropriate assumption with two parts:
+
+[**(a) Stationarity**]{.col2}: The data are drawn from a [**stationary distribution**]{.col2}, so the distribution of the time series today is the same as its distribution in the past. The joint distribution of the variables (including lags) does not change over time.
+
+[**(b) Weak dependence**]{.col2}: The random variables become approximately independent when they are separated by long periods of time. [**Weak dependence**]{.col2} ensures that, in large samples, there is enough randomness for the law of large numbers and the central limit theorem to hold.
+
+# Determining the lag lenght
+
+## Determining the Order of an Autoregression
+* Choosing [**the order p of an autoregression**]{.col1} requires balancing the marginal [**benefit**]{.col1} of including more lags against the marginal [**cost**]{.col1} of additional estimation error. 
+* If the order of an estimated autoregression is too low, you will [**omit potentially valuable information**]{.col2} contained in the more distant lagged values.
+* If it is too high, you will be estimating more coefficients than necessary, which in turn introduces [**additional estimation error**]{.col2} into your forecasts.
+
+## The F-statistic approach
+
+* One approach to choosing $p$ is to start with a model with many lags and to perform [**hypothesis tests**]{.col2} on the final lag.
+* For example, you might start by estimating an [**AR(6)**]{.col1} and test whether the coefficient on the [**sixth lag**]{.col1} is significant at the 5% level; if not, drop it and estimate an [**AR(5)**]{.col1}, test the coefficient on the 
+fifth lag, and so forth.
+* [**The drawback**]{.col2} to this method is that it will tend to produce [**large models**]{.col2}.
+* Even if the true AR order is five, so the sixth coefficient is 0, a 5% test using the t-statistic will incorrectly reject this null hypothesis 5% of the time just by chance. Thus, if the true value of $p$ is five, this method will estimate $p$ to be six [**5% of the time**]{.col1}.
+
+## The Bayes information criterion (BIC)
+
+* One way to estimate $p$ is by [**minimizing an information criterion**]{.col2}, e.g., the [**BIC**]{.col1}, which is:
+
+$$
+\text{BIC}(p) = \ln \left( \frac{SSR(p)}{T} \right) + (p + 1) \frac{\ln(T)}{T},
+$$
+
+* $SSR(p)$ is the sum of squared residuals of the estimated AR($p$).
+* The [**BIC estimator**]{.col1} of $\rho$, [**$\hat{\rho}$**]{.col1}, is the value that minimizes $\text{BIC}(p)$ among the possible choices $p = 0, 1, \ldots, p_{\max}$
+* $p_{\max}$ is the largest value of $p$ considered and $p = 0$ corresponds to the model that contains only an intercept.
+
+## The Bayes information criterion (BIC) (2)
+* Because the regression coefficients are estimated by OLS, the [**SSR necessarily decreases**]{.col1} (or at least does not increase) when you add a lag. 
+* In contrast, the second term is the number of estimated regression coefficients (the number of lags, $p$, plus one for the intercept) times the factor $\frac{\ln(T)}{T}$. 
+* This second term [**increases**]{.col2} when you add a lag and thus provides a [**penalty**]{.col2} for including another lag.
+* The BIC trades off these two forces so that [**the number of lags that minimizes the BIC**]{.col1} is a consistent estimator of the true lag length.
+*  The BIC helps decide precisely how large the increase in the R2 must be to justify including the additional lag.
+
+## The Akaike Information Criterion (AIC)
+* Another information criterion is the [**Akaike information criterion (AIC)**]{.col1}:
+$$
+\text{AIC}(p) = \ln \left( \frac{SSR(p)}{T} \right) + \frac{(p + 1)^2}{T},
+$$
+* The difference between the AIC and the BIC is that the term ln(T) in the BIC is replaced by 2 in the AIC, so the [**second term in the AIC is smaller**]{.col2}.
+* The second term in the AIC is not large enough to ensure that the correct lag length is chosen, even in 
+large samples, so the AIC estimator of $p$ is [**not consistent**]{.col2}.
+* If you are concerned that the  BIC might yield a model with too few lags, the AIC provides a reasonable 
+alternative
+
+## Lag Length Selection in Time Series Regression with Multiple Predictors
+The trade-off involved with lag length choice in the [**general time series regression**]{.col1} 
+model with multiple predictors is similar to that in an autoregression: 
+
+* Using too few lags can [**decrease forecast accuracy**]{.col2} because valuable information 
+is lost
+* Adding lags [**increases estimation error**]{.col2}. 
+
+The choice of lags must balance the benefit of using additional information against the cost of estimating the additional coefficients.
+
+## The F-statistic approach
+* As in the univariate autoregression, one way to determine the number of lags is to use [**F-statistics**]{.col2} to test joint hypotheses that sets of coefficients are equal to 0.
+* If the [**number of models being compared is small**]{.col1}, then this F-statistic method is easy to use.
+* In general, however, the F-statistic method can produce [**models that are large**]{.col1} and thus have considerable estimation error
+
+
+## Information criteria for model selection
+
+As in an autoregression, the [**BIC**]{.col2} and the [**AIC**]{.col2} can be used to estimate the number of lags and variables in a time series regression model with multiple predictors. If the regression model has $K$ coefficients (including the intercept), the [**BIC**]{.col2} is
+
+$$
+\text{BIC}(K) = \ln\!\left(\frac{SSR(K)}{T}\right) + K\frac{\ln(T)}{T}.
+$$
+
+The [**AIC**]{.col2} is defined in the same way, but with $2$ replacing $\ln(T)$ in the second term:
+
+$$
+\text{AIC}(K) = \ln\!\left(\frac{SSR(K)}{T}\right) + K\frac{2}{T}.
+$$
+
+For each candidate model, the [**BIC**]{.col2} (or the [**AIC**]{.col2}) can be evaluated, and the model with the lowest value of the [**BIC**]{.col2} (or the [**AIC**]{.col2}) is the preferred model, based on the information criterion.
+
+# Nonstationarity
+
+## Nonstationarity
+* Until now we have assumed that the dependent variable and the regressors are [**stationary**]{.col1}.
+* If this is not the case—that is, if the dependent variable and/or the regressors are [**nonstationarity**]{.col2}—then conventional hypothesis tests, confidence intervals, and forecasts can be unreliable. 
+* The precise problem created by [**nonstationarity**]{.col2}, and the solution to that problem, depends on the nature of that [**nonstationarity**]{.col2}
+* There are two types of [**nonstationarity**]{.col2} frequently encountered in economic time series: [**trends**]{.col2} and [**breaks**]{.col2}. 
+
+## What Is a Trend?
+* A [**trends**]{.col2} is a persistent long-term movement of a variable over time. A time series variable fluctuates around its [**trend**]{.col2}
+*  There are two types of trends in time series data: [**deterministic**]{.col1} and [**stochastic**]{.col1}.
+* A [**deterministic**]{.col1} trend is a nonrandom function of time.
+* A [**stochastic**]{.col1} trend is random and varies over time.
+* It is more appropriate to model economic time series as having stochastic rather than deterministic trends.
+
+## The random walk model of a trend
+* The basic idea of a [**random walk**]{.col1} is that the value of the series tomorrow is its value today plus an unpredictable change. 
+* Because the path followed by $Y_t$ consists of random “steps” $u_t$, that path is a [**random walk**]{.col1}.
+* The conditional mean of $Y_t$ based on data through time $t-1$ is $Y_{t-1}$. That is, because
+$$
+\mathbb{E}\!\left(u_t \mid Y_{t-1}, Y_{t-2}, \ldots \right)=0,
+$$
+it follows that
+$$
+\mathbb{E}\!\left(Y_t \mid Y_{t-1}, Y_{t-2}, \ldots \right)=Y_{t-1}.
+$$
+*  if $Y_t$ follows a [**random walk**]{.col1}, then the best forecast of tomorrow’s value is its value today.
+* If $Y_t$ follows a [**random walk**]{.col1}, its variance increases over time. Because it does not have a constant variance, a [**random walk**]{.col1} is [**nonstationary**]{.col2}
+
+## Random walk with drift
+
+* Some series, such as the logarithm of U.S. GDP, have an obvious [**upward tendency**]{.col1}. In that case, the best forecast must include an [**adjustment**]{.col2} for the tendency of the series to increase.
+* This leads to an extension of the random walk model that includes a tendency to move, or [**drift**]{.col2}, in one direction or the other. This extension is referred to as a [**random walk with drift**]{.col2}:
+$$
+Y_t = \beta_0 + Y_{t-1} + u_t,
+$$
+$$
+\mathbb{E}\!\left(u_t \mid Y_{t-1}, Y_{t-2}, \ldots \right)=0,
+$$
+* $\beta_0$ is the [**drift**]{.col2} in the random walk. 
+* If $\beta_0>0$, then $Y_t$ increases on average.
+
+## Unit root (1)
+
+* The [**random walk**]{.col2} model is a special case of the [**AR(1) model**]{.col2} in which $\beta_1 = 1$. 
+* If $Y_t$ follows an [**AR(1)**]{.col2} with $\beta_1 = 1$,then $Y_t$ contains a [**stochastic trend and is nonstationary**]{.col1}.
+* If $|\beta_1| < 1$ and $u_t$ is stationary, then the joint distribution of $Y_t$ and its lags does not depend on $t$, [**$Y_t$ is stationary**]{.col1}.
+* For an AR($p$) to be stationary is more complicated. Its formal statement involves the roots of the polynomial
+$$
+1 - \beta_1 z - \beta_2 z^2 - \beta_3 z^3 - \cdots - \beta_p z^p.
+$$
+* For an AR($p$) to be stationary, all roots of this polynomial must be [**greater than 1 in absolute value**]{.col1}.
+
+## Unit root (2)
+* In the special case of an [**AR(1)**]{.col1}, the root solves
+$$
+1 - \beta_1 z = 0,
+$$
+* so the root is
+$$
+z = \frac{1}{\beta_1}.
+$$
+* Saying that the [**root must be greater than 1**]{.col1} in absolute value is equivalent to $|\beta_1| < 1$.
+* If an [**AR($p$)**]{.col1} has a root equal to 1, the series is said to have a [**unit autoregressive root**]{.col2} (or a [**unit root**]{.col2})
+* If $Y_t$ has a unit root, then it contains a [**stochastic trend**]{.col2}. 
+
+## Problems caused by stochastic trends
+
+If a regressor has a stochastic trend (has a unit root), then OLS [**inference**]{.col1} can be misleading.
+
+* the usual OLS $t$-statistic can have a [**nonnormal distribution**]{.col2}, even in large samples
+* the estimate of the autoregressive coefficient is [**biased**]{.col2} toward 0
+* [**spurious regression**]{.col2}: two independent series with stochastic trends can appear to be related
+
+As a result, conventional confidence intervals and hypothesis tests are [**not valid**]{.col1} in the usual way.
+
+## Detecting stochastic trends: the Dickey–Fuller test
+
+* The hypothesis of a stochastic trend can be tested using a [**Dickey–Fuller test**]{.col2}. For the AR(1) model:
+$$
+Y_t = \beta_0 + \beta_1 Y_{t-1} + u_t,
+$$
+* the null hypothesis that $Y_t$ has a stochastic trend is
+$$
+H_0:\beta_1=1
+\qquad \text{vs.} \qquad
+H_1:\beta_1<1.
+$$
+* Let $\delta = \beta_1 - 1$. Then the model can be rewritten as
+$$
+\Delta Y_t = \beta_0 + \delta Y_{t-1} + u_t,
+$$
+* The hypotheses become: $H_0:\delta=0 \qquad \text{vs.} \qquad H_1:\delta<0.$
+* The OLS $t$-statistic for testing $\delta=0$ is called the [**Dickey–Fuller statistic**]{.col2}.
+
+## Critical values for the ADF statistic
+* Under the null hypothesis of a unit root, the ADF statistic does not have a normal distribution, even in large samples, so  [**standard critical values**]{.col2} cannot be used.
+* Because the alternative hypothesis is $\delta < 0$, the ADF test is [**one-sided**]{.col2}. 
+* Studies of the ADF statistic suggest that it is better to have [**too many lags**]{.col2} than too few
+* it is then recommended to use the [**AIC**]{.col2} instead of the BIC to estimate p for the ADF statistic
+* The most reliable way to handle a trend in a series is to [**transform**]{.col1} the series so that it does not have the trend. 
+* If the series has a stochastic trend, then its [**difference does not**]{.col1}
+
+## Nonstationarity II: Breaks
+
+* A second type of [**nonstationarity**]{.col1} arises when the population regression function changes over the sample period. 
+* These changes, or [**breaks**]{.col2}, can make inference and forecasting misleading if they are ignored.
+* [**Breaks**]{.col2} can occur because of changes in policy, economic structure, or industry conditions.
+* A [**breaks**]{.col2} can arise from:
+* A [**discrete change**]{.col2} in the regression coefficients at a specific date; 
+* A [**gradual change**]{.col2} in the coefficients over time.
+* One way to detect breaks is to [**test**]{.col2} for discrete changes, or breaks, in the regression coefficients.
+* How this is done depends on whether the [**break date is known**]{.col2}
+
+
+## Testing for a break at a known date (1)
+* If the date of the hypothesized break is [**known**]{.col1}, the null hypothesis of no break can be tested using a binary variable interaction regression.
+* For simplicity, consider an ADL(1, 1) model with an intercept, a single lag of $Y_t$, and a single lag of $X_t$. 
+* Let $\tau$ denote the break date, and let $D_t(\tau)$ be a [**binary variable**]{.col2} equal to 0 before the break and 1 after. 
+* The regression including the [**binary break indicator**]{.col2} and all interaction terms is:
+
+$$
+Y_t = \beta_0 + \beta_1 Y_{t-1} + \delta_1 X_{t-1} + \gamma_0 D_t(\tau) + \gamma_1 [D_t(\tau) \times Y_{t-1}] + \gamma_2 [D_t(\tau) \times X_{t-1}] + u_t
+$$
+
+
+## Testing for a break at a known date (2)
+* If there is no break, then the population regression function is the [**same over both parts of the sample**]{.col2}, so the terms involving the break indicator $D_t(\tau)$ do not enter. 
+* The null hypothesis of no break implies [**$\gamma_0 = \gamma_1 = \gamma_2 = 0$**]{.col2}.
+* The alternative hypothesis is that there is a break, and the population regression function is different before and after the break date, implying at [**least one of the $\gamma$'s is nonzero**]{.col2}.
+* The hypothesis of a break can be tested using the [**F-statistic**]{.col1} testing [**$\gamma_0 = \gamma_1 = \gamma_2 = 0$**]{.col2} against the alternative.
+* This is often referred to as the [**Chow test**]{.col1}.
+
+## Testing for a break at an unknown date
+* Often, the date of a possible break is [**unknown or known only within a range**]{.col1}. 
+* You might suspect that a break occurred between two dates, $\tau_0$ and $\tau_1$. 
+* The [**Chow test**]{.col1} can be extended to test for breaks at all possible dates $\tau$ between $\tau_0$ and $\tau_1$ and then use the largest resulting $F$-statistics to test for a break at an unknown date. 
+* This modified Chow test is called the [**Quandt likelihood ratio (QLR) statistic**]{.col2} ( sometimes the [**sup-Wald statistic**]{.col2}).
+* Because the QLR statistic is the largest of many $F$-statistics, its distribution is not the same as an individual $F$-statistic. 
+* Instead, the critical values for the QLR statistic must be obtained from a special distribution. 
+* The QLR test can detect a single discrete break, multiple discrete breaks, and/or slow evolution of the regression function.
+
+## Detecting Breaks Using Pseudo Out-of-Sample Forecasts
+* The ultimate test of a forecasting model is its [**out-of-sample performance**]{.col2}:its forecasting performance in "real time," after the model has been estimated. 
+* [**Pseudo out-of-sample forecasting**]{.col2} simulates the real-time performance of a forecasting model and can be used to detect breaks near the end of the sample.
+* The most direct and often most useful way to do so is via a time series plot of the in-sample predicted values, the pseudo out-of-sample forecasts, and the actual values of the series. 
+* A visible [**deterioration of the forecasts in the pseudo out-of-sample period**]{.col2} is a red flag warning of a possible breakdown of the forecasting model.
+
+## Example: Do you see a Trend and/or a Break?
+
+:::{.centering}
+![](figures/TS_GDP.png){width="60%"}
+:::
+
+## Summary
+* Regression models used for forecasting need not have a causal interpretation.
+* A time series variable generally is correlated with one or more of its lagged values; that is, it is serially correlated.
+* The accuracy of a forecast is measured by its mean squared forecast error.
+* An autoregression of order $p$ is a linear multiple regression model in which the regressors are the first $p$ lags of the dependent variable. 
+* The coefficients of an AR($p$) model can be estimated by OLS, and the estimated regression function can be used for forecasting. 
+* The lag order $p$ can be estimated using an information criterion such as the BIC or the AIC.
+* Adding other variables and their lags to an autoregression can improve forecasting performance. 
+* Under the least squares assumptions for prediction with time series regression, the OLS estimators have normal distributions in large samples, and statistical inference proceeds the same way as for cross-sectional data.
+
 
 <br>
+
+## Reference
 
 ::: {#refs}
 :::
