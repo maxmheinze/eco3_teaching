@@ -431,6 +431,8 @@ $$
 3. Large outliers are unlikely: $y_t, x_{1t}, \ldots, x_{kt}$ have nonzero, finite fourth moments; and
 4. There is no perfect multicollinearity.
 
+Under the assumptions 1-4, [**inference on the regression coefficients**]{.col1} using OLS proceeds in the same way as it usually does for cross-sectional data.
+
 ## Assumption 1, 3, 4 & Inference
 
 The first assumption is that $\varepsilon_t$ has [**conditional mean zero**]{.col2} given the history of all the regressors:
@@ -443,7 +445,6 @@ This assumption extends the assumption used in the AR and ADL models and implies
 
 The third assumption [**no outliers**]{.col2} and fourth assumption [**no perfect multicollinearity**]{.col2} are the same as for cross-sectional data.
 
-Under the assumptions 1-4, [**inference on the regression coefficients**]{.col1} using OLS proceeds in the same way as it usually does for cross-sectional data.
 
 ## Assumption 2
 
