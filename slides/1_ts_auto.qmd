@@ -36,8 +36,6 @@ nocite: |
 ---
 
 {{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
-
-
 ```{r}
 #| label: setup
 #| include: false
@@ -51,15 +49,14 @@ font_family <- "Inter"
 
 * [**Time series data**]{.col1}: Data collected for a single entity at multiple points in time.
 * This data type can be used to answer quantitative questions for which cross-sectional data are inadequate.
-* [**Dynamic causal effect**]{.col2} of variable X on dependent variable Y over time.
+* [**Dynamic causal effect**]{.col2} of variable $x$ on dependent variable $y$ over time.
 * [**Example**]{.col3}: What is the effect of a law requiring passengers to wear seatbelts on traffic fatalities?
 * [**Forecasting**]{.col2} the value of a variable at a later date.
 * [**Example**]{.col3}: What will next month's inflation rate be?
 * Using time series data allows us to extend the questions we can now answer. However, it poses special challenges, and overcoming them requires new techniques.
 
 
-## Examples: Baby's Name 
-
+## Example: Baby's Names
 ```{r}
 #| fig-width: 13
 #| fig-height: 6.5
@@ -183,13 +180,13 @@ p
 
 
 
-## Examples: Unemployement in Austria
+## Example: Unemployment in Austria
 
 :::{.centering}
 ![](figures/TS_Unemployment.png)
 :::
 
-## Examples: GDP in Austria
+## Example: GDP in Austria
 
 :::{.centering}
 ![](figures/TS_GDP.png){width="60%"}
@@ -197,23 +194,23 @@ p
 
 
 
-# Notation and basic concepts
+# Notation and Basic Concepts
 
 ## Time Series
 
 * Time series data are observations indexed according to [**time**]{.col1}.
 * It implies that the index has an [**ordering**]{.col1}. Observations are not exchangeable.
-* The observation on the time series variable $Y$ made at date $t$ is denoted [**$Y_t$**]{.col2}.
+* The observation on the time series variable $y$ made at date $t$ is denoted [**$y_t$**]{.col2}.
 * The total number of observations is denoted $T$.
 * The interval (of time) between observation $t$ and $t+1$ is some unit of weeks, months, quarters, or even years.
 
 
 ## Lags
 
-* Special terminology and notation are used to indicate future and past values of $Y$.
-* The value of $Y$ in the previous period is called its [**first lagged value**]{.col2} or [**first lag**]{.col2}, and is denoted [**$Y_{t-1}$**]{.col2}.
-* Its [**j-th lagged value**]{.col1} is its value $j$ periods ago, denoted [**$Y_{t-j}$**]{.col1}.
-* Similarly, $Y_{t+1}$ denotes the value of $Y$ one period into the future.
+* Special terminology and notation are used to indicate future and past values of $y$.
+* The value of $y$ in the previous period is called its [**first lagged value**]{.col2} or [**first lag**]{.col2}, and is denoted [**$y_{t-1}$**]{.col2}.
+* Its [**j-th lagged value**]{.col1} is its value $j$ periods ago, denoted [**$y_{t-j}$**]{.col1}.
+* Similarly, $y_{t+1}$ denotes the value of $y$ one period into the future.
 
 :::{.centering}
 ![](figures/TS_lag.png){width="50%"}
@@ -222,9 +219,9 @@ p
 
 ## First Differences
 
-* The change of value of $Y$ between period $t-1$ and $t$ is $Y_{t}-Y_{t-1}$
-* We call it the [**first difference**]{.col2} in the variable $Y_t$
-* We will use the following notation: $\Delta Y = Y_t - Y_{t-1}$
+* The change of value of $y$ between period $t-1$ and $t$ is $y_{t}-y_{t-1}$
+* We call it the [**first difference**]{.col2} in the variable $y_t$
+* We will use the following notation: $\Delta y = y_t - y_{t-1}$
 
 :::{.centering}
 ![](figures/TS_1diff.png){width="45%"}
@@ -232,15 +229,15 @@ p
 
 
 ## Detrending: Fixed and Random Variation
-Time series methods focus on modelling [**random components**]{.col2}.But, there may also be [**fixed variation**]{.col2}: seasonality of GDP, or weekday e ects.
+Time series methods focus on modelling [**random components**]{.col2}. But, there may also be [**fixed variation**]{.col2}: seasonality of GDP, or weekday effects.
 
-We are looking to remove fixed components (such as a trend or seasonal patterns) and focus on random components of a time series. There are many ways to achieve his: 
+We are looking to remove fixed components (such as a trend or seasonal patterns) and focus on random components of a time series. There are many ways to achieve this: 
  
 * [**growth rates**]{.col1} (e.g. year-to-year, quarter-to-quarter)
 * [**linear trends**]{.col1} (e.g. linear growth, demeaning seasons)
 * [**filters**]{.col1} (e.g. bandpass filter, Hodrick-Prescott filter)
 
-For example, many economic time series are analyzed after computing their (change in) logarithms, as they exhibits exponential growth. 
+For example, many economic time series are analyzed after computing their (change in) logarithms, as they exhibit exponential growth. 
 
 :::{.centering}
 ![](figures/TS_gdp_us.png){width="60%"}
@@ -257,32 +254,32 @@ For example, many economic time series are analyzed after computing their (chang
 Consider the linear model and related assumptions:
 
 $$
-y = X\beta + e, \qquad e \sim \mathcal{N}(0,\sigma^2).
+y_t = {x}_t'{\beta} + u_t, \qquad u_t \sim \mathcal{N}(0,\sigma^2).
 $$
 
-1. $\mathbb{E}[e]=0$,
-2. $\mathrm{Var}(e)=\sigma^2$, and
-3. $\mathrm{Cov}(e_t,e_s)=0 \ \text{for all } t \neq s$.
+1. $\mathrm{E}(u)=0$,
+2. $\mathrm{Var}(u)=\sigma^2$, and
+3. $\mathrm{Cov}(u_t,u_s)=0 \ \text{for all } t \neq s$.
 
-When $y$ and $X$ are time series, assumption (3) is often violated. We need a sensible alternative.
+When $y$ and $x$ are time series, Assumption (3) is often violated. We need a sensible alternative.
 
 
 
 ## Autocorrelation
 
-* In time serie, the value of $Y$ in one period is typically correlated with its value in the next period.
-* The correlation of a serie with its own lagged values is called [**autocorrelation**]{.col2}.
-* The first [**autocorrelation**]{.col2} is the correlation between $Y_t$ and $Y_{t-1}$ 
-* The j-th [**autocorrelation**]{.col2} is the correlation between $Y_t$ and $Y_{t-j}$
-* The j-th [**autocovariance**]{.col1} is the covariance between $Y_t$ and $Y_{t-j}$
+* In time series, the value of $y$ in one period is typically correlated with its value in the next period.
+* The correlation of a series with its own lagged values is called [**autocorrelation**]{.col2}.
+* The first [**autocorrelation**]{.col2} is the correlation between $y_t$ and $y_{t-1}$ 
+* The j-th [**autocorrelation**]{.col2} is the correlation between $y_t$ and $y_{t-j}$
+* The j-th [**autocovariance**]{.col1} is the covariance between $y_t$ and $y_{t-j}$
 
 $$
-\text{$j^{\text{th}}$ autocovariance} \;=\; \operatorname{cov}(Y_t, Y_{t-j})
+\text{$j^{\text{th}}$ autocovariance} \;=\; \operatorname{cov}(y_t, y_{t-j})
 $$
 
 $$
-\text{$j^{\text{th}}$ autocorrelation} \;=\; \rho_j \;=\; \operatorname{corr}(Y_t, Y_{t-j})
-\;=\; \frac{\operatorname{cov}(Y_t, Y_{t-j})}{\sqrt{\operatorname{var}(Y_t)\operatorname{var}(Y_{t-j})}}
+\text{$j^{\text{th}}$ autocorrelation} \;=\; \rho_j \;=\; \operatorname{corr}(y_t, y_{t-j})
+\;=\; \frac{\operatorname{cov}(y_t, y_{t-j})}{\sqrt{\operatorname{var}(y_t)\operatorname{var}(y_{t-j})}}
 $$
 
 
@@ -292,8 +289,8 @@ The autocorrelation function (ACF) is a useful summary for a stationary time ser
 
 $$
 \mathrm{ACF}(j) \;=\; \rho_j
-\;=\; \operatorname{corr}(Y_t, Y_{t-j})
-\;=\; \frac{\operatorname{cov}(Y_t, Y_{t-j})}{\operatorname{var}(Y_t)}.
+\;=\; \operatorname{corr}(y_t, y_{t-j})
+\;=\; \frac{\operatorname{cov}(y_t, y_{t-j})}{\operatorname{var}(y_t)}.
 $$
 
 The ACF is a common diagnostic tool that reveals interesting patterns of autocorrelation, but it may also indicate a lack of stationarity.
@@ -310,7 +307,7 @@ The ACF is a common diagnostic tool that reveals interesting patterns of autocor
 
 * We can test for autocorrelation using the [**Durbin-Watson statistic**]{.col2}:
 $$
-d = \frac{\sum_{t=2}^{T}\left(\hat{e}_t - \hat{e}_{t-1}\right)^2}{\sum_{t=1}^{T}\hat{e}_t^{\,2}}.
+d = \frac{\sum_{t=2}^{T}\left(\hat{u}_t - \hat{u}_{t-1}\right)^2}{\sum_{t=1}^{T}\hat{u}_t^{\,2}}.
 $$
 * A value of [**$d = 2$**]{.col1} indicates no autocorrelation. 
 * The statistic is bounded as $d \in [0,4]$ 
@@ -323,7 +320,7 @@ $$
 
 * Time series forecasts use data on the [**past**]{.col2} to forecast the [**future**]{.col2}. 
 * Doing so presumes that the [**future is similar to the past**]{.col2} (in the sense that the correlations) 
-* More generally the [**distributions**]{.col1}, of the data in the future will be like they were in the past.
+* More generally, the [**distributions**]{.col1} of the data in the future will be like they were in the past.
 * In the context of regression with time series data, the idea that historical relationships can be generalized to the future is formalized by the concept of [**stationarity**]{.col1}. 
 * Definition of [**stationarity**]{.col1}: The probability distribution of the time series variable does not change over time. 
 * Under the assumption of [**stationarity**]{.col1}, regression models estimated using [**past data**]{.col2} can be used to forecast [**future values**]{.col2}
@@ -333,116 +330,116 @@ $$
 # Autoregressions
 
 ## The First-Order Autoregressive Model
-* An [**autoregression**]{.col2} expresses the conditional mean of a time series variable Yt as a linear function of its own lagged values.
-* A [**first-order autoregression**]{.col2} uses only one lag of Y in this conditional expectation.
+* An [**autoregression**]{.col2} expresses the conditional mean of a time series variable $y_t$ as a linear function of its own lagged values.
+* A [**first-order autoregression**]{.col2} uses only one lag of $y$ in this conditional expectation.
 
 
 $$
-\mathbb{E}\!\left(Y_t \mid Y_{t-1}, Y_{t-2}, \ldots \right) = \beta_0 + \beta_1 Y_{t-1}.
+\mathbb{E}\left(y_t \mid y_{t-1}, y_{t-2}, \ldots \right) = \alpha_0 + \alpha_1 y_{t-1}.
 $$
 
 * The [**first-order autoregression (AR(1))**]{.col2} model can be written in the familiar form of a regression model as
 
 $$
-Y_t = \beta_0 + \beta_1 Y_{t-1} + u_t,
+y_t = \alpha_0 + \alpha_1 y_{t-1} + \varepsilon_t,
 $$
 
 ## The First-Order Autoregressive Model (2)
 
-* The unknown population coefficients $\beta_0$ and $\beta_1$ can be estimated by [**ordinary least square (OLS)**]{.col1}. 
-* How to estimate $\beta_0$ and $\beta_1$ might initially seem puzzling: Unlike a cross-sectional regression with $X$ on the right-hand side,we have $Y$ on both sides.
-* The solution to this puzzle is to realize that the variable Yt−1 on the right-hand side differs 
-from the dependent variable Yt because the regressor is the [**first lag**]{.col2} of Y. 
-* That is, X is the [**first lag**]{.col2} of Y. 
+* The unknown population coefficients $\alpha_0$ and $\alpha_1$ can be estimated by [**ordinary least square (OLS)**]{.col1}. 
+* How to estimate $\alpha_0$ and $\alpha_1$ might initially seem puzzling: Unlike a cross-sectional regression with $x$ on the right-hand side, we have $y$ on both sides.
+* The solution to this puzzle is to realize that the variable $y_{t-1}$ on the right-hand side differs 
+from the dependent variable $y_t$ because the regressor is the [**first lag**]{.col2} of $y$. 
+* That is, $x$ is the [**first lag**]{.col2} of $y$. 
 
 ## Forecasts and forecast errors
-* If the population coefficients were known, then the one-step-ahead forecast of $Y_{T+1}$, made using data through date $T$, would be:
+* If the population coefficients were known, then the one-step-ahead forecast of $y_{t+1}$, made using data through date $t$, would be:
 $$
-\beta_0 + \beta_1 Y_T
+y_{t+1\mid t} = \alpha_0 + \alpha_1 y_t
 $$
-* Although $\beta_0$ and $\beta_1$ are unknown, we can use their [**OLS estimates**]{.col1} instead.
+* Although $\alpha_0$ and $\alpha_1$ are unknown, we can use their [**OLS estimates**]{.col1} instead.
 The forecast based on the [**AR(1) model**]{.col2} is:
 $$
-\widehat{Y}_{T+1\mid T} = \widehat{\beta}_0 + \widehat{\beta}_1 Y_T,
+\widehat{y}_{t+1\mid t} = \widehat{\alpha}_0 + \widehat{\alpha}_1 y_t,
 $$
-* $\widehat{\beta}_0$ and $\widehat{\beta}_1$ are estimated using historical data through time $T$.
-* The forecast error is: $Y_{T+1} - \widehat{Y}_{T+1\mid T}$
+* $\widehat{\alpha}_0$ and $\widehat{\alpha}_1$ are estimated using historical data through time $t$.
+* The forecast error is: $y_{t+1} - \widehat{y}_{t+1\mid t}$
 
-## The $p$th-Order Autoregressive Model
-* The AR(1) model uses $Y_{t-1}$ to forecast $Y_t$, but doing so ignores potentially useful information in the more distant past. 
+## The $p$-th-Order Autoregressive Model (1)
+* The AR(1) model uses $y_{t-1}$ to forecast $y_t$, but doing so ignores potentially useful information in the more distant past. 
 * One way to incorporate this information is to include additional lags in the AR(1) model; this yields the [**$p$th-order autoregressive model**]{.col2}.
-* [**The model**]{.col2} represents $Y_t$ as a linear function of $p$ of its lagged values. 
-* [**In the AR($p$) model**]{.col2}, the regressors are $Y_{t-1}, Y_{t-2}, \ldots, Y_{t-p}$, and intercept.
+* [**The model**]{.col2} represents $y_t$ as a linear function of $p$ of its lagged values. 
+* [**In the AR($p$) model**]{.col2}, the regressors are $y_{t-1}, y_{t-2}, \ldots, y_{t-p}$, and intercept.
 * The number of lags, $p$, included in an [**In the AR($p$) model**]{.col2} is called the [**order**]{.col1} (or [**lag length**]{.col1}) of the autoregression.
 
-## The $p$th-Order Autoregressive Model (2)
-The [**$p$th-order autoregressive (AR($p$))**]{.col2} model represents the conditional expectation of $Y_t$ as a linear function of $p$ of its lagged values:
+## The $p$-th-Order Autoregressive Model (2)
+The [**$p$-th-order autoregressive (AR($p$))**]{.col2} model represents the conditional expectation of $y_t$ as a linear function of $p$ of its lagged values:
 
 $$
-Y_t = \beta_0 + \beta_1 Y_{t-1} + \beta_2 Y_{t-2} + \cdots + \beta_p Y_{t-p} + u_t.
+y_t = \alpha_0 + \alpha_1 y_{t-1} + \alpha_2 y_{t-2} + \cdots + \alpha_p y_{t-p} + \varepsilon_t.
 $$
 
-If $Y_t$ follows an [**AR($p$)**]{.col2}, then the oracle one-step-ahead forecast of $Y_{T+1}$ based on $Y_T, Y_{T-1}, \ldots$ is
+If $y_t$ follows an [**AR($p$)**]{.col2}, then the oracle one-step-ahead forecast of $y_{t+1}$ based on $y_t, y_{t-1}, \ldots$ is
 
 $$
-Y_{T+1\mid T}
-= \beta_0 + \beta_1 Y_T + \beta_2 Y_{T-1} + \cdots + \beta_p Y_{T-p+1}.
+y_{t+1\mid t}
+= \alpha_0 + \alpha_1 y_t + \alpha_2 y_{t-1} + \cdots + \alpha_p y_{t-p+1}.
 $$
 
 ## The Autoregressive Distributed Lag (ADL) Model
 
 An [**autoregressive distributed lag (ADL)**]{.col2} model is:
 
-- [**Autoregressive**]{.col2} because lagged values of the dependent variable $Y_t$ are included as regressors.
-- [**Distributed lag**]{.col2} because the regression also includes multiple lags of an additional predictor $X_t$.
+- [**Autoregressive**]{.col2} because lagged values of the dependent variable $y_t$ are included as regressors.
+- [**Distributed lag**]{.col2} because the regression also includes multiple lags of an additional predictor $x_t$.
 
-An [**ADL model**]{.col2} with $p$ lags of $Y_t$ and $q$ lags of $X_t$, denoted [**ADL($p,q$)**]{.col2}, is
-
-$$
-Y_t
-= \beta_0 + \beta_1 Y_{t-1} + \beta_2 Y_{t-2} + \cdots + \beta_p Y_{t-p}
-+ \delta_1 X_{t-1} + \delta_2 X_{t-2} + \cdots + \delta_q X_{t-q}
-+ u_t.
-$$
-
-Here, $\beta_0,\beta_1,\ldots,\beta_p,\delta_1,\ldots,\delta_q$ are unknown coefficients and $u_t$ is the error term, with
+An [**ADL model**]{.col2} with $p$ lags of $y_t$ and $q$ lags of $x_t$, denoted [**ADL($p,q$)**]{.col2}, is
 
 $$
-\mathbb{E}\!\left(u_t \mid Y_{t-1},Y_{t-2},\ldots,X_{t-1},X_{t-2},\ldots \right)=0.
+y_t
+= \alpha_0 + \alpha_1 y_{t-1} + \alpha_2 y_{t-2} + \cdots + \alpha_p y_{t-p}
++ \delta_1 x_{t-1} + \delta_2 x_{t-2} + \cdots + \delta_q x_{t-q}
++ \varepsilon_t.
 $$
 
-## General time series regression with additional predictors
+Here, $\alpha_0,\alpha_1,\ldots,\alpha_p,\delta_1,\ldots,\delta_q$ are unknown coefficients and $\varepsilon_t$ is the error term, with
+
+$$
+\mathrm{E}\left(\varepsilon_t \mid y_{t-1},y_{t-2},\ldots,x_{t-1},x_{t-2},\ldots \right)=0.
+$$
+
+## General Time Series Regression with Additional Predictors
 
 The [**general time series regression model**]{.col1} allows for $k$ additional predictors, where $q_1$ lags of the first predictor are included, $q_2$ lags of the second predictor are included, and so forth:
 
 $$
 \begin{aligned}
-Y_t
-&= \beta_0 + \beta_1 Y_{t-1} + \beta_2 Y_{t-2} + \cdots + \beta_p Y_{t-p} \\
-&\quad + \delta_{11} X_{1,t-1} + \delta_{12} X_{1,t-2} + \cdots + \delta_{1q_1} X_{1,t-q_1} \\
+y_t
+&= \alpha_0 + \alpha_1 y_{t-1} + \alpha_2 y_{t-2} + \cdots + \alpha_p y_{t-p} \\
+&\quad + \delta_{11} x_{1,t-1} + \delta_{12} x_{1,t-2} + \cdots + \delta_{1q_1} x_{1,t-q_1} \\
 &\quad + \cdots \\
-&\quad + \delta_{k1} X_{k,t-1} + \delta_{k2} X_{k,t-2} + \cdots + \delta_{kq_k} X_{k,t-q_k}
-+ u_t .
+&\quad + \delta_{k1} x_{k,t-1} + \delta_{k2} x_{k,t-2} + \cdots + \delta_{kq_k} x_{k,t-q_k}
++ \varepsilon_t .
 \end{aligned}
 $$
 
 ## Assumptions
 
-1. $\mathbb{E}\!\left(u_t \mid Y_{t-1},Y_{t-2},\ldots, X_{1,t-1},X_{1,t-2},\ldots, X_{k,t-1},X_{k,t-2},\ldots\right)=0$;
-2. (a) The random variables $(Y_t, X_{1t}, \ldots, X_{kt})$ have a stationary distribution, and  
-   (b) $(Y_t, X_{1t}, \ldots, X_{kt})$ and $(Y_{t-j}, X_{1,t-j}, \ldots, X_{k,t-j})$ become independent as $j$ gets large;
-3. Large outliers are unlikely: $Y_t, X_{1t}, \ldots, X_{kt}$ have nonzero, finite fourth moments; and
+1. $\mathrm{E}\left(\varepsilon_t \mid y_{t-1},y_{t-2},\ldots, x_{1,t-1},x_{1,t-2},\ldots, x_{k,t-1},x_{k,t-2},\ldots\right)=0$;
+2. (a) The random variables $(y_t, x_{1t}, \ldots, x_{kt})$ have a stationary distribution, and  
+   (b) $(y_t, x_{1t}, \ldots, x_{kt})$ and $(y_{t-j}, x_{1,t-j}, \ldots, x_{k,t-j})$ become independent as $j$ gets large;
+3. Large outliers are unlikely: $y_t, x_{1t}, \ldots, x_{kt}$ have nonzero, finite fourth moments; and
 4. There is no perfect multicollinearity.
 
 ## Assumption 1, 3, 4 & Inference
 
-The first assumption is that $u_t$ has [**conditional mean zero**]{.col2} given the history of all the regressors:
+The first assumption is that $\varepsilon_t$ has [**conditional mean zero**]{.col2} given the history of all the regressors:
 
 $$
-\mathbb{E}\!\left(u_t \mid Y_{t-1},Y_{t-2},\ldots, X_{1,t-1},X_{1,t-2},\ldots, X_{k,t-1},X_{k,t-2},\ldots\right)=0.
+\mathrm{E}\left(\varepsilon_t \mid y_{t-1},y_{t-2},\ldots, x_{1,t-1},x_{1,t-2},\ldots, x_{k,t-1},x_{k,t-2},\ldots\right)=0.
 $$
 
-This assumption extends the assumption used in the AR and ADL models and implies that the forecast of $Y_t$, using all past values of $Y$ and the $X$’s, is given by the regression.
+This assumption extends the assumption used in the AR and ADL models and implies that the forecast of $y_t$, using all past values of $y$ and the $x$'s, is given by the regression.
 
 The third assumption [**no outliers**]{.col2} and fourth assumption [**no perfect multicollinearity**]{.col2} are the same as for cross-sectional data.
 
@@ -456,7 +453,7 @@ For time series regression, the i.i.d. assumption is replaced by a more appropri
 
 [**(b) Weak dependence**]{.col2}: The random variables become approximately independent when they are separated by long periods of time. [**Weak dependence**]{.col2} ensures that, in large samples, there is enough randomness for the law of large numbers and the central limit theorem to hold.
 
-# Determining the lag lenght
+# Determining the Lag Length
 
 ## Determining the Order of an Autoregression
 * Choosing [**the order p of an autoregression**]{.col1} requires balancing the marginal [**benefit**]{.col1} of including more lags against the marginal [**cost**]{.col1} of additional estimation error. 
@@ -471,7 +468,7 @@ fifth lag, and so forth.
 * [**The drawback**]{.col2} to this method is that it will tend to produce [**large models**]{.col2}.
 * Even if the true AR order is five, so the sixth coefficient is 0, a 5% test using the t-statistic will incorrectly reject this null hypothesis 5% of the time just by chance. Thus, if the true value of $p$ is five, this method will estimate $p$ to be six [**5% of the time**]{.col1}.
 
-## The Bayes information criterion (BIC)
+## The Bayes Information Criterion (BIC) (1)
 
 * One way to estimate $p$ is by [**minimizing an information criterion**]{.col2}, e.g., the [**BIC**]{.col1}, which is:
 
@@ -480,28 +477,28 @@ $$
 $$
 
 * $SSR(p)$ is the sum of squared residuals of the estimated AR($p$).
-* The [**BIC estimator**]{.col1} of $\rho$, [**$\hat{\rho}$**]{.col1}, is the value that minimizes $\text{BIC}(p)$ among the possible choices $p = 0, 1, \ldots, p_{\max}$
+* The [**BIC estimator**]{.col1} of $p$, [**$\hat{p}$**]{.col1}, is the value that minimizes $\text{BIC}(p)$ among the possible choices $p = 0, 1, \ldots, p_{\max}$
 * $p_{\max}$ is the largest value of $p$ considered and $p = 0$ corresponds to the model that contains only an intercept.
 
-## The Bayes information criterion (BIC) (2)
+## The Bayes Information Criterion (BIC) (2)
 * Because the regression coefficients are estimated by OLS, the [**SSR necessarily decreases**]{.col1} (or at least does not increase) when you add a lag. 
 * In contrast, the second term is the number of estimated regression coefficients (the number of lags, $p$, plus one for the intercept) times the factor $\frac{\ln(T)}{T}$. 
 * This second term [**increases**]{.col2} when you add a lag and thus provides a [**penalty**]{.col2} for including another lag.
 * The BIC trades off these two forces so that [**the number of lags that minimizes the BIC**]{.col1} is a consistent estimator of the true lag length.
-*  The BIC helps decide precisely how large the increase in the R2 must be to justify including the additional lag.
+*  The BIC helps decide precisely how large the increase in the $R^2$ must be to justify including the additional lag.
 
 ## The Akaike Information Criterion (AIC)
 * Another information criterion is the [**Akaike information criterion (AIC)**]{.col1}:
 $$
 \text{AIC}(p) = \ln \left( \frac{SSR(p)}{T} \right) + \frac{(p + 1)^2}{T},
 $$
-* The difference between the AIC and the BIC is that the term ln(T) in the BIC is replaced by 2 in the AIC, so the [**second term in the AIC is smaller**]{.col2}.
+* The difference between the AIC and the BIC is that the term $\mathrm{ln}(T)$ in the BIC is replaced by $2$ in the AIC, so the [**second term in the AIC is smaller**]{.col2}.
 * The second term in the AIC is not large enough to ensure that the correct lag length is chosen, even in 
 large samples, so the AIC estimator of $p$ is [**not consistent**]{.col2}.
-* If you are concerned that the  BIC might yield a model with too few lags, the AIC provides a reasonable 
+* If you are concerned that the BIC might yield a model with too few lags, the AIC provides a reasonable 
 alternative
 
-## Lag Length Selection in Time Series Regression with Multiple Predictors
+## Lag Length Selection with Multiple Predictors
 The trade-off involved with lag length choice in the [**general time series regression**]{.col1} 
 model with multiple predictors is similar to that in an autoregression: 
 
@@ -511,13 +508,13 @@ is lost
 
 The choice of lags must balance the benefit of using additional information against the cost of estimating the additional coefficients.
 
-## The F-statistic approach
+## The F-Statistic Approach
 * As in the univariate autoregression, one way to determine the number of lags is to use [**F-statistics**]{.col2} to test joint hypotheses that sets of coefficients are equal to 0.
 * If the [**number of models being compared is small**]{.col1}, then this F-statistic method is easy to use.
 * In general, however, the F-statistic method can produce [**models that are large**]{.col1} and thus have considerable estimation error
 
 
-## Information criteria for model selection
+## Information Criteria for Model Selection
 
 As in an autoregression, the [**BIC**]{.col2} and the [**AIC**]{.col2} can be used to estimate the number of lags and variables in a time series regression model with multiple predictors. If the regression model has $K$ coefficients (including the intercept), the [**BIC**]{.col2} is
 
@@ -542,64 +539,64 @@ For each candidate model, the [**BIC**]{.col2} (or the [**AIC**]{.col2}) can be 
 * There are two types of [**nonstationarity**]{.col2} frequently encountered in economic time series: [**trends**]{.col2} and [**breaks**]{.col2}. 
 
 ## What Is a Trend?
-* A [**trends**]{.col2} is a persistent long-term movement of a variable over time. A time series variable fluctuates around its [**trend**]{.col2}
+* A [**trend**]{.col2} is a persistent long-term movement of a variable over time. A time series variable fluctuates around its [**trend**]{.col2}
 *  There are two types of trends in time series data: [**deterministic**]{.col1} and [**stochastic**]{.col1}.
 * A [**deterministic**]{.col1} trend is a nonrandom function of time.
 * A [**stochastic**]{.col1} trend is random and varies over time.
 * It is more appropriate to model economic time series as having stochastic rather than deterministic trends.
 
-## The random walk model of a trend
+## The Random Walk Model of a Trend
 * The basic idea of a [**random walk**]{.col1} is that the value of the series tomorrow is its value today plus an unpredictable change. 
-* Because the path followed by $Y_t$ consists of random “steps” $u_t$, that path is a [**random walk**]{.col1}.
-* The conditional mean of $Y_t$ based on data through time $t-1$ is $Y_{t-1}$. That is, because
+* Because the path followed by $y_t$ consists of random "steps" $\varepsilon_t$, that path is a [**random walk**]{.col1}.
+* The conditional mean of $y_t$ based on data through time $t-1$ is $y_{t-1}$. That is, because
 $$
-\mathbb{E}\!\left(u_t \mid Y_{t-1}, Y_{t-2}, \ldots \right)=0,
+\mathrm{E}\left(\varepsilon_t \mid y_{t-1}, y_{t-2}, \ldots \right)=0,
 $$
 it follows that
 $$
-\mathbb{E}\!\left(Y_t \mid Y_{t-1}, Y_{t-2}, \ldots \right)=Y_{t-1}.
+\mathrm{E}\left(y_t \mid y_{t-1}, y_{t-2}, \ldots \right)=y_{t-1}.
 $$
-*  if $Y_t$ follows a [**random walk**]{.col1}, then the best forecast of tomorrow’s value is its value today.
-* If $Y_t$ follows a [**random walk**]{.col1}, its variance increases over time. Because it does not have a constant variance, a [**random walk**]{.col1} is [**nonstationary**]{.col2}
+*  if $y_t$ follows a [**random walk**]{.col1}, then the best forecast of tomorrow's value is its value today.
+* If $y_t$ follows a [**random walk**]{.col1}, its variance increases over time. Because it does not have a constant variance, a [**random walk**]{.col1} is [**nonstationary**]{.col2}
 
-## Random walk with drift
+## Random Walk with Drift
 
 * Some series, such as the logarithm of U.S. GDP, have an obvious [**upward tendency**]{.col1}. In that case, the best forecast must include an [**adjustment**]{.col2} for the tendency of the series to increase.
 * This leads to an extension of the random walk model that includes a tendency to move, or [**drift**]{.col2}, in one direction or the other. This extension is referred to as a [**random walk with drift**]{.col2}:
 $$
-Y_t = \beta_0 + Y_{t-1} + u_t,
+y_t = \alpha_0 + y_{t-1} + \varepsilon_t,
 $$
 $$
-\mathbb{E}\!\left(u_t \mid Y_{t-1}, Y_{t-2}, \ldots \right)=0,
+\mathrm{E}\left(\varepsilon_t \mid y_{t-1}, y_{t-2}, \ldots \right)=0,
 $$
-* $\beta_0$ is the [**drift**]{.col2} in the random walk. 
-* If $\beta_0>0$, then $Y_t$ increases on average.
+* $\alpha_0$ is the [**drift**]{.col2} in the random walk. 
+* If $\alpha_0>0$, then $y_t$ increases on average.
 
-## Unit root (1)
+## Unit Root (1)
 
-* The [**random walk**]{.col2} model is a special case of the [**AR(1) model**]{.col2} in which $\beta_1 = 1$. 
-* If $Y_t$ follows an [**AR(1)**]{.col2} with $\beta_1 = 1$,then $Y_t$ contains a [**stochastic trend and is nonstationary**]{.col1}.
-* If $|\beta_1| < 1$ and $u_t$ is stationary, then the joint distribution of $Y_t$ and its lags does not depend on $t$, [**$Y_t$ is stationary**]{.col1}.
+* The [**random walk**]{.col2} model is a special case of the [**AR(1) model**]{.col2} in which $\alpha_1 = 1$. 
+* If $y_t$ follows an [**AR(1)**]{.col2} with $\alpha_1 = 1$, then $y_t$ contains a [**stochastic trend and is nonstationary**]{.col1}.
+* If $|\alpha_1| < 1$ and $\varepsilon_t$ is stationary, then the joint distribution of $y_t$ and its lags does not depend on $t$, [**$y_t$ is stationary**]{.col1}.
 * For an AR($p$) to be stationary is more complicated. Its formal statement involves the roots of the polynomial
 $$
-1 - \beta_1 z - \beta_2 z^2 - \beta_3 z^3 - \cdots - \beta_p z^p.
+1 - \alpha_1 z - \alpha_2 z^2 - \alpha_3 z^3 - \cdots - \alpha_p z^p.
 $$
 * For an AR($p$) to be stationary, all roots of this polynomial must be [**greater than 1 in absolute value**]{.col1}.
 
-## Unit root (2)
+## Unit Root (2)
 * In the special case of an [**AR(1)**]{.col1}, the root solves
 $$
-1 - \beta_1 z = 0,
+1 - \alpha_1 z = 0,
 $$
 * so the root is
 $$
-z = \frac{1}{\beta_1}.
+z = \frac{1}{\alpha_1}.
 $$
-* Saying that the [**root must be greater than 1**]{.col1} in absolute value is equivalent to $|\beta_1| < 1$.
+* Saying that the [**root must be greater than 1**]{.col1} in absolute value is equivalent to $|\alpha_1| < 1$.
 * If an [**AR($p$)**]{.col1} has a root equal to 1, the series is said to have a [**unit autoregressive root**]{.col2} (or a [**unit root**]{.col2})
-* If $Y_t$ has a unit root, then it contains a [**stochastic trend**]{.col2}. 
+* If $y_t$ has a unit root, then it contains a [**stochastic trend**]{.col2}. 
 
-## Problems caused by stochastic trends
+## Problems Caused by Stochastic Trends
 
 If a regressor has a stochastic trend (has a unit root), then OLS [**inference**]{.col1} can be misleading.
 
@@ -609,28 +606,28 @@ If a regressor has a stochastic trend (has a unit root), then OLS [**inference**
 
 As a result, conventional confidence intervals and hypothesis tests are [**not valid**]{.col1} in the usual way.
 
-## Detecting stochastic trends: the Dickey–Fuller test
+## Detecting Stochastic Trends: The Dickey–Fuller Test
 
 * The hypothesis of a stochastic trend can be tested using a [**Dickey–Fuller test**]{.col2}. For the AR(1) model:
 $$
-Y_t = \beta_0 + \beta_1 Y_{t-1} + u_t,
+y_t = \alpha_0 + \alpha_1 y_{t-1} + \varepsilon_t,
 $$
-* the null hypothesis that $Y_t$ has a stochastic trend is
+* the null hypothesis that $y_t$ has a stochastic trend is
 $$
-H_0:\beta_1=1
+H_0:\alpha_1=1
 \qquad \text{vs.} \qquad
-H_1:\beta_1<1.
+H_1:\alpha_1<1.
 $$
-* Let $\delta = \beta_1 - 1$. Then the model can be rewritten as
+* Let $\rho = \alpha_1 - 1$. Then the model can be rewritten as
 $$
-\Delta Y_t = \beta_0 + \delta Y_{t-1} + u_t,
+\Delta y_t = \alpha_0 + \rho y_{t-1} + \varepsilon_t,
 $$
-* The hypotheses become: $H_0:\delta=0 \qquad \text{vs.} \qquad H_1:\delta<0.$
-* The OLS $t$-statistic for testing $\delta=0$ is called the [**Dickey–Fuller statistic**]{.col2}.
+* The hypotheses become: $H_0:\rho=0 \qquad \text{vs.} \qquad H_1:\rho<0.$
+* The OLS $t$-statistic for testing $\rho=0$ is called the [**Dickey–Fuller statistic**]{.col2}.
 
-## Critical values for the ADF statistic
-* Under the null hypothesis of a unit root, the ADF statistic does not have a normal distribution, even in large samples, so  [**standard critical values**]{.col2} cannot be used.
-* Because the alternative hypothesis is $\delta < 0$, the ADF test is [**one-sided**]{.col2}. 
+## Critical values for the ADF Statistic
+* Under the null hypothesis of a unit root, the ADF statistic does not have a normal distribution, even in large samples, so [**standard critical values**]{.col2} cannot be used.
+* Because the alternative hypothesis is $\rho < 0$, the ADF test is [**one-sided**]{.col2}. 
 * Studies of the ADF statistic suggest that it is better to have [**too many lags**]{.col2} than too few
 * it is then recommended to use the [**AIC**]{.col2} instead of the BIC to estimate p for the ADF statistic
 * The most reliable way to handle a trend in a series is to [**transform**]{.col1} the series so that it does not have the trend. 
@@ -641,42 +638,42 @@ $$
 * A second type of [**nonstationarity**]{.col1} arises when the population regression function changes over the sample period. 
 * These changes, or [**breaks**]{.col2}, can make inference and forecasting misleading if they are ignored.
 * [**Breaks**]{.col2} can occur because of changes in policy, economic structure, or industry conditions.
-* A [**breaks**]{.col2} can arise from:
+* A [**break**]{.col2} can arise from:
 * A [**discrete change**]{.col2} in the regression coefficients at a specific date; 
 * A [**gradual change**]{.col2} in the coefficients over time.
 * One way to detect breaks is to [**test**]{.col2} for discrete changes, or breaks, in the regression coefficients.
 * How this is done depends on whether the [**break date is known**]{.col2}
 
 
-## Testing for a break at a known date (1)
+## Testing for a Break at a Known Date (1)
 * If the date of the hypothesized break is [**known**]{.col1}, the null hypothesis of no break can be tested using a binary variable interaction regression.
-* For simplicity, consider an ADL(1, 1) model with an intercept, a single lag of $Y_t$, and a single lag of $X_t$. 
+* For simplicity, consider an ADL(1, 1) model with an intercept, a single lag of $y_t$, and a single lag of $x_t$. 
 * Let $\tau$ denote the break date, and let $D_t(\tau)$ be a [**binary variable**]{.col2} equal to 0 before the break and 1 after. 
 * The regression including the [**binary break indicator**]{.col2} and all interaction terms is:
 
 $$
-Y_t = \beta_0 + \beta_1 Y_{t-1} + \delta_1 X_{t-1} + \gamma_0 D_t(\tau) + \gamma_1 [D_t(\tau) \times Y_{t-1}] + \gamma_2 [D_t(\tau) \times X_{t-1}] + u_t
+y_t = \alpha_0 + \alpha_1 y_{t-1} + \delta_1 x_{t-1} + \gamma_0 D_t(\tau) + \gamma_1 [D_t(\tau) \times y_{t-1}] + \gamma_2 [D_t(\tau) \times x_{t-1}] + \varepsilon_t
 $$
 
 
-## Testing for a break at a known date (2)
+## Testing for a Break at a Known Date (2)
 * If there is no break, then the population regression function is the [**same over both parts of the sample**]{.col2}, so the terms involving the break indicator $D_t(\tau)$ do not enter. 
 * The null hypothesis of no break implies [**$\gamma_0 = \gamma_1 = \gamma_2 = 0$**]{.col2}.
 * The alternative hypothesis is that there is a break, and the population regression function is different before and after the break date, implying at [**least one of the $\gamma$'s is nonzero**]{.col2}.
 * The hypothesis of a break can be tested using the [**F-statistic**]{.col1} testing [**$\gamma_0 = \gamma_1 = \gamma_2 = 0$**]{.col2} against the alternative.
 * This is often referred to as the [**Chow test**]{.col1}.
 
-## Testing for a break at an unknown date
+## Testing for a Break at an Unknown Date
 * Often, the date of a possible break is [**unknown or known only within a range**]{.col1}. 
 * You might suspect that a break occurred between two dates, $\tau_0$ and $\tau_1$. 
 * The [**Chow test**]{.col1} can be extended to test for breaks at all possible dates $\tau$ between $\tau_0$ and $\tau_1$ and then use the largest resulting $F$-statistics to test for a break at an unknown date. 
-* This modified Chow test is called the [**Quandt likelihood ratio (QLR) statistic**]{.col2} ( sometimes the [**sup-Wald statistic**]{.col2}).
+* This modified Chow test is called the [**Quandt likelihood ratio (QLR) statistic**]{.col2} (sometimes the [**sup-Wald statistic**]{.col2}).
 * Because the QLR statistic is the largest of many $F$-statistics, its distribution is not the same as an individual $F$-statistic. 
 * Instead, the critical values for the QLR statistic must be obtained from a special distribution. 
 * The QLR test can detect a single discrete break, multiple discrete breaks, and/or slow evolution of the regression function.
 
 ## Detecting Breaks Using Pseudo Out-of-Sample Forecasts
-* The ultimate test of a forecasting model is its [**out-of-sample performance**]{.col2}:its forecasting performance in "real time," after the model has been estimated. 
+* The ultimate test of a forecasting model is its [**out-of-sample performance**]{.col2}: its forecasting performance in "real time," after the model has been estimated. 
 * [**Pseudo out-of-sample forecasting**]{.col2} simulates the real-time performance of a forecasting model and can be used to detect breaks near the end of the sample.
 * The most direct and often most useful way to do so is via a time series plot of the in-sample predicted values, the pseudo out-of-sample forecasts, and the actual values of the series. 
 * A visible [**deterioration of the forecasts in the pseudo out-of-sample period**]{.col2} is a red flag warning of a possible breakdown of the forecasting model.
@@ -798,13 +795,13 @@ This is what we call a [**Vector Autoregression**]{.col1} ([**VAR**]{.col1}). Mo
 
 . . .
 
-Let us now consider three variables we know well: **real GDP growth** $\nabla y_t$, **inflation** $\pi_t$, and the **interest rate** $r_t$. In the spirit of what we did before, we can construct the following VAR(1):
+Let us now consider three variables we know well: **real GDP growth** $\Delta y_t$, **inflation** $\pi_t$, and the **interest rate** $r_t$. In the spirit of what we did before, we can construct the following VAR(1):
 
 . . .
 
 $$
 \begin{pmatrix}
-\nabla y_t \\
+\Delta y_t \\
 \pi_t \\
 r_t
 \end{pmatrix}
@@ -815,13 +812,13 @@ a_{21} & a_{22} & a_{23} \\
 a_{31} & a_{32} & a_{33}
 \end{pmatrix}
 \begin{pmatrix}
-\nabla y_{t-1} \\
+\Delta y_{t-1} \\
 \pi_{t-1} \\
 r_{t-1}
 \end{pmatrix}
 +
 \begin{pmatrix}
-\varepsilon_{\nabla y_t} \\
+\varepsilon_{\Delta y_t} \\
 \varepsilon_{\pi_t} \\
 \varepsilon_{r_{t}}
 \end{pmatrix}
@@ -836,7 +833,7 @@ $$
 $$
 
 :::{.callout-tip title="Practice"}
-Write this down as three separate equations for $\nabla y_t$, $\pi_t$, and $r_t$. 
+Write this down as three separate equations for $\Delta y_t$, $\pi_t$, and $r_t$. 
 :::
 
 ## General Reduced-Form VAR(p) {auto-animate="true"}
@@ -889,12 +886,11 @@ Of course, we can also estimate the VAR using **ML** or **Bayesian estimation te
 
 . . . 
 
-We have to be careful when interpreting VAR results: Coefficients are **only interpretable** as **predictive relationhips** between certain lags.
+We have to be careful when interpreting VAR results: Coefficients are **only interpretable** as **predictive relationships** between certain lags.
 
 ## Estimating a VAR: Data
 
 . . . 
-
 ```{webr}
 library(vars)
 data("Canada", package = "vars")
@@ -903,7 +899,6 @@ data("Canada", package = "vars")
 ## Estimating a VAR: Plotting
 
 . . . 
-
 ```{webr}
 # Production, employment, real wage
 ts.plot(Canada[, c("prod", "e", "rw")], col = 1:3, lwd = 2) 
@@ -913,7 +908,6 @@ legend("topleft", c("prod", "e", "rw"), col = 1:3, lwd = 2)
 ## Estimating a VAR: Results
 
 . . .
-
 ```{webr}
 var_model <- VAR(Canada[, c("prod", "e", "rw")], p = 2)
 summary(var_model)
@@ -927,7 +921,7 @@ summary(var_model)
 
 So far, we have treated VARs -- and other time series methods -- as tools to [**forecast**]{.col1} variables. But what if we are interested in [**causal inference**]{.col2}?
 
-There is a certain “causality” concept that exists in the realm of time series econometrics: [**Granger Causality**]{.col2}, named after @granger1969. In short, we speak of **Granger Causality** when a realization of one variable, let us call it $x_t$, can be used to predict a future realization of another variable, $y_{t+1}$.In this case, we say that $x$ [**Granger Causes**]{.col2} $y$.
+There is a certain “causality” concept that exists in the realm of time series econometrics: [**Granger Causality**]{.col2}, named after @granger1969. In short, we speak of **Granger Causality** when a realization of one variable, let us call it $x_t$, can be used to predict a future realization of another variable, $y_{t+1}$. In this case, we say that $x$ [**Granger causes**]{.col2} $y$.
 
 :::{.incremental}
 - More precisely, $x$ provides statistically significant information about future values of $y$.
@@ -936,14 +930,13 @@ There is a certain “causality” concept that exists in the realm of time seri
 
 . . .
 
-But what about real causality? It turns out that VARs were originally introduced into Economics as a tool for analyzing causal relationships between multiple time series [@sims1980]. But using them for this purpose requires going one step further to [**Structural VARs**]{.col2}. Most of how this works is out of scope for this class, but the next slide should serve as a brief introduction.
+But what about real causality? It turns out that VARs were originally introduced into Economics as a tool for analyzing causal relationships between multiple time series [@sims1980]. But using them for this purpose requires going one step further to [**Structural VARs**]{.col2}. Most of how this works is out of scope for this class, but the following should serve as a brief introduction.
 
 ## Granger Causality
 
 . . .
 
 We can ask R whether one variable Granger causes the others.
-
 ```{webr}
 causality(var_model, cause = "rw")$Granger
 ```
@@ -1250,7 +1243,7 @@ $$
 ,
 $$
 
-where $\hat{u}_t = y_{t-1} - \beta x_{t-1}$ is the **error correction term**.
+where $\hat{u}_{t-1} = y_{t-1} - \beta x_{t-1}$ is the **error correction term**.
 
 :vspace1
 
@@ -1285,14 +1278,13 @@ When $\beta$ is known (e.g. because theory suggests a value), we can use a [**Di
 In practice, $\beta$ is often unknown. In these cases, one option is to follow the [**Engle-Granger Procedure**]{.col1}.
 
 :::{.incremental}
-- We start by obtaining an estimate for $\beta$ from regressing $y_t = \alpha + \beta x_t + u_t$.
-- We can then run a special Dickey-Fuller test (EG-AGF test), which has different critical values than a regular one.
+- We start by obtaining an estimate for $\beta$ from regressing $y_t = \alpha_0 + \beta x_t + u_t$.
+- We can then run a special Dickey-Fuller test (EG-ADF test), which has different critical values than a regular one.
 :::
 
 ## Testing for Cointegration with a Known Coefficient
 
 . . .
-
 ```{webr}
 library(vars)
 library(urca)
@@ -1306,7 +1298,6 @@ summary(df_test)
 ## Testing for Cointegration with an Unknown Coefficient
 
 . . .
-
 ```{webr}
 # Cointegration test: unknown beta (Engle-Granger)
 library(vars)
@@ -1430,7 +1421,7 @@ This is interesting (not only) in financial contexts, because volatility is a me
 
 . . .
 
-The simplest **volatility measure** we have just makes use of the sample variance. This is useful when we have very frequent data. The $h$-period [**realized volatility**]{.col1} of a time series $x_t$ is given by
+The simplest **volatility measure** we have just makes use of the sample variance. This is useful when we have very frequent data. The $h$-period [**realized volatility**]{.col1} of a (demeaned) time series $x_t$ is given by
 
 $$
 \textstyle RV_t^h=\sqrt{\frac{1}{h}\sum^t_{s=t-h+1}x_s^2}.
@@ -1446,16 +1437,16 @@ With **lower-frequency** data, we have to resort to different methods to estimat
 Consider some model for $x_t$,
 
 $$
-x_t = \mu + \dots + u_t,
+x_t = \mu + \dots + \varepsilon_t,
 $$
 
-where $u_t$ is normally distributed with mean zero and variance $\sigma^2_t$. The **variance** $\sigma^2_t$ is then modeled on past squared values of $u_t$. This gives us an **ARCH model of order** $p$:
+where $\varepsilon_t$ is normally distributed with mean zero and variance $\sigma^2_t$. The **variance** $\sigma^2_t$ is then modeled on past squared values of $\varepsilon_t$. This gives us an **ARCH model of order** $p$:
 
 $$
-\sigma^2_t = \alpha_0 + \alpha_1u_{t-1}^2 + \alpha_2u_{t-2}^2+\dots+\alpha_pu_{t-p}^2.
+\sigma^2_t = \omega + \psi_1\varepsilon_{t-1}^2 + \psi_2\varepsilon_{t-2}^2+\dots+\psi_p\varepsilon_{t-p}^2.
 $$
 
-If $\alpha_0, \dots, \alpha_p$ are large, large recent squared errors predict a high variance. 
+If $\psi_1, \dots, \psi_p$ are large, large recent squared errors predict a high variance. 
 :::
 
 ## Generalized ARCH (GARCH)
@@ -1468,17 +1459,18 @@ The [**Generalized Autoregressive Conditional Heteroskedasticity**]{.col2} ([**G
 Consider some model for $x_t$,
 
 $$
-x_t = \mu + \dots + u_t,
+x_t = \mu + \dots + \varepsilon_t,
 $$
 
-where $u_t$ is normally distributed with mean zero and variance $\sigma^2_t$. The **variance** $\sigma^2_t$ is then modeled on past squared values of $u_t$. This gives us an **ARCH model of order** $p$:
+where $\varepsilon_t$ is normally distributed with mean zero and variance $\sigma^2_t$. The **variance** $\sigma^2_t$ is then modeled on past squared values of $\varepsilon_t$. This gives us a **GARCH($p,q$) model**:
 
 $$
-\sigma^2_t = \alpha_0 + \alpha_1u_{t-1}^2 +\dots+\alpha_pu_{t-p}^2 + \phi_1\sigma^2_{t-1} + \dots + \phi_q\sigma^2_{t-q}.
+\sigma^2_t = \omega + \psi_1\varepsilon_{t-1}^2 +\dots+\psi_p\varepsilon_{t-p}^2 + \phi_1\sigma^2_{t-1} + \dots + \phi_q\sigma^2_{t-q}.
 $$
 
-If $\alpha_0, \dots, \alpha_p$ are large, large recent squared errors predict a high variance. 
+If $\psi_1, \dots, \psi_p$ are large, large recent squared errors predict a high variance. 
 :::
+
 # Spatial Autocorrelation
 
 ## Time and Space
@@ -1532,7 +1524,7 @@ The photograph on the left depicts **Waldo Tobler** (1930–2018), a famous Swis
 
 [This quote, published in @tobler1970, fundamentally describes **spatial autocorrelation**: The value of a given variable in a given place depends, among other things, on realizations of the same variable in places close by.]{.fragment}
 
-[We are going to use this as a starting point to venture very quickly into the field of **Spiatial Econometrics**.]{.fragment}
+[We are going to use this as a starting point to venture very quickly into the field of **Spatial Econometrics**.]{.fragment}
 
 :::
 ::::
@@ -1713,13 +1705,13 @@ This is simply a measure of $y$'s **autocovariance**, weighted by the spatial we
 
 . . .
 
-**Local Moran's $I$** is a version of the measure that is specific to a given observation. It is useful for findinf **spatial outliers** and **local clusters**.
+**Local Moran's $I$** is a version of the measure that is specific to a given observation. It is useful for finding **spatial outliers** and **local clusters**.
 
 :vspace1
 
 . . .
 
-For Moran's $I$, as well as for most questions of spatial econometric analysis, the **choice of the spatial weights matrix** is therefore very important. ed to think about the spatial pattern we assume to be present and justify our assumption. This simplifies our analysis.
+For Moran's $I$, as well as for most questions of spatial econometric analysis, the **choice of the spatial weights matrix** is therefore very important. We need to think about the spatial pattern we assume to be present and justify our assumption.
 
 
 ## Space Is Everywhere
@@ -1826,7 +1818,7 @@ If time permits, we are going to talk about **related issues** at the end of the
 
 :::{.incremental}
 - [**Networks**]{.col2} are a very stylized form of space, and allow us to study [**peer effects**]{.col2}. This relates to the idea we had before about spatial autocorrelation going both ways: I affect my neighbor, but my neighbor also affects me.
-- [**Spatial Econometric Models**]{.col3} are a way to explicitly consider space in econometric settings where ignoring it would invalidate results. There are a number of spatial models that can be used in different settings, and they are modular and relate clearly to the cross-sectional models we know and the panel models we will learn about.#
+- [**Spatial Econometric Models**]{.col3} are a way to explicitly consider space in econometric settings where ignoring it would invalidate results. There are a number of spatial models that can be used in different settings, and they are modular and relate clearly to the cross-sectional models we know and the panel models we will learn about.
 :::
 
 ## References
@@ -1835,5 +1827,3 @@ If time permits, we are going to talk about **related issues** at the end of the
 
 ::: {#refs}
 :::
-
-

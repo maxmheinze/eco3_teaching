@@ -78,7 +78,7 @@ format:
         12:00–<span style="font-weight: bold; color: var(--primary-color);">16:00</span>
       </td>
       <td style="padding: 4px; border: none; text-align: center;">D4.0.136</td>
-      <td style="padding: 4px; border: none; text-align: left;">Module 2: Panel Data</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 2: Panel Data and Further Issues</td>
     </tr>
 
     <tr>
@@ -89,7 +89,7 @@ format:
       <td style="padding: 4px; border: none;">Fri, 24.04.2026</td>
       <td style="padding: 4px; border: none; text-align: center;">12:00–14:00</td>
       <td style="padding: 4px; border: none; text-align: center;">D4.0.136</td>
-      <td style="padding: 4px; border: none; text-align: left;">Module 2: Panel Data</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 2: Panel Data and Further Issues</td>
     </tr>
 
     <tr>
@@ -100,7 +100,7 @@ format:
       <td style="padding: 4px; border: none;">Fri, 08.05.2026</td>
       <td style="padding: 4px; border: none; text-align: center;">12:00–14:00</td>
       <td style="padding: 4px; border: none; text-align: center;">D4.0.127</td>
-      <td style="padding: 4px; border: none; text-align: left;">Module 3: Further Issues and Topics</td>
+      <td style="padding: 4px; border: none; text-align: left;">Module 2: Panel Data and Further Issues</td>
     </tr>
 
     <tr>
@@ -113,7 +113,7 @@ format:
         14:00–16:00
       </td>
       <td style="padding: 4px; border: none; text-align: center;">TC.3.21</td>
-      <td style="padding: 4px; border: none; text-align: center; background-color: var(--primary-color-lightened); font-weight: bold;">Final Exam (40%)</td>
+      <td style="padding: 4px; border: none; text-align: center; background-color: var(--primary-color-lightened); font-weight: bold;">Final Exam</td>
     </tr>
 
     <tr>
@@ -126,7 +126,7 @@ format:
         09:00–16:00
       </td>
       <td style="padding: 4px; border: none; text-align: center;">D4.0.136</td>
-      <td style="padding: 4px; border: none; text-align: center; background-color: var(--primary-color-lightened); font-weight: bold;">Presentations (30%)</td>
+      <td style="padding: 4px; border: none; text-align: center; background-color: var(--primary-color-lightened); font-weight: bold;">Presentations</td>
     </tr>
   </tbody>
 </table>
@@ -159,8 +159,8 @@ format:
    - About 20 minutes, with questions allowed throughout and no separate discussion (details to follow)
 - **Active Participation**
   - 10%
-  - To get full points, you must actively participate in at least 4 lectures (4-hour blocks count as two separate two-hour lectures; lectures end before the exam). 
-  - [**Attendance**]{.col1} ≠ [**Participation**]{.col2} 
+  - To get full points, you must actively participate in at least 4 lectures (4-hour blocks count as two separate two-hour lectures; lectures end before the exam) and pose a question or comment on 1 presentation. 
+  - [**Attendance**]{.col1} ≠ [**Participation**]{.col2}
 :::
 
 ## Grading Scheme
@@ -186,6 +186,24 @@ format:
 
 # Textbooks
 
+## Stock & Watson (2019): Introduction to Econometrics
+
+::::{.columns}
+:::{.column width=40%}
+![](figures/stockwatson.jpg)
+:::
+:::{.column width=60%}
+::: {.fragment}
+#### Type of Literature
+* Main course literature for some topics
+:::
+::: {.fragment}
+#### Availability
+* Online access via WU library catalog
+:::
+:::
+::::
+
 ## Cunningham (2021): Causal Inference. The Mixtape
 
 ::::{.columns}
@@ -195,8 +213,7 @@ format:
 :::{.column width=60%}
 ::: {.fragment}
 #### Type of Literature
-* Available in print and online
-* Supplementary reading for most topics
+* Main course literature for some topics
 :::
 ::: {.fragment}
 #### Availability
@@ -215,7 +232,7 @@ format:
 :::{.column width=60%}
 ::: {.fragment}
 #### Type of Literature
-* Good for Review of econometrics I
+* Good for review of Econometrics I
 :::
 ::: {.fragment}
 #### Availability
@@ -228,23 +245,7 @@ format:
 :::
 ::::
 
-## Stock & Watson (2019): Introduction to Econometrics
 
-::::{.columns}
-:::{.column width=40%}
-![](figures/stockwatson.jpg)
-:::
-:::{.column width=60%}
-::: {.fragment}
-#### Type of Literature
-* Supplementary textbook
-:::
-::: {.fragment}
-#### Availability
-* Online access via WU library catalog
-:::
-:::
-::::
 
 ## Angrist & Pischke (2008): Mostly Harmless Econometrics
 
@@ -293,8 +294,7 @@ format:
 :::{.column width=60%}
 ::: {.fragment}
 #### Type of Literature
-* Textbook
-* Used as base for some of Module 1
+* Supplementary literature
 :::
 ::: {.fragment}
 #### Availability
@@ -312,8 +312,7 @@ format:
 :::{.column width=60%}
 ::: {.fragment}
 #### Type of Literature
-* Textbook
-* Background reading materal for Module 2
+* Supplementary literature, good for reviewing Econometrics II
 :::
 ::: {.fragment}
 #### Availability
@@ -357,3 +356,5 @@ format:
 :::
 :::
 ::::
+
+
