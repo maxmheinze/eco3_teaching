@@ -158,7 +158,26 @@ format:
   - 10%
   - To get full points, you must actively participate in at least 4 lectures (lectures end before the exam) and pose a question or comment on 1 presentation. 
   - [**Attendance**]{.col1} ≠ [**Participation**]{.col2} 
-:::                                   
+:::
+
+## Vote on Project Submission Deadline
+
+::::{.columns}
+:::{.column width="70%"}
+```{=html}
+<div style="width: 896px; height: 650px; margin: 20px 32px 0; position: relative;">
+  <div style="width: calc(896px / 1.2); height: calc(650px / 1.2); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1.2); transform-origin: center;">
+    <iframe data-external="1" title="StrawPoll Embed" src="https://strawpoll.com/embed/3RnYXRD8xye/results" style="width: 100%; height: 100%;" frameborder="0" allowfullscreen allowtransparency>Loading...</iframe>
+  </div>
+  <script async src="https://cdn.strawpoll.com/dist/widgets.js" charset="utf-8"></script>
+</div>
+```
+:::
+:::{.column width="30%"}
+<br><br><br>
+![](figures/poll_thursday.png){width="100%"}
+:::
+::::
 
 
 ## Grading Scheme

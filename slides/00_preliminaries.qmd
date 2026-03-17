@@ -1,14 +1,12 @@
 ---
 title: "Module 00: Preliminaries"
-subtitle: "Econometrics II"
+subtitle: "Applied Econometrics · Econometrics III"
 author:
 - "Max Heinze ([mheinze@wu.ac.at](mailto:mheinze@wu.ac.at))"
 - "Sannah Tijani ([stijani@wu.ac.at](mailto:stijani@wu.ac.at))"
 institute: 
 - "Department of Economics, WU Vienna"
 - "Department of Economics, WU Vienna"
-date: "2025-10-16"
-date-format: long
 lang: en
 format: 
   live-revealjs:
@@ -23,7 +21,7 @@ format:
     html-math-method: mathjax
     embed-resources: true
     pdfMaxPagesPerSlide: 1
-    pdfSeparateFragments: true
+    pdfSeparateFragments: false
     template-partials:
       - title-slide.html
     filters:
@@ -39,15 +37,15 @@ engine: knitr
 
 . . .
 
-**Welcome** to the course **Econometrics II**!
+**Welcome** to the course **Applied Econometrics**!
 
 . . .
 
-In this course, we will build on our knowledge from Econometrics I to explore how we can use data to provide evidence for hypotheses and find answers to the questions we pose.
+In this course, we will build on our knowledge from Econometrics I and Econometrics II to explore how we can use data to provide evidence for hypotheses and find answers to the questions we pose.
 
 . . .
 
-To do this, we need solid **mathematical** and **statistical basics**. Broadly speaking, these are things already covered in school and repeated in the statistics and mathematics lectures in the CBK. Above all, you should remember this from your Econometrics I course – but in case you do not, you can use this **self-study slide set** to refresh your knowledge.
+To do this, we need solid **mathematical** and **statistical basics**. Broadly speaking, these are things already covered in school and repeated in the statistics and mathematics lectures in the CBK. Above all, you should remember this from your Econometrics I and Econometrics II courses – but in case you do not, you can use this **self-study slide set** to refresh your knowledge.
 
 . . .
 
@@ -59,7 +57,7 @@ The slide set also contains an **introduction to R** with interactive code examp
 
 . . .
 
-You also have access to **Econometrics I slides** via Canvas. **Review these** if you do not feel confident about your knowledge of what we learned in Econometrics I.
+You also have access to **Econometrics I and Econometrics II slides** via Canvas. **Review these** if you do not feel confident about your knowledge of what we learned in Econometrics I and Econometrics II.
 
 # Installing R
 

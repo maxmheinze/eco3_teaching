@@ -1969,7 +1969,7 @@ $$
 [This gives us a linear model with **spatially autoregressive errors**. As everything else that relied on a **spatial weights matrix**, this only yields meaningful results conditional on us specifying the correct $\boldsymbol{W}$. Like with the SAR model, estimation is not straightforward and requires additional assumptions.]{.fragment}
 :::
 :::{.column witdh="50%" .fragment}
-What is often done in practice when one suspects there to be a spatial pattern in the errors is to estimate a regular linear model using OLS, and use **errors that are robust to spatial autocorrelation**.
+What is often done in practice when one suspects there to be a spatial pattern in the errors is to estimate a regular linear model using OLS, and use **standard errors that are robust to spatial autocorrelation**.
 
 :::{.incremental}
 - A frequently used variance-covariance estimator is provided by @conley1999.
