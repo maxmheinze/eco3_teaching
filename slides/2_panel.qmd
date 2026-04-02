@@ -72,29 +72,25 @@ $$
 
 ## Ways of Viewing Causal Questions
 
-. . .
 
-The [**Potential Outcomes (PO)**]{.col1} framework, is **one way** to view causal questions.
 
-:::{.incremental}
+The [**Potential Outcomes (PO)**]{.col1} framework is **one way** to view causal questions.
+
 - There is a **treatment** $X_i$ that takes on different values for each unit.
 - For each possible level of treatment, there is a certain **potential outcome** $Y(x)$. 
 - Only **one** potential outcome is **observed**, the others are **counterfactuals**.
-:::
 
-. . .
 
 The [**potential outcomes**]{.col1} framework relates very clearly to the notion of a **randomized experiment**. 
 
-. . .
 
-A **different framework** that has its strengths **elsewhere**: the [**Directed Acyclical Graphs (DAG)**]{.col2} framework.
+A **different framework** that has its strengths **elsewhere**: the [**Directed Acyclic Graphs (DAG)**]{.col2} framework.
 
-:::{.incremental}
+
 - It is a **graphical framework** that helps us identify a causal effect in a network of variables.
 - It has its **strengths** in a world with a **large number of (observed) variables**, and
 - may help people who prefer thinking **graphically** to understand **causal questions**.
-:::
+
 
 
 ## DAGs for Causal Modeling
@@ -133,7 +129,7 @@ statistical analysis. Different concepts of validity include the following:
 * [**Internal validity**]{.col1}: Internal validity is the validity of an analysis within its own context. It is the extent to which the analysis allows for [**causal inference**]{.col1}.
 * Empirical evidence may support various different interpretations.
 * We want to be able to credibly eliminate non‐causal interpretations.
-* [**The Principle of Parsimony**]{.col1} (Occam's razor): There may be incomprehensibly many alternatives for each explanation. The idea is to give preference to the simplest explanation (that cannot be refuted), i.e the one with the fewest parameters and/or assumptions. 
+* [**The Principle of Parsimony**]{.col1} (Occam's razor): There may be incomprehensibly many alternatives for each explanation. The idea is to give preference to the simplest explanation (that cannot be refuted), i.e., the one with the fewest parameters and/or assumptions. 
 
 ## Exogeneity
 * The exogeneity assumption $\mathbb{E}[\boldsymbol{u} \mid X] = 0$ is sometimes substituted with [**weak exogeneity**]{.col1} $\mathrm{Cov}(X,\boldsymbol{u}) = 0$
@@ -144,15 +140,15 @@ statistical analysis. Different concepts of validity include the following:
 ## Omitted Variable Bias
 * A [**confounder**]{.col1} is an additional variable that drives both the cause and effect
 * If we don't account for that variable we can't provide a causal effect explanation for what we observe.
-* Bias from a confounder is also called [**omitted variable bias**]{.col1} it occurs when:
-* The omitted variable is correlated with the regressors ( $\mathrm{Cov}(x_1,x_2) \neq 0$)
-* It is also a determinant of y ($\beta_2 \neq 0$)
+* Bias from a confounder is also called [**omitted variable bias**]{.col1}. It occurs when:
+  * The omitted variable is correlated with the regressors ( $\mathrm{Cov}(x_1,x_2) \neq 0$)
+  * It is also a determinant of y ($\beta_2 \neq 0$)
 * Many (potentially) [**omitted variables**]{.col2} cannot be observed. 
 * To solve this we might be able to use [**proxy variables**]{.col1}
 * To use a [**proxy variable**]{.col1} to identify a causal effect, it must: 
-1. Correlate with the [**omitted variable**]{.col2}: $\theta_1  \neq 0$
-2. Not correlate with other [**explanatory variables**]{.col2} $Cov(\boldsymbol{X}, \boldsymbol{e}) = 0$
-3. have no direct impact on the [**dependent variable**]{.col2} $Cov(\boldsymbol{z}, \boldsymbol{u}) = 0$
+  1. Correlate with the [**omitted variable**]{.col2}: $\theta_1  \neq 0$
+  2. Not correlate with other [**explanatory variables**]{.col2} $Cov(\boldsymbol{X}, \boldsymbol{e}) = 0$
+  3. have no direct impact on the [**dependent variable**]{.col2} $Cov(\boldsymbol{z}, \boldsymbol{u}) = 0$
 
 ## Type of Selection Bias
 * If the sample is not [**random**]{.col2}, we may speak of [**selection bias**]{.col1}
@@ -160,7 +156,7 @@ statistical analysis. Different concepts of validity include the following:
 * Selection bias is related to sample issues that may plague [**external validity**]{.col2}, but also threatens in-sample inference. 
 * There are many [**types of selection bias**]{.col1}
 * Consider a true $f$ describing a population of size $N$, but we only observe $M (<N)$. Can we learn something using our subset?
-* We can if our $M$ represents a [**random subset of the population**]{.col1}, then the selection process is [**ignorable**]{.col1}
+* If our $M$ represents a [**random subset of the population**]{.col1}, then the selection process is [**ignorable**]{.col1}
 * Otherwise there may be [**selection bias**]{.col1}
 * [**endogenous**]{.col2} sample selection, related to the dependent variable
 * [**exogenous**]{.col2} sample selection, related to the explanatory or third variables
@@ -173,37 +169,37 @@ statistical analysis. Different concepts of validity include the following:
 
 ## Simultaneity and Reverse Causality
 
-The causal effect of interest, i.e, $X \rightarrow Y$, is not always as straightforward as we would like. Instead, we may encounter: 
+The causal effect of interest, i.e., $X \rightarrow Y$, is not always as straightforward as we would like. Instead, we may encounter: 
 
-* [**Reverse Causality**]{.col1}: the issue is determining the direction of causation where $Y \rightarrow X$
+* [**Reverse Causality**]{.col1}: The issue is determining the direction of causation where $Y \rightarrow X$
   1. Happiness and income: being happy increases productivity → income
   2. Health and exercise: poor health reduces ability to exercise → low exercise correlates with poor health
   3. Education and growth: richer countries invest more in education
 
-* [**Simultaneity**]{.col1}:we need to disentangle the effects where $Y \leftrightarrow X$
+* [**Simultaneity**]{.col1}: We need to disentangle the effects where $Y \leftrightarrow X$
   1. Wage and Employment
-  2. Price and quantity: market clears instantly — price and quantity determined together.
+  2. Price and quantity: market clears instantly – price and quantity determined together.
 
 ## Techniques for Causal Identification
 *  OLS estimates are [**biased**]{.col1} when regressors are correlated with the error term (omitted variables, simultaneity, reverse causality, measurement errors)
 * Several strategies allow us to [**identify causal effects**]{.col2} despite these challenges:
 * [**Difference-in-Differences (DiD)**]{.col2}: compare changes over time between a [**treatment and control group**]{.col2}
-  * Requires: [**parallel trends assumption**]{.col1} — groups would have evolved similarly absent treatment
-* [**Instrumental Variables (IV)**]{.col2}: use an instrument $Z$ that affects $X$ but has [**no direct effect on $Y$**]{.col1}
+  * Requires: [**parallel trends assumption**]{.col1} – groups would have evolved similarly absent treatment
+* [**Instrumental Variables (IV)**]{.col2}: Use an instrument $Z$ that affects $X$ but has [**no direct effect on $Y$**]{.col1}
   * Requires: relevance ($Z$ correlated with $X$) and [**exclusion restriction**]{.col1} ($Z$ uncorrelated with $u$)
 
 ## Techniques for Causal Identification (2)
 * [**Regression Discontinuity Design (RDD)**]{.col2}: exploit a [**cutoff rule**]{.col2} that determines treatment assignment
   * Requires: no other discontinuity at the cutoff ([**continuity assumption**]{.col1})
 * [**Randomized Controlled Trials (RCT)**]{.col2}: [**random assignment**]{.col2} of treatment ensures independence from all confounders
-  * The "gold standard" — but often infeasible for ethical or practical reasons
+  * The "gold standard" – but often infeasible for ethical or practical reasons
   
 ## The Instrumental Variables (IV) Estimator
-* **Core problem**: $X_{it}$ is [**endogenous**]{.col1} — correlated with $u_{it}$ — so OLS is biased
-* **Idea**: find an instrument $Z$ that isolates [**exogenous variation**]{.col2} in $X$ — variation that is "as good as random"
+* **Core problem**: $X_{it}$ is [**endogenous**]{.col1} – correlated with $u_{it}$ – so OLS is biased
+* **Idea**: find an instrument $Z$ that isolates [**exogenous variation**]{.col2} in $X$ – variation that is "as good as random"
 * An instrument $Z$ must satisfy two conditions:
-  * [**Relevance**]{.col2}: $Z$ is correlated with $X$ — $\text{Cov}(Z, X) \neq 0$ — testable with an $F$-test (rule of thumb: $F > 10$)
-  * [**Exclusion restriction**]{.col1}: $Z$ affects $Y$ *only through* $X$ — $\text{Cov}(Z, u) = 0$ — [**not directly testable**]{.col1}
+  * [**Relevance**]{.col2}: $Z$ is correlated with $X$ – $\text{Cov}(Z, X) \neq 0$ – testable with an $F$-test (rule of thumb: $F > 10$)
+  * [**Exclusion restriction**]{.col1}: $Z$ affects $Y$ *only through* $X$ – $\text{Cov}(Z, u) = 0$ – [**not directly testable**]{.col1}
   
 ## The Instrumental Variables (IV) Estimator (2)
 * **Two-Stage Least Squares (2SLS)**:
@@ -212,36 +208,17 @@ $$X_i = \pi_0 + \pi_1 Z_i + \nu_i$$
   * **Stage 2**: regress $Y$ on $\hat{X}$ → recovers the [**causal effect**]{.col2} of $X$ on $Y$
 $$Y_i = \beta_0 + \beta_1 \hat{X}_i + u_i$$
 * **Intuition**: IV "throws away" the [**endogenous variation**]{.col1} in $X$ and uses only the [**exogenous variation**]{.col2} induced by $Z$
-* **Classic example**: returns to education — instrument $Z$ = quarter of birth (Angrist & Krueger, 1991)
+* **Classic example**: returns to education – instrument $Z$ = quarter of birth (Angrist & Krueger, 1991)
   * Quarter of birth affects schooling (compulsory schooling laws) but has no direct effect on wages
   
-## Regression Discontinuity Design (RDD)
-* **Core idea**: treatment $D$ is assigned based on whether a [**running variable**]{.col2} $X$ crosses a known [**cutoff**]{.col2} $c$
-$$
-D_i = \begin{cases} 1 & \text{if } X_i \geq c \\ 0 & \text{if } X_i < c \end{cases}
-$$
-* **Intuition**: units just below and just above the cutoff are [**nearly identical**]{.col2} on average — the cutoff creates a [**local randomization**]{.col2}
-* The causal effect is identified by the [**discontinuous jump**]{.col1} in $Y$ at $X = c$:
-$$
-\hat{\tau}_{RDD} = \lim_{x \downarrow c} E[Y_i | X_i = x] - \lim_{x \uparrow c} E[Y_i | X_i = x]
-$$
 
-## Regression Discontinuity Design (RDD) (2)
-* **Two variants**:
-  * [**Sharp RDD**]{.col2}: crossing the cutoff *perfectly* determines treatment
-  * [**Fuzzy RDD**]{.col1}: crossing the cutoff only *increases the probability* of treatment → use cutoff as an **IV**
-* [**Key assumption — continuity**]{.col1}: all other factors evolve [**smoothly through the cutoff**]{.col1} — no other discontinuity at $c$
-* **Threats to validity**:
-  * [**Manipulation**]{.col1}: units can precisely control $X_i$ to sort above/below cutoff 
-  * [**Spillovers**]{.col1}: treatment affects units on both sides of the cutoff
-* **Classic example**: financial aid cutoff — students just below a GPA threshold receive aid, those just above do not
 
 # Panel Data
 
 ## Panel Data
-*  [**Panel data**]{.col2} (longitudinal data) refers to data for $n$ different entities observed at $T$ different time periods
+*  [**Panel data**]{.col2} (longitudinal data) refers to data for $N$ different entities observed at $T$ different time periods
 * A [**balanced panel**]{.col2} has all its observations; that is, the variables are observed for each entity and each time period
-* A [**unbalanced panel**]{.col2} has some missing data for at least one time period for at least one entity
+* An [**unbalanced panel**]{.col2} has some missing data for at least one time period for at least one entity
 * Panel data is used as a method for controlling for some types of [**omitted variables**]{.col1} without actually observing them
 * By studying changes in the dependent variable over time, it is possible to eliminate the effect of omitted variables that differ across entities but are [**constant over time**]{.col1}
 * Panel data allows for analysis of [**dynamics**]{.col2} and improves causal inference compared to pure cross-sections
@@ -258,10 +235,10 @@ $$
 * Hospitals or patients tracked over time (health outcomes)
 
 ## Notation
-* Panel data consist of observations on the same $n$ entities over $T$ time periods  
+* Panel data consist of observations on the same $N$ entities over $T$ time periods  
 * If the data set includes variables $X$ and $Y$, the data can be written as:
 $$
-(X_{it}, Y_{it}), \quad i = 1, \dots, n, \quad t = 1, \dots, T
+(X_{it}, Y_{it}), \quad i = 1, \dots, N, \quad t = 1, \dots, T
 $$
 * $i$ indexes the entity (individual, firm, country, etc.)  being observed
 * $t$ indexes time (year, month, etc.) of the observation
@@ -273,17 +250,17 @@ $$
 * Fatality rate, which is the number of annual traffic deaths per 10,000 people
 * We can start by doing the regression for every year: 
 $$
-\text{Fatality\ Rate} = \beta_0 + \beta_1 \text{Beer\ Tax} + u_i
+\text{Fatality\ Rate}_i = \beta_0 + \beta_1 \text{Beer\ Tax}_i + u_i
 $$
 
 ## Example: Traffic Deaths and Alcohol Taxes (2)
 * 1982 data:
 $$
-\text{Fatality\ Rate} = 2.01 + 0.15 \text{Beer\ Tax}
+\text{Fatality\ Rate}_i = 2.01 + 0.15 \text{Beer\ Tax}_i
 $$
 * 1988 data:
 $$
-\text{Fatality\ Rate} = 1.86 + 0.44 \text{Beer\ Tax}
+\text{Fatality\ Rate}_i = 1.86 + 0.44 \text{Beer\ Tax}_i
 $$
 * Should we conclude that an increase in the tax on beer leads to more traffic deaths? Not necessarily, because these regressions could have substantial [**omitted variable bias**]{.col2}
 *  One approach would be to collect data on all these variables and add them to the annual cross-sectional regressions
@@ -296,8 +273,8 @@ $$
 * When data for each state are obtained for $T = 2$ time periods, we can [**compare**]{.col2} values of the dependent variable in the [**second period to values in the first period**]{.col2}
 * By focusing on changes in the dependent variable, this “before and after” comparison [**holds constant the unobserved factors**]{.col1} that differ from one state to the next but do not change over time within the state
 * For example: the local cultural attitude toward drinking and driving
-* Let $Z_i$ be a variable that determines the fatality rate in the $i^{th}$ state but does not change over time (so the t subscript is omitted)
-* the population linear regression relating $Z_i$ and the real beer tax to the fatality rate:
+* Let $Z_i$ be a variable that determines the fatality rate in the $i^{th}$ state but does not change over time (so the $t$ subscript is omitted)
+* The population linear regression relating $Z_i$ and the real beer tax to the fatality rate:
 $$
 \text{Fatality\ Rate}_{it} = \beta_0 + \beta_1 \text{Beer\ Tax}_{it} + Z_i + u_{it}
 $$
@@ -314,14 +291,14 @@ $$
 $$
 \begin{align}
 \text{Fatality\ Rate}_{i,1982} - &\text{Fatality\ Rate}_{i,1988} \\
-&= \beta_0 + \beta_1 (\text{Beer\ Tax}_{i,1982} - \text{Beer\ Tax}_{i,1988}) \nonumber\\
+&= (\beta_0-\beta_0) + \beta_1 (\text{Beer\ Tax}_{i,1982} - \text{Beer\ Tax}_{i,1988}) \nonumber\\
 &\quad + (Z_i - Z_i) + (u_{i,1982} - u_{i,1988})
 \end{align}
 $$
 
 ## Example
 * This specification has an intuitive interpretation. 
-* Cultural attitudes toward drinking driving affect the level of drunk driving and thus the traffic fatality rate in a state. 
+* Cultural attitudes toward drinking and driving affect the level of drunk driving and thus the traffic fatality rate in a state. 
 * If they did not change between 1982 and 1988, then they did not produce any change in fatalities in the state.
 $$
 \begin{align}
@@ -337,8 +314,8 @@ $$
 ## Fixed Effects Regression
 * To analyze all the observations in our panel data set, we use the method of [**fixed effects regression**]{.col2}
 * Fixed effects regression is a method for [**controlling for omitted variables**]{.col2} in panel data when the omitted variables [**vary either only across time or observations**]{.col2}
-* For instance, a variable could vary across entities (states) but do not change over time
-* The fixed effects regression model has [**n different intercepts**]{.col2}, one for each entity.
+* For instance, a variable could vary across entities (states) but does not change over time
+* The fixed effects regression model has [**$N$ different intercepts**]{.col2}, one for each entity.
 * These intercepts can be represented by a set of [**binary (or indicator) variables**]{.col2}
 * These binary variables absorb the influences of all omitted variables that differ from one entity to the next but are constant over time
 
@@ -350,27 +327,27 @@ Y_{it} = \beta_0 + \beta_1 X_{it} + \beta_2 Z_i + u_{it}
 $$
 * $Z_i$ is an [**unobserved variable**]{.col2} that varies from one state to the next but [**does not change over time**]{.col2} (e.g., cultural attitudes toward drinking and driving)
 * We want to estimate $\beta_1$, the effect on $Y$ of $X$, [**holding constant**]{.col1} the unobserved state characteristics $Z$
-* Since $Z_i$ is constant over time, our regression can be interpreted as having $n$ intercepts — one per state: $\alpha_i = \beta_0 + \beta_2 Z_i$
+* Since $Z_i$ is constant over time, our regression can be interpreted as having $N$ intercepts – one per state: $\alpha_i = \beta_0 + \beta_2 Z_i$
 * This gives us the fixed effects model:
 $$
 Y_{it} = \beta_1 X_{it} + \alpha_i + u_{it}
 $$
 
 ## Entity Fixed Effects
-* In $Y_{it} = \beta_1 X_{it} + \alpha_i + u_{it}$, the terms $\alpha_1, \ldots, \alpha_n$ are treated as [**unknown intercepts**]{.col2} to be estimated — one for each state
+* In $Y_{it} = \beta_1 X_{it} + \alpha_i + u_{it}$, the terms $\alpha_1, \ldots, \alpha_N$ are treated as [**unknown intercepts**]{.col2} to be estimated – one for each state
 * The population regression line for the $i^{th}$ state is $\alpha_i + \beta_1 X_{it}$:
   * The [**slope**]{.col1} $\beta_1$ is the **same for all states**
   * The [**intercept**]{.col2} $\alpha_i$ **varies from one state to the next**
-* Because $\alpha_i$ can be thought of as the "effect" of being in entity $i$, the terms $\alpha_1, \ldots, \alpha_n$ are known as [**entity fixed effects**]{.col1}
-* The variation in entity fixed effects comes from [**omitted variables**]{.col1} that, like $Z_i$ that vary across entities but **not over time**
+* Because $\alpha_i$ can be thought of as the "effect" of being in entity $i$, the terms $\alpha_1, \ldots, \alpha_N$ are known as [**entity fixed effects**]{.col1}
+* The variation in entity fixed effects comes from [**omitted variables**]{.col1} that, like $Z_i$, vary across entities but **not over time**
 
 ## Fixed Effects via Binary Variables
 * The state-specific intercepts in the fixed effects regression model can be expressed using [**binary variables**]{.col1} to denote the individual states.
-* Define binary variables $D1_i, D2_i, \ldots, Dn_i$ where $Dj_i = 1$ when $i = j$ and $0$ otherwise
-* We [**cannot include all $n$ binary variables**]{.col1} plus a common intercept — this causes [**perfect multicollinearity**]{.col1} (the dummy variable trap)
+* Define binary variables $D1_i, D2_i, \ldots, DN_i$ where $Dj_i = 1$ when $i = j$ and $0$ otherwise
+* We [**cannot include all $N$ binary variables**]{.col1} plus a common intercept – this causes [**perfect multicollinearity**]{.col1} (the dummy variable trap)
 * Solution: [**omit $D1_i$**]{.col2} for the first entity, giving the equivalent model:
 $$
-Y_{it} = \beta_0 + \beta_1 X_{it} + \gamma_2 D2_i + \gamma_3 D3_i + \cdots + \gamma_n Dn_i + u_{it}
+Y_{it} = \beta_0 + \beta_1 X_{it} + \gamma_2 D2_i + \gamma_3 D3_i + \cdots + \gamma_N DN_i + u_{it}
 $$
 * The link between the two representations:
   * **First state**: regression line is $\beta_0 + \beta_1 X_{it}$, so $\alpha_1 = \beta_0$
@@ -382,13 +359,13 @@ $$
 $$
 Y_{it} = \beta_1 X_{1,it} + \cdots + \beta_k X_{k,it} + \alpha_i + u_{it}
 $$
-* Where $i = 1, \ldots, n$; $t = 1, \ldots, T$; and $\alpha_1, \ldots, \alpha_n$ are [**entity-specific intercepts**]{.col1}
-* Equivalently, using a common intercept and $n-1$ [**binary variables**]{.col2} (omitting the first entity):
+* Where $i = 1, \ldots, N$; $t = 1, \ldots, T$; and $\alpha_1, \ldots, \alpha_N$ are [**entity-specific intercepts**]{.col1}
+* Equivalently, using a common intercept and $N-1$ [**binary variables**]{.col2} (omitting the first entity):
 $$
-Y_{it} = \beta_0 + \beta_1 X_{1,it} + \cdots + \beta_k X_{k,it} + \gamma_2 D2_i + \gamma_3 D3_i + \cdots + \gamma_n Dn_i + u_{it}
+Y_{it} = \beta_0 + \beta_1 X_{1,it} + \cdots + \beta_k X_{k,it} + \gamma_2 D2_i + \gamma_3 D3_i + \cdots + \gamma_N DN_i + u_{it}
 $$
 * Where $D2_i = 1$ if $i = 2$ and $0$ otherwise, and so forth
-* These two representations are [**equivalent**]{.col2} — both control for all time-invariant entity characteristics
+* These two representations are [**equivalent**]{.col2} – both control for all time-invariant entity characteristics
 * If there are other observed determinants of $Y$ that are correlated with $X$ and that change over time, then these should also be included in the regression to avoid omitted variable bias
 
 ## Application to Traffic Deaths
@@ -396,10 +373,10 @@ $$
 $$
 \text{Fatality\ Rate} = -0.66 \text{Beer\ Tax} + \text{state fixed effects}
 $$
-* The estimated fixed intercepts are not reported — they are [**not of primary interest**]{.col1}
+* The estimated fixed intercepts are not reported – they are [**not of primary interest**]{.col1}
 * The coefficient on Beer Tax is negative: higher beer taxes $\Rightarrow$ fewer traffic deaths
-* This is the [**opposite**]{.col2} of the initial cross-sectional results — entity fixed effects remove omitted variable bias
-* Difference from the "before and after" regression: uses only **1982 and 1988** data now we uses **all 7 years** → smaller standard error
+* This is the [**opposite**]{.col2} of the initial cross-sectional results – entity fixed effects remove omitted variable bias
+* Difference from the "before and after" regression: uses only **1982 and 1988** data, now we use **all 7 years** → smaller standard error
 
 ## Regression with Time Fixed Effects
 * [**Entity fixed effects**]{.col1} control for variables [**constant over time**]{.col1} but varying across entities
@@ -413,7 +390,7 @@ $$
 * If $S_t$ is correlated with $X_{it}$ and omitted from the regression → [**omitted variable bias**]{.col1}
 
 ## Time Fixed Effects Regression Model
-* Although $S_t$ is unobserved, its influence can be [**eliminated**]{.col2} — just as $Z_i$ was eliminated by entity fixed effects
+* Although $S_t$ is unobserved, its influence can be [**eliminated**]{.col2} – just as $Z_i$ was eliminated by entity fixed effects
 * Parallel logic:
   * $Z_i$ varies across states but not over time → [**entity fixed effects**]{.col1}: each state gets its own intercept
   * $S_t$ varies over time but not across states → [**time fixed effects**]{.col2}: each time period gets its own intercept
@@ -426,7 +403,7 @@ $$
 * $\lambda_t$ is a [**different intercept for each time period**]{.col2}
 * $\lambda_t$ captures the "effect" of year $t$ on $Y$, so $\lambda_1, \ldots, \lambda_T$ are the [**time fixed effects**]{.col2}
 * The variation in time fixed effects comes from [**omitted variables**]{.col1} that vary over time but are constant across entities
-* Just as the entity fixed effects regression model can be represented using $n- 1$ binary indicators
+* Just as the entity fixed effects regression model, it can be represented using $T - 1$ binary indicators
 * In the traffic fatalities regression, the time fixed effects specification allows us to eliminate bias arising from omitted variables that change over time but are the same across states in a given year
 
 # Two-Way Fixed Effects
@@ -440,16 +417,16 @@ $$
 Y_{it} = \beta_1 X_{it} + \alpha_i + \lambda_t + u_{it}
 $$
 * Where $\alpha_i$ is the [**entity fixed effect**]{.col1} and $\lambda_t$ is the [**time fixed effect**]{.col2}
-* Equivalently, using $n-1$ entity binary indicators and $T-1$ time binary indicators:
+* Equivalently, using $N-1$ entity binary indicators and $T-1$ time binary indicators:
 $$
-Y_{it} = \beta_0 + \beta_1 X_{it} + \gamma_2 D2_i + \cdots + \gamma_n Dn_i + \delta_2 B2_t + \cdots + \delta_T BT_t + u_{it}
+Y_{it} = \beta_0 + \beta_1 X_{it} + \gamma_2 D2_i + \cdots + \gamma_N DN_i + \delta_2 B2_t + \cdots + \delta_T BT_t + u_{it}
 $$
-* Where $\beta_0, \beta_1, \gamma_2, \ldots, \gamma_n$ and $\delta_2, \ldots, \delta_T$ are unknown coefficients to be estimated
-* We call this the **Two-Way Fixed Effects**
+* Where $\beta_0, \beta_1, \gamma_2, \ldots, \gamma_N$ and $\delta_2, \ldots, \delta_T$ are unknown coefficients to be estimated
+* We call this the **Two-Way Fixed Effects Estimator**
 
-## Caveats of the Fixed Effects
+## Caveats of the Fixed Effects Estimator
 * [**Caveat 1**]{.col1}: Fixed effects cannot solve reverse causality. If you have simultaneity or reverse causality bias then you would not use panel fixed effects, specifically when it is really strong, as your identification strategy. 
-* [**Caveat 2**]{.col1}:fixed effects cannot address time-variant unobserved heterogeneity. 
+* [**Caveat 2**]{.col1}: Fixed effects cannot address time-variant unobserved heterogeneity. 
 * Using the TWFE is helpful but will not solve your endogeneity issues. 
 * Nothing substitutes for careful reasoning and economic theory, as they are necessary conditions for good research design 
 
@@ -463,50 +440,50 @@ $$
   * 47 state binary variables ([**state fixed effects**]{.col1})
   * 6 single-year binary variables ([**time fixed effects**]{.col2})
   * 1 intercept
-* State/time binary coefficients and intercept are [**not reported**]{.col1} — not of primary interest
+* State/time binary coefficients and intercept are [**not reported**]{.col1} – not of primary interest
 * Including time effects has [**little impact**]{.col2} on the coefficient on the real beer tax
 
 # Assumptions and Inference for FE Regression
 
 ## The Fixed Effects Regression Assumptions
-* The fixed effects model: $Y_{it} = \beta_1 X_{it} + \alpha_i + u_{it}$, $i = 1, \ldots, n$, $t = 1, \ldots, T$, where $\beta_1$ is the [**causal effect**]{.col2} on $Y$ of $X$
+* The fixed effects model: $Y_{it} = \beta_1 X_{it} + \alpha_i + u_{it}$, $i = 1, \ldots, N$, $t = 1, \ldots, T$, where $\beta_1$ is the [**causal effect**]{.col2} on $Y$ of $X$
 * **Assumption 1**: $u_{it}$ has [**conditional mean zero**]{.col1}:
 $$E(u_{it} | X_{i1}, X_{i2}, \ldots, X_{iT}, \alpha_i) = 0$$
-* **Assumption 2**: $(X_{i1}, X_{i2}, \ldots, X_{iT}, u_{i1}, u_{i2}, \ldots, u_{iT})$, $i = 1, \ldots, n$, are [**i.i.d.**]{.col2} draws from their joint distribution
+* **Assumption 2**: $(X_{i1}, X_{i2}, \ldots, X_{iT}, u_{i1}, u_{i2}, \ldots, u_{iT})$, $i = 1, \ldots, N$, are [**i.i.d.**]{.col2} draws from their joint distribution
 * **Assumption 3**: [**Large outliers are unlikely**]{.col1}: $(X_{it}, u_{it})$ have nonzero finite fourth moments
 * **Assumption 4**: [**No perfect multicollinearity**]{.col1}
 * For multiple regressors, $X_{it}$ is replaced by the full list $X_{1,it}, X_{2,it}, \ldots, X_{k,it}$
 
 ## Fixed Effects Assumptions: Closer Look
-* **Assumption 1** — conditional mean zero given all $T$ values of $X$:
+* **Assumption 1** – conditional mean zero given all $T$ values of $X$:
   * Implies [**no omitted variable bias**]{.col1}
-  * $u_{it}$ must not depend on *any* values of $X$ for that entity — past, present, or future
+  * $u_{it}$ must not depend on *any* values of $X$ for that entity – past, present, or future
   * [**Violated**]{.col1} if current $u_{it}$ is correlated with past, present, or future values of $X$
-* **Assumption 2** — variables are [**i.i.d. across entities**]{.col2} for $i = 1, \ldots, n$:
+* **Assumption 2** – variables are [**i.i.d. across entities**]{.col2} for $i = 1, \ldots, N$:
   * Variables for one entity are distributed identically to, but [**independently of**]{.col2}, variables for another entity
   * Holds if entities are selected by [**simple random sampling**]{.col2} from the population
-  * Key difference from cross-sectional assumption 2: [**no restriction within an entity**]{.col1} — $X_{it}$ can be correlated over time within the same entity
-* Under all four assumptions, the fixed effects estimator is [**consistent**]{.col2} and [**normally distributed**]{.col2} when $n$ is large
+  * Key difference from cross-sectional assumption 2: [**no restriction within an entity**]{.col1} – $X_{it}$ can be correlated over time within the same entity
+* Under all four assumptions, the fixed effects estimator is [**consistent**]{.col2} and [**normally distributed**]{.col2} when $N$ is large
 
 ## Autocorrelation in Panel Data
 * If $X_{it}$ is correlated with $X_{is}$ for $s \neq t$, then $X_{it}$ is [**autocorrelated**]{.col1} (or [**serially correlated**]{.col1})
 * Autocorrelation is a [**pervasive feature of time series data**]{.col2}: what happens one year tends to be correlated with what happens the next
-* Example: beer tax $X_{it}$ is autocorrelated — legislatures rarely change tax rates year to year, so a high tax in year $t$ tends to remain high in year $t+1$
+* Example: beer tax $X_{it}$ is autocorrelated – legislatures rarely change tax rates year to year, so a high tax in year $t$ tends to remain high in year $t+1$
 * $u_{it}$ can also be autocorrelated due to [**persistent omitted factors**]{.col1}, for example:
   * A local economic downturn reduces commuting → fewer fatalities for **multiple years**
   * A road improvement project reduces accidents not just at completion but in **future years**
-* Not all omitted factors cause autocorrelation — e.g., severe winter weather that is [**independently distributed**]{.col2} year to year would be serially uncorrelated
+* Not all omitted factors cause autocorrelation – e.g., severe winter weather that is [**independently distributed**]{.col2} year to year would be serially uncorrelated
 * In general, as long as [**some omitted factors are autocorrelated**]{.col1}, $u_{it}$ will be autocorrelated
 
 ## Standard Errors for Fixed Effects Regression
-* If errors are autocorrelated, the usual [**heteroskedasticity-robust standard errors**]{.col1} are [**not valid**]{.col1} — they assume no serial correlation
+* If errors are autocorrelated, the usual [**heteroskedasticity-robust standard errors**]{.col1} are [**not valid**]{.col1} – they assume no serial correlation
 * Solution: use [**heteroskedasticity- and autocorrelation-robust (HAR) standard errors**]{.col2}
 * The standard approach in panel data: [**clustered standard errors**]{.col2}
   * Allow [**arbitrary correlation within a cluster**]{.col2} (= entity)
   * Assume errors are [**uncorrelated across clusters**]{.col1} (= across entities)
   * Allow for both heteroskedasticity and autocorrelation within an entity
 * Clustered standard errors are valid [**whether or not**]{.col2} there is heteroskedasticity, autocorrelation, or both
-* When $n$ is large, inference proceeds using:
+* When $N$ is large, inference proceeds using:
   * Normal critical values for $t$-statistics
   * $F_{q,\infty}$ critical values for $F$-statistics testing $q$ restrictions
 
@@ -519,7 +496,7 @@ $$E(u_{it} | X_{i1}, X_{i2}, \ldots, X_{iT}, \alpha_i) = 0$$
 * Different sources offer different [**strengths and limitations**]{.col2}:
 * [**Administrative data**]{.col1}: Large scale, high accuracy, often longitudinal, Limited to recorded variables, access can be restricted
 * [**Surveys**]{.col1}: Flexible design, can capture attitudes and unobservables, Measurement error, recall bias, smaller samples
-* [**Web / scraped data**]{.col1}:Real-time, novel behaviors, large and granular, Selection bias, legal/ethical issues, messy structure
+* [**Web / scraped data**]{.col1}: Real-time, novel behaviors, large and granular, Selection bias, legal/ethical issues, messy structure
 * [**Experimental data**]{.col1}: High causal identification (internal validity), Costly, smaller samples, external validity concerns
 
 
@@ -555,7 +532,7 @@ $$E(u_{it} | X_{i1}, X_{i2}, \ldots, X_{iT}, \alpha_i) = 0$$
 :::
 
 :::
-## Example - Demographic and Health Surveys (DHS
+## Example – Demographic and Health Surveys (DHS)
 * Large-scale, nationally representative household surveys in [**developing countries**]{.col1}
 * Cover [**topics**]{.col1} such as:
 * Fertility, family planning, and maternal health
@@ -589,36 +566,36 @@ There are many ways to access this data, among them: **Google Earth Engine**,  *
 :::
 
 
-## Example - Luxembourg Income Study (LIS)
+## Example – Luxembourg Income Study (LIS)
 * [**Cross-national microdata**]{.col1} database on income, inequality, and poverty  
 * Harmonizes household survey data from multiple countries  
 * [**Covers**]{.col1}: Income, earnings, and redistribution, Wealth (via LWS),  Demographics and labor market outcomes  
 * Key [**strengths**]{.col1}: High-quality harmonization for inequality research, widely used in top economic research, strong comparability across countries and over time   
 * Key [**limitations**]{.col1}: Limited variable detail compared to raw surveys, access requires application and approval, remote execution system (no direct microdata download) 
 
-## Example - Census : IPUMS
+## Example – Census: IPUMS
 * Data [**harmonization**]{.col1} project by IPUMS at the University of Minnesota
 * Provides access to: Census and household survey microdata from around the world, U.S. Census and American Community Survey data
-* [**Key feature**]{.col1}: Harmonized variables across countries and time thus enables cross-country and longitudinal comparisons
+* [**Key feature**]{.col1}: Harmonized variables across countries and time, thus enables cross-country and longitudinal comparisons
 * Available [**datasets**]{.col1}: IPUMS USA, IPUMS International, IPUMS CPS, IPUMS DHS, etc.
-* Key [**strengths**]{.col1}:Large samples, high comparability, easy-to-use extracts
+* Key [**strengths**]{.col1}: Large samples, high comparability, easy-to-use extracts
 * Key [**limitations**]{.col1}: Some loss of detail due to harmonization, Access restrictions for sensitive data
 
-## Example - WVS & ANES: Public Opinion Data
+## Example – WVS & ANES: Public Opinion Data
 * Cross-national and U.S.-focused surveys on [**values, attitudes, and political behavior**]{.col1}  
-* WVS: Covers 100+ccountries over multiple waves, focus on cultural values, beliefs, trust, religion, and social norms  
+* WVS: Covers 100+ countries over multiple waves, focus on cultural values, beliefs, trust, religion, and social norms  
 * ANES: U.S.-focused, election-centered surveys since 1948, covers voting behavior, political attitudes, and public opinion  
 * Key [**strengths**]{.col1}: rich information on preferences, beliefs, and norms, long time span (especially ANES), cross-country comparability (WVS)  
 * Key [**limitations**]{.col1}: self-reported attitudes (measurement error, social desirability bias), limited causal identification, repeated cross-sections rather than true panels  
 
-## Example - Text: 
+## Example – Text
 *  Unstructured data from written or spoken language sources  
-* [**Common sources**]{.col1}:news articles, policy documents, transcripts  social media posts, forums, reviews, legal texts, reports, historical archives  
+* [**Common sources**]{.col1}: news articles, policy documents, transcripts, social media posts, forums, reviews, legal texts, reports, historical archives  
 * [**Methods**]{.col1}: Keyword search, dictionaries, sentiment analysis, topic modeling, machine learning / NLP  
-* Key [**strengths**]{.col1}: Captures beliefs, narratives, and framing , large-scale and often real-time, enables analysis of previously unobservable concepts  
+* Key [**strengths**]{.col1}: Captures beliefs, narratives, and framing, large-scale and often real-time, enables analysis of previously unobservable concepts  
 * Key [**limitations**]{.col1}:  Requires substantial preprocessing, measurement depends on method choices, potential bias in text sources (selection, platform effects)  
 
-## Example - Macro data
+## Example – Macro data
 * Aggregate data describing the economy at the country or regional level  
 * [**Common indicators**]{.col1}: GDP, inflation, unemployment, trade, government spending, debt, productivity
 * [**Common sources**]{.col1}: World Bank, IMF, OECD, Eurostat, FRED, ECB, ILO, UN data
@@ -662,7 +639,7 @@ A [**natural experiment**]{.col1} is a study where an **experimental setting** i
 :::{.incremental}
 - It is an **observational study** with properties of randomised experiments.
 - This provides a good basis for **causal inference**, and
-- does not suffer from **potential issues** of a conducting an experiment, such as cost, ethics, feasibility, etc.
+- does not suffer from **potential issues** of conducting an experiment, such as cost, ethics, feasibility, etc.
 - For a natural experiment, we need something to **happen exogenously** and **create variation in treatment**.
 :::
 :::
@@ -693,13 +670,13 @@ In the 1800s, London (as well as many other places) was repeatedly hit by waves 
 
 . . .
 
-Of course, running **an experiment** is infeasible in this context. It would requre randomizing households, and allocating clean water to only a subset of them. This was both logistically infeasible and ethically questionable.
+Of course, running **an experiment** is infeasible in this context. It would require randomizing households, and allocating clean water to only a subset of them. This was both logistically infeasible and ethically questionable.
 
 ## A Natural Experiment
 
 . . .
 
-In 1849, the following happened:
+In 1852, the following happened:
 
 :::{.centering .fragment}
 ![](drawio_charts/2_cholera.svg){.noinvert width=80%}
@@ -747,7 +724,7 @@ The following three [**examples**]{.col1} for quasi-experimental research design
 
 . . .
 
-Before we start discussing **natural experiments**, let us actually start by looking at probably the simplest estimator for a treatment effect we will ever encounter. The **differences estimator** can be used in [**experimental settings**]{.col1} and can be computed like this:
+Let us start by looking at probably the simplest estimator for a treatment effect we will ever encounter. The **differences estimator** can be used in [**experimental settings**]{.col1} and can be computed like this:
 
 $$
 y_{i} = \beta_0 + D_i\beta_1 + u_i,
@@ -759,7 +736,7 @@ where $D_i$ is the treatment indicator.
 
 . . .
 
-If $X$ is truly randomly assigned, then $\mathrm{E}(u_i\mid X_i)=0$, and the **OLS estimator** of rhe causal effect $\beta_1$ is **unbiased and consistent**.
+If $D$ is truly randomly assigned, then $\mathrm{E}(u_i\mid D_i)=0$, and the **OLS estimator** of the causal effect $\beta_1$ is **unbiased and consistent**.
 
 :vspace1
 
@@ -897,7 +874,7 @@ node[midway, right=6pt] {};
 Let us **estimate** an average treatment effect using the **DiD estimator**. This is very simple also in terms of implementation.
 
 - `loedata::Fastfood` is a simple example dataset for DiD estimation that contains data on fast food restaurants.
-- It contains data on restuaurant-level employment (`fte`) for two U.S. states (`nj` and `pa`) before and after a minimum wage increase in New Jersey in 1992.
+- It contains data on restaurant-level employment (`fte`) for two U.S. states (`nj` and `pa`) before and after a minimum wage increase in New Jersey in 1992.
 :::
 :::{.column width="60%" .fragment}
 ```{webr}
@@ -915,10 +892,10 @@ lm(fte ~ nj * after, data = Fastfood)
 
 . . . 
 
-Alternatively, we can write the regression equation for the difference-in-differences estimator for a given observarion $i$ like this, using first differences:
+Alternatively, we can write the regression equation for the difference-in-differences estimator for a given observation $i$ like this, using first differences:
 
 $$
-\Delta y = \beta_0 + D_i\beta_1 + u_i,
+\Delta y_i = \beta_0 + D_i\beta_1 + u_i,
 $$
 
 where $D_i$ is the treatment group indicator and $\Delta y_i$ is the difference in outcomes for individual $i$ between the pre- and the post-treatment period. The **OLS estimator** for $\beta_1$ in this equation is the **DiD estimator**.
@@ -930,7 +907,7 @@ where $D_i$ is the treatment group indicator and $\Delta y_i$ is the difference 
 What if we want to include **additional covariates**? Easy:
 
 $$
-\Delta y = \beta_0 + D_i\beta_1 + \boldsymbol{x}_i'\boldsymbol{\gamma}  + u_i,
+\Delta y_i = \beta_0 + D_i\beta_1 + \boldsymbol{x}_i'\boldsymbol{\gamma}  + u_i,
 $$
 
 with additional variables stored in the vector $\boldsymbol{x}_i$.
@@ -950,10 +927,10 @@ What happens when we **do not have a true panel**, but only **repeated cross-sec
 
 . . .
 
-Instead of using the convenient first-difference notation, $\Delta y = \beta_0 + D_i\beta_1 + u_i$, we have to resort to specifying the model in full, but conceptually nothing changes:
+Instead of using the convenient first-difference notation, $\Delta y_i = \beta_0 + D_i\beta_1 + u_i$, we have to resort to specifying the model in full, but conceptually nothing changes:
 
 $$
-y_{it} = \beta_0 + D_{it}\beta_1 + T_{it}\beta_2+P_{it}\beta_3 + \boldsymbol{x}_i'\boldsymbol{\gamma},
+y_{it} = \beta_0 + D_{it}\beta_1 + T_{it}\beta_2+P_{it}\beta_3 + \boldsymbol{x}_i'\boldsymbol{\gamma} + u_{it},
 $$
 
 where $D_{it}$ is the treatment indicator as before. It is an interaction of the indicator for being in the (surrogate or actual) treatment group, $T_{it}$; and the indicator for being in the post-treatment time period, $P_{it}$.
@@ -1062,7 +1039,7 @@ iplot(es, xlab = "Years to treatment", main = "Effect of Castle Doctrine on Log 
 
 . . .
 
-When we discussed the **DiD** estimator, we have so far assumed that all units are treated at exactly the same time. That may not always be the case, however. When treatment is staggered, we often times use the **TWFE estimator**, which we got using this equation:
+When we discussed the **DiD** estimator, we have so far assumed that all units are treated at exactly the same time. That may not always be the case, however. When treatment is staggered, we often use the **TWFE estimator**, which we got using this equation:
 
 $$
 y_{it} = \mu + \delta D_{it} + \varphi_i+\lambda_t+u_{it}.
@@ -1183,7 +1160,7 @@ p
 
 :vspace1
 
-[We make use of **a sharp cutoff** in some **runnning variable** and compare values immediately below and immediately above the cutoff.]{.fragment}
+[We make use of **a sharp cutoff** in some **running variable** and compare values immediately below and immediately above the cutoff.]{.fragment}
 
 :vspace1
 
@@ -1225,7 +1202,7 @@ There are two ways in which a discontinuity can affect treatment.
   y_i = \beta_0 + D_{i}\beta_1 + x_i\beta_2 + u_i,
   $$
   where $D_i$ is the treatment indicator and $x_i$ is the running variable.
-- In a [**fuzzy regression discontinuity design**]{.col2}, clearing the threshold **influences treatment**, but is not the only factor. For example, some students that were successful in the exam may still choose not to attend university; and some students below the threshold may get in via a retake. In this case, the threshold-crossing indicator is correlated with the error term. But if we observe actual treatment, we can use it as an **instrument for the actual treatment** and obtain an estimate for $\beta_1$ by IV estimation. 
+- In a [**fuzzy regression discontinuity design**]{.col2}, clearing the threshold **influences treatment**, but is not the only factor. For example, some students that were successful in the exam may still choose not to attend university; and some students below the threshold may get in via a retake. In this case, the treatment indicator is correlated with the error term. But if we observe actual treatment, we can use the threshold-crossing indicator as an **instrument for the actual treatment** and obtain an estimate for $\beta_1$ by IV estimation. 
 :::
 
 ## Requirements for an RDD
@@ -1408,8 +1385,7 @@ rdplot(y, x, c = 0, p = 1,
 :::{.bitsmall .fragment}
 ```{webr}
 #| fig-height: 4
-rd <- rdrobust(y, x, c = 0, p = 1) # p = degree of polynomial, we can also leave it blank
-rdplot(y, x, c = 0, p = 1,
+rdplot(y, x, c = 0, p = 2,
        title = "Incumbency Advantage in US Senate Elections",
        x.label = "Margin of Victory (Election t)",
        y.label = "Vote Share (Election t+1)")
@@ -1538,7 +1514,7 @@ However, we can easily give [**edges**]{.col2} a direction. We call an [**edge**
 
 ::::{.columns .fragment}
 :::{.column width="60%"} 
-A **walk** is a sequence of [**edges**]{.col2} that joins a sequence of [**nodes**]{.col1}. A **cycle** is a special case of a **walk** where all [**edges**]{.col2} are **distinct** and the initial and final [**node**]{.col1} are **equal**. In this graph, $\left\{\{a,b\},\{b,c\},\{c,a\}\right\}$ is a **cycle**.
+A **walk** is a sequence of [**edges**]{.col2} that joins a sequence of [**nodes**]{.col1}. A **cycle** is a special case of a **walk** where all [**nodes**]{.col1} are **distinct** and the initial and final [**node**]{.col1} are **equal**. In this graph, $\left\{\{a,b\},\{b,c\},\{c,a\}\right\}$ is a **cycle**.
 :::
 :::{.column width="40%"}
 
@@ -2023,7 +1999,7 @@ p <- p |>
     opacity = 1,
     line = list(width = 2, color = "black"),
     hoverinfo = "text",
-    text = ~paste0(from_name, " — ", to_name),
+    text = ~paste0(from_name, " – ", to_name),
     showlegend = FALSE
   )
 
@@ -2274,7 +2250,7 @@ p <- p |>
     opacity = 1,
     line = list(width = 2, color = "black"),
     hoverinfo = "text",
-    text = ~paste0(from_name, " — ", to_name),
+    text = ~paste0(from_name, " – ", to_name),
     showlegend = FALSE
   )
 
@@ -2499,7 +2475,7 @@ $\boldsymbol{WX}$ is a matrix of **spatially lagged covariates**, and $\boldsymb
 
 :::{.incremental}
 - $\boldsymbol{\theta}$ reflects the effect of neighbors' characteristics.
-- We still have to **choose** $\boldsymbol{W}$, the spatial weights matrix. But conditional on $\boldsymbol{W}$, whis is just a linear model.
+- We still have to **choose** $\boldsymbol{W}$, the spatial weights matrix. But conditional on $\boldsymbol{W}$, this is just a linear model.
 - This means that we can **estimate** it using **OLS**.
 :::
 
@@ -2541,7 +2517,7 @@ $$
 
 [This gives us a linear model with **spatially autoregressive errors**. As everything else that relied on a **spatial weights matrix**, this only yields meaningful results conditional on us specifying the correct $\boldsymbol{W}$. Like with the SAR model, estimation is not straightforward and requires additional assumptions.]{.fragment}
 :::
-:::{.column witdh="50%" .fragment}
+:::{.column width="50%" .fragment}
 What is often done in practice when one suspects there to be a spatial pattern in the errors is to estimate a regular linear model using OLS, and use **standard errors that are robust to spatial autocorrelation**.
 
 :::{.incremental}
