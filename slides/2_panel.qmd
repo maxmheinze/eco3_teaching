@@ -1197,13 +1197,72 @@ Can you think of more examples where discontinuities arise naturally?
 There are two ways in which a discontinuity can affect treatment.
 
 :::{.incremental}
-- In a [**sharp regression discontinuity design**]{.col1}, whether someone is treated depends precisely, and only, on whether that individual **crosses the threshold**. In the standardized test score example, this would mean that everyone that clears the threshold must attend university, and no one below the threshold attends university, period. In this case, estimation of the treatment effect is simple:
-  $$
-  y_i = \beta_0 + D_{i}\beta_1 + x_i\beta_2 + u_i,
-  $$
-  where $D_i$ is the treatment indicator and $x_i$ is the running variable.
-- In a [**fuzzy regression discontinuity design**]{.col2}, clearing the threshold **influences treatment**, but is not the only factor. For example, some students that were successful in the exam may still choose not to attend university; and some students below the threshold may get in via a retake. In this case, the treatment indicator is correlated with the error term. But if we observe actual treatment, we can use the threshold-crossing indicator as an **instrument for the actual treatment** and obtain an estimate for $\beta_1$ by IV estimation. 
+- In a [**sharp regression discontinuity design**]{.col1}, whether someone is treated depends precisely, and only, on whether that individual **crosses the threshold**. In the standardized test score example, this would mean that everyone that clears the threshold must attend university, and no one below the threshold attends university, period. In this case, estimation of the treatment effect is simple.
+- In a [**fuzzy regression discontinuity design**]{.col2}, clearing the threshold **influences treatment**, but is not the only factor. For example, some students that were successful on the exam may still choose not to attend university; and some students below the threshold may get in via a retake. In this case, the treatment indicator is correlated with the error term. But if we observe actual treatment, we can use the threshold-crossing indicator as an **instrument for the actual treatment** and obtain an estimate for $\beta_1$ by IV estimation. 
 :::
+
+## How an RDD Works
+
+. . .
+
+Treatment status $D_i$ is a deterministic **function of the running variable** $x_i$ that jumps at the cutoff $c$:
+
+$$
+D_i =
+\begin{cases}
+  1 \text{ if}&x_i\geq c\\
+  0 \text{ if}&x_i<c
+\end{cases}.
+$$
+
+. . .
+
+Using a **potential outcomes** framework, we get
+
+$$
+\begin{aligned}
+  y_i^{(0)}&=\beta_0+\beta_1x_i+u_i \\
+  y_i^{(1)}&=y_i^{(0)}+\delta,
+\end{aligned}
+$$
+
+where $\delta$ is the [**treatment effect**]{.col1}. 
+
+## How Do We Find the Treatment Effect?
+
+. . .
+
+Consider the following general **switching equation**:
+
+$$
+\begin{aligned}
+y_i &= D_iy_i^{(1)} + (1-D_i)y_i^{(0)} \\
+y_i &= y_i^{(0)}+\left(y_i^{(1)}-y_i^{(0)}\right)D_i.
+\end{aligned}
+$$
+
+. . .
+
+Applying this to the RDD setting, we get
+
+$$
+y_i = \beta_0+\beta_1x_i + \delta D_i + u_i
+$$
+
+. . .
+
+We can find the [**treatment effect**]{.col1} $\delta=\mathrm{E}(y_i^{(1)}-y_i^{(0)}\mid x_i=c)$ like this:
+
+$$
+\begin{aligned}
+   \delta & =\lim_{x_i\:\downarrow\:c} \mathrm{E}\big(y^{(0)}_i\mid x_i=c\big)-\lim_{x_i\:\uparrow\:{c}} \mathrm{E}\big(y^{(1)}_i\mid x_i=c\big)
+   \\
+          & = \lim_{x_i\:\downarrow\:c} \mathrm{E}\big(y_i\mid x_i=c\big) -\lim_{x_i\:\uparrow\:{c}}
+   \mathrm{E}\big(y_i\mid x_i=c\big)
+\end{aligned}
+$$
+
+
 
 ## Requirements for an RDD
 

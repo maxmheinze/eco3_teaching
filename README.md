@@ -1,1 +1,1 @@
-### Econometrics 2
+### Econometrics 3
