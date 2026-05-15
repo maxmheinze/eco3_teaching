@@ -694,7 +694,7 @@ There were a few other factors that made this situation a **natural experiment**
 
 - Water companies were not serving disjoint geographical areas. Their networks intersected and often houses in the same street were chaotically served by pipes from different companies.
 - John Snow collected extensive additional data and compared characteristics of treatment and control households to confirm their comparability. 
-- Most crucially, the change in water supply happened for other reasons and thus induced **exogenous variation**.
+- The change in water supply thus induced **exogenous variation**.
 :::
 :::{.column width="30%" .col0}
 
@@ -1255,7 +1255,7 @@ We can find the [**treatment effect**]{.col1} $\delta=\mathrm{E}(y_i^{(1)}-y_i^{
 
 $$
 \begin{aligned}
-   \delta & =\lim_{x_i\:\downarrow\:c} \mathrm{E}\big(y^{(0)}_i\mid x_i=c\big)-\lim_{x_i\:\uparrow\:{c}} \mathrm{E}\big(y^{(1)}_i\mid x_i=c\big)
+   \delta & =\lim_{x_i\:\downarrow\:c} \mathrm{E}\big(y^{(1)}_i\mid x_i=c\big)-\lim_{x_i\:\uparrow\:{c}} \mathrm{E}\big(y^{(0)}_i\mid x_i=c\big)
    \\
           & = \lim_{x_i\:\downarrow\:c} \mathrm{E}\big(y_i\mid x_i=c\big) -\lim_{x_i\:\uparrow\:{c}}
    \mathrm{E}\big(y_i\mid x_i=c\big)
